@@ -1,0 +1,81 @@
+---
+description: Rules for Prisma schema definitions
+globs:
+  - "**/*.prisma"
+alwaysApply: false
+---
+
+# Prisma Schema
+
+This file applies to all Prisma schema files (`.prisma`).
+
+## Model Structure
+
+```prisma
+model Feature {
+  // Required fields for all models
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  // Business fields with proper types
+  name    String  @db.Text
+  amount  Decimal @db.Decimal(20,6)
+  status  String  @db.Text
+
+  // Optional fields
+  description String? @db.Text
+
+  // Relations
+  parent   Feature? @relation("ParentChild", fields: [parentId], references: [id])
+  parentId String?  @db.Uuid
+  children Feature[] @relation("ParentChild")
+
+  // Constraints and indexes
+  @@unique([name, parentId])
+  @@index([status])
+}
+```
+
+## Field Type Rules
+
+1. **ID Fields**
+   - Use `@id @default(uuid()) @db.Uuid`
+
+2. **Timestamps**
+   ```prisma
+   createdAt DateTime @default(now())
+   updatedAt DateTime @default(now()) @updatedAt
+   ```
+
+3. **Common Types**
+   - Text: `@db.Text`
+   - Numbers: `@db.Decimal(20,6)` for money
+   - Dates: `@db.Timestamp(x)`
+   - IDs: `@db.Uuid`
+
+4. **Relations**
+   - Define both sides of relation
+   - Name self-relations clearly
+   - Use plural for arrays
+
+## Constraints
+
+```prisma
+@@unique([field1, field2])  // Unique combinations
+@@index([field1, field2])   // Performance indexes
+```
+
+## Implementation Process
+
+1. **Encode the model in the Prisma Schema following the rules above**
+   - Add it to `feature/persistors/prisma/{feature}.prisma`
+
+2. **Required Commands**
+   ```bash
+   # Generate Prisma client with new model
+   yarn prisma generate
+
+   # Create and apply migration
+   yarn prisma migrate dev
+   ```

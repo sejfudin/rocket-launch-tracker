@@ -1,0 +1,51 @@
+model AuthnIdentity {
+  id String @id @default(uuid()) @db.Uuid
+
+  // namespace
+  namespace String
+
+  // provider of the authentication
+  //  local, google
+  provider String
+
+  // provider specific id
+  //  sub, email
+  providerId String
+
+  userId String @db.Uuid
+
+  /**
+   * password String?
+   */
+  providerData Json
+
+  disabledAt DateTime?
+
+  // providerId is validated
+  validatedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  nonces AuthnNonce[]
+
+  // users are resolved by the provider,
+  //  only one user/auth per providerId is allowed
+  @@unique([namespace, provider, providerId])
+}
+
+model AuthnNonce {
+  id String @id @default(uuid()) @db.Uuid
+
+  authId        String         @db.Uuid
+  authnIdentity AuthnIdentity? @relation(fields: [authId], references: [id])
+
+  type        String
+  hashedNonce String
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  usedAt      DateTime?
+  usedData    Json?
+  attempts    Int       @default(0)
+}

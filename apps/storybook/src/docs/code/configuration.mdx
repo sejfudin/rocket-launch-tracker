@@ -1,0 +1,20 @@
+# Configuration
+
+We use [spa-deploy-cli](https://github.com/povio/spa-deploy-cli) to manage configuration. The configuration is stored in `.config/${STAGE}.template.yml`. At build time and development, the configuration is loaded inside `nextjs.config.js`.
+
+The stages for the app are defined in the `.config` folder. Each `<stage>.spa.yml` and `<stage>.template.yml` pair is a configuration file for a specific stage. To create a new stage, create new file pair, update `package.json` and configure github actions in `.github/workflows`.
+
+Make sure to never store any secrets in code repos. In general, frontend should not have any secrets, since it's public.
+
+Do not commit `.env.*` files. Even though this is recommended by Next.js docs, we use `spa-deploy` instead, because it simplifies deploys.
+
+All environment variables are stored inside `app.config.ts`. This is the only place where you should be using `process.env` - everywhere else around the app, you should be using the `AppConfig` object.
+
+## Specifics
+
+We use the `generateBuildId` option in the NextJS config to set the version of the app during the build. This will generate static files based on the SHA commit id. The value `VITE_PUBLIC_RELEASE` is defined in the .yml files, if you're using a different service to host the app (Vercel...), make sure to change this variable to get the latest SHA id (for example: `VERCEL_GIT_COMMIT_SHA` will work on Vercel).
+
+## Template instructions
+
+- Determine which environments you want to use for the app.
+- Change the configuration to match your app. Remove unneeded environments and variables (if you don't yet know all of these variables, come back to this later when you go through the whole documentation).

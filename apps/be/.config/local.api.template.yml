@@ -1,0 +1,75 @@
+core:
+  stage: local
+  apiBaseUrl: "http://localhost:4000"
+
+http:
+  port: 4000
+  openapi:
+    dump: true
+    serve:
+      main:
+        path: docs
+        exclude: Admin
+        dump: openapi-main.json
+      admin:
+        path: admin/docs
+        include: Admin
+        dump: openapi-admin.json
+
+logger:
+  output: console
+  level: debug
+  contexts:
+    Bootstrap: warn
+    HttpException: warn
+    ExceptionHandler: debug
+    RoutesResolver: warn
+    RouterExplorer: warn
+    NestApplication: warn
+
+prisma:
+  url: postgresql://admin:admin@localhost:5432/orion-api
+  log: [ "query", "info", "warn", "error" ]
+
+user:
+  auth:
+    redirectUrl: "http://localhost:3000/auth/callback"
+    secret: "random-user-secret"
+    accessTokenExpiration: 86400
+    refreshTokenExpiration: 86400
+
+email:
+  logLevel: debug
+  logDetail: content
+  defaultFrom: info@example.com
+
+media:
+  defaultProvider: "prisma"
+  prisma:
+    enabled: true
+    secret: "random-secret"
+
+push-notifications:
+  logLevel: debug
+  logDetail: content
+
+queues:
+  defaultProvider: prisma
+
+admin:
+  createSecret: "random-secret"
+  auth:
+    redirectUrl: "http://localhost:3001/auth/callback"
+    secret: "random-admin-secret"
+    accessTokenExpiration: 86400
+    refreshTokenExpiration: 86400
+
+static:
+  enabled: true
+  paths:
+    - rootPath: ./../fe/dist
+      serveRoot: /
+      exclude: [ "/api", "/admin" ]
+    - rootPath: ./../admin/dist
+      serveRoot: /admin
+      exclude: [ "/admin/api", "/admin/docs" ]

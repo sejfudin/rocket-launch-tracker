@@ -1,0 +1,11 @@
+# State management
+
+This project uses Zustand for state management. While Zustand is not the most sophisticated state management system out there, it is simple to use and in most projects enough, because the bulk of the state is stored in TanStack Query.
+
+## Creating a new store
+
+A store should be created under the domain folder inside the `data` folder (example: `data/user/user.store.ts`). For each domain, you are encouraged to create as many small stores as you need. Make sure to properly type them and only export the hooks from the namespace.
+
+### When not to create a store
+
+Don't create a store for storing server data. For this, TanStack Query should be used.

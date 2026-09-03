@@ -1,0 +1,28 @@
+# SEO
+
+Note: SEO is mainly a topic when using SSR. However, we still use the SEO component in SSR to set the title and meta tags.
+
+## AppHead
+
+The `AppHead` component is used to set various meta tags of the page. It wraps the [next-seo](https://github.com/garmeeh/next-seo) library and provides you with everything you need to implement SEO in your app, such as setting the title, meta tags, image previews, etc.
+
+## Guidelines
+
+In general, it is a good practice to add the `AppHead` component to every page in your app. This will ensure that every page has the necessary meta tags set. The procedure is as follows:
+
+- Inside the translation file, under your page's namespace, add the `head` object with neccessary properties (like `title` and `description`).
+- In your page, import the `AppHead` component and pass in the translations.
+
+If you don't do this for a page, the default meta tags will be used - these are declared inside `DefaultAppHead`.
+
+## General guidance for SEO
+
+SEO is a complex topic and there are many things to consider. Here are some general guidelines to follow:
+
+- Use Google Lighthouse to do analysis for SEO to ensure that you've got the basics covered.
+- Use Google Lighthouse to analyze your performance as well, because Google ranks more performant pages higher. Note that this is just optimizing page load time, not the actual execution performance.
+- HTML should be semantic as much as possible. Proper hierarchical structure of headers, using semantic elements like sections, articles, main, nav, etc. is important so that Google can properly understand the content on your pages and index it.
+- Enrich product pages with [structured data](https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data).
+- If showing products, aim for rich search results for [product](https://developers.google.com/search/docs/appearance/structured-data/product)
+- [Sitemaps](https://developers.google.com/search/docs/crawling-indexing/sitemaps/overview) help speed up the crawling processes. Check [this guide](https://nextjs.org/learn-pages-router/seo/crawling-and-indexing/xml-sitemaps). They are submitted via the [Google’s Search Console](https://search.google.com/search-console/about).
+- Ensure pages & routing in the application works. Example: if your domain is hitting a lot of 400, 404 or similar (eg. because of implementation bugs in routing behaviour) that can "de-rank" your website.

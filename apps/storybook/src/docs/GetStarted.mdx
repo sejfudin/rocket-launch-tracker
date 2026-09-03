@@ -1,0 +1,48 @@
+# Getting started with the Monorepo template
+
+This document will guide you through the process of setting up a new project using the Monorepo template.
+
+## Create the project from the template
+
+You should be able to create a new project by clicking the "Use this template" button on the GitHub page. If you can't, you can also clone the repo and push it to your own remote. If you do that, then it is advisable that you remove the `.git` folder and initialize a new git repo.
+
+## Initialize a new git repo and push
+
+Initialize a new git repo and push it to your remote. You should do this before you make any changes, so it will be easier to backtrack if needed.
+
+## Modify the readme file in the root of the project
+
+In the root of the project you'll find the `readme-template.md` file. Remove the existing `readme.md` file and rename `readme-template.md` to `readme.md`. Then, fill out the information. You'll notice that most of the documentation is inside the `docs` folder, separated by different files.
+
+## Modify the readme file in this folder
+
+There's already a good `readme.md` file in this folder. Make sure to just remove the template information at the top, leaving only the heading (which you should rename to your project) and the index, which is already correct.
+
+## Modify the package.json file
+
+In the `package.json` file, change the `name`, `author`, `description` and `version` fields. You can of course add more fields, such as `license`, `keywords`, etc. if needed.
+
+## Inspect each module in the code documentation and adjust it
+
+Inside the `code` folder, there is documentation for each of the features of this template. You should read through each of the file (start with the readme and work your way down). At the end of each file you'll find instructions on how to proceed with the feature. For example, you might:
+
+- Keep the feature as-is
+- Remove it altogether, removing the doc with it
+- Adjust it slightly, and modify the doc to reflect the changes
+- Configure it (by changing some code or filling out the config file)
+
+After you decide on how to proceed with each feature, remove the template instructions section of the file.
+
+## Ongoing: write code documentation
+
+Make sure to keep the `code` folder up to date when you make decisions that impact the architecture of the code. Refrain from documenting every single change, but rather document the important decisions that impact the architecture of the code.
+
+When writing documentation, try to not reference the code literally, because it will change over time. Instead, reference the concepts and explain them in a way that will be understandable even if the code changes.
+
+## Ongoing: write project documentation
+
+Inside the `project` folder, you'll find a `readme.md` file. This is where you should write documentation specific to your project that's not directly related to the code (like terminology, business aspects, ...). You can also add more files if needed.
+
+## Remove this file
+
+You are now done with the setup, so you no longer need this file - delete it and start working on your project! 🎉

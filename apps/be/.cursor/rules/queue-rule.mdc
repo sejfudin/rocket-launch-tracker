@@ -1,0 +1,131 @@
+---
+description: Rules for queues, workers, and job processors
+globs:
+  - "**/*.queue-processor.ts"
+alwaysApply: false
+---
+
+# Queues and Workers
+
+## Complete Structure
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { Expose, Type } from 'class-transformer';
+import { IsNumber } from 'class-validator';
+import { type Job, RegisterProcessor, QueueService } from '~common/queues';
+
+// Job Data DTO
+export class FeatureJobDataDto {
+  @Expose()
+  @IsNumber()
+  @Type(() => Number)
+  readonly userId!: number;
+}
+
+// Queue Processor
+@Injectable()
+export class FeatureQueueProcessor {
+  constructor(private readonly featureService: FeatureService) {}
+
+  @RegisterProcessor('feature-job', { validate: FeatureJobDataDto })
+  async processFeatureJob(job: Job<FeatureJobDataDto>): Promise<{ message: string }> {
+    await this.featureService.processFeature(job.data!.userId);
+    return { message: `Processed feature job ${job.id}` };
+  }
+}
+
+// Service Usage
+@Injectable()
+export class FeatureService {
+  constructor(private readonly queueService: QueueService) {}
+
+  async triggerFeatureJob(userId: number): Promise<void> {
+    await this.queueService.enqueue<FeatureJobDataDto>('feature-job', {
+      userId,
+    });
+  }
+}
+```
+
+## Implementation Rules
+
+### File Organization
+- **Job Data DTO**: `dtos/{feature}-job-data.dto.ts` or in `models/`
+- **Queue Processor**: `{feature}.queue-processor.ts`
+- **Naming**: `{Feature}QueueProcessor` (e.g., `RocketQueueProcessor`)
+
+### Job Data DTO
+- Use `@Expose()` and validation decorators (`@IsString()`, `@IsNumber()`, etc.)
+- Properties: `readonly` with `!` for required, `?` for optional
+- Use `@Type(() => Number)` for numbers
+- Keep data minimal and JSON-serializable (no sensitive data)
+
+### Queue Processor Class
+- Must be `@Injectable()` class
+- Method decorated with `@RegisterProcessor(name, options)`
+- Receives `Job<T>`, returns `Promise<R>` (R is result type)
+- Access job data via `job.data!`, job ID via `job.id`
+- Process jobs asynchronously (long-running, background tasks)
+
+### RegisterProcessor Options
+```typescript
+@RegisterProcessor('job-name', {
+  validate: JobDataDto,        // Optional: validation class
+  queue: 'default',           // Optional: queue name (default: 'default')
+  timeout: 60000,             // Optional: timeout in milliseconds
+})
+```
+
+### Enqueueing Jobs
+
+```typescript
+import { QueueService } from '~common/queues';
+
+await this.queueService.enqueue<JobDataDto>(
+  'job-name',           // Processor name
+  { userId: 123 },       // Job data
+  {
+    options: {
+      delay: 5000,       // Optional: delay execution
+      priority: 1,       // Optional: job priority
+    },
+  },
+);
+```
+
+### Module Registration
+
+```typescript
+import { QueueModule } from '~common/queues';
+
+@Module({
+  imports: [QueueModule.forFeature([/* plugins */])],
+  providers: [FeatureQueueProcessor, FeatureService],
+})
+export class FeatureModule {}
+```
+
+## Examples
+
+### Basic Job Processor
+```typescript
+@Injectable()
+export class RocketQueueProcessor {
+  @RegisterProcessor('rocket-process', { validate: RocketProcessDataDto })
+  async processRocket(job: Job<RocketProcessDataDto>): Promise<{ success: boolean }> {
+    // Process the job
+    return { success: true };
+  }
+}
+```
+
+### Long-Running Job
+```typescript
+@RegisterProcessor('long-running-job', { validate: LongRunningJobDataDto })
+async longRunningJobProcessor(job: Job<LongRunningJobDataDto>): Promise<{ message: string }> {
+  const waitFor = job.data!.waitFor * 1000;
+  await this.service.longRunningJob(waitFor);
+  return { message: `Ran ${job.id} for ${waitFor}ms` };
+}
+```

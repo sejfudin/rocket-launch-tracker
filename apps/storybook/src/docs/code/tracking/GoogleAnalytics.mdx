@@ -1,0 +1,47 @@
+# Google Analytics
+
+This guide provides instructions on integrating Google Analytics 4 (GA4) into a NextJS project. The integration allows you to collect valuable insights into your application's usage, aiding in making informed decisions based on user data.
+
+## What it can do
+
+The integration facilitates default tracking features of Google Analytics, enabling the collection of essential metrics.
+
+## How it works
+
+To enable GA4 tracking in your NextJS project, you'll need a "Measurement ID" from the Google Analytics platform. Here are some key points about Google Analytics:
+
+- A Google Analytics account is required to obtain a Measurement ID.
+- GA4 offers strong compatibility with other Google services, like Google Ads and Search Ads 360.
+- It supports tracking for both web and mobile applications.
+- Account creation and obtaining a Measurement ID are currently free.
+- GA4 is the latest version, focusing on Google Analytics 4, not the older Universal Analytics.
+
+**Important:** It's recommended to use a unique Measurement ID for each environment (e.g., one for development and another for production) to maintain the integrity of your data.
+
+### Useful resources
+
+- [Introduction](https://marketingplatform.google.com/about/analytics/)
+- [Google Analytics 4 Home](https://support.google.com/analytics/answer/10089681?hl=en)
+- [Setting Up Google Analytics & Obtaining a Measurement ID](https://support.google.com/analytics/answer/9304153#zippy=)
+
+## Usage
+
+To integrate Google Analytics, include a script in the root document of your application. This setup ensures the tracking of page usage and navigational interactions. We have prepared a `GoogleAnalytics.tsx` component that requires a Measurement ID to function.
+
+Configure the Measurement ID using the environment variable `VITE_PUBLIC_GOOGLE_ANALYTICS_MEASUREMENT_ID`. When set, `GoogleAnalytics.tsx` activates in your application, enabling GA tracking. If the variable is unset, the component is excluded, disabling Google Analytics.
+
+**Testing:** Google Analytics can be tested locally without deploying to a development environment.
+
+**Data Delay:** Initial data capture by Google Analytics may be delayed, ranging from a few hours to days, typically resolving within the first hour.
+
+**Data Availability:** Certain data points for analysis become accessible approximately 2-3 days after collection.
+
+**Independence:** Google Analytics functions independently from the backend infrastructure.
+
+## Template instructions
+
+Instructions to use this template:
+
+1. Visit the Google Analytics website and generate a Measurement ID (refer to the resources provided).
+2. Copy the Measurement ID and navigate to the appropriate configuration file (e.g., [`local.template.yml`](./../../../.config/local.template.yml)).
+3. In the configuration file, substitute the `VITE_PUBLIC_GOOGLE_ANALYTICS_MEASUREMENT_ID` environment variable with your copied Measurement ID.

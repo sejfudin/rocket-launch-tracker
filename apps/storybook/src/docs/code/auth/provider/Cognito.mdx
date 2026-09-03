@@ -1,0 +1,46 @@
+# Cognito
+
+## Usage
+
+Provide all environment variables with the prefix `VITE_PUBLIC_AUTH_COGNITO`. Set provider in `apps/fe/src/pages/_app.tsx`.
+
+### Import:
+
+```
+import { CognitoProvider, type ICognitoProvider } from "@povio/ui";
+```
+
+### Provider:
+
+```
+{
+    provider: AuthConfig.Provider<ICognitoProvider>,
+    props: {
+        authProvider: CognitoProvider,
+        authProviderProps: AppConfig.auth.cognito,
+        restClient: AppRestClient,
+        homeRoute: RouteConfig.home,
+        loadingState: <LoadingState />,
+        useGetUser: UserQueries.useGet,
+        queryKeyGetUser: UserQueries.keys.get(),
+    },
+},
+```
+
+## Description
+
+Inside `packages/auth/src/auth/providers/cognito` you'll find the implementation of the Cognito auth provider.
+
+Cognito supports both on-site auth and redirect auth. It also supports verification using OTP codes.
+
+We are using the `aws-amplify` library to make the provider listen to various authentication events and act accordingly. Because this provider supports on-site login, we also specify errors that can occur during the auth. These are documented in the error module of the provider folder.
+
+To set up the provider on the backend, we recommend you watch [the following video](https://www.youtube.com/watch?v=DAkdcD-dDFo).
+
+On the frontend, you will need to enter the environment variables with the prefix `VITE_PUBLIC_AUTH_COGNITO` - consult `.config/${stage}.template.yml`. The information about how to get this information is in the video linked above.
+
+## Common issues
+
+### Required string parameter 'redirect_uri' is not present
+
+You need to set logout URIs in the Cognito console. Go to the Cognito console, select your user pool, and go to the App client settings. There you can set the logout URIs. **Make sure that logout URLs have a trailing slash.**

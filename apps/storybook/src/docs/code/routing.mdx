@@ -1,0 +1,15 @@
+# Routing
+
+We are using Next.js' Pages [router](https://nextjs.org/docs/pages/building-your-application/routing). The router is simple, but there are a few things to keep in mind when building SPA applications. Disregard this if you are building SSR applications.
+
+## Caveats
+
+### Trailing slashes
+
+When using `output: export`, the router will not work as expected out of the box when deployed to Cloudfront and S3. The issue is that when refreshing a non-index page, you will be redirected to the index page. To solve this, we must add `trailingSlash: true` into the config file (which is already done in this project), and we must set up S3 and Cognito to work as a static web page (this is part of the Povio Terraform template).
+
+A Caveat here is that you must always use trailing slashes in URLs. Inside this project, it is recommended to always enter URLs in the `RouteConfig` (which centralizes all links), and here you should always use a trailing slash. On the other hand, if you are linking to the app from the backend, you must always append trailing slashes to the URLs.
+
+### Path parameters
+
+SPA mode does not support path parameters out of the box. This means that if you are using `output: export`, you must use query parameters instead of path parameters. So, instead of doing `/user/:id`, you must do `/user?id=123`.

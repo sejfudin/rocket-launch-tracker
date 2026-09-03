@@ -1,0 +1,7769 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/admin-user/auth/login": {
+      "post": {
+        "operationId": "AdminUserAuthLocalPasswordController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUserAuthPasswordLoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthnTokenResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Login with username and password",
+        "tags": [
+          "AdminUser"
+        ]
+      }
+    },
+    "/api/admin-user/auth/password": {
+      "post": {
+        "operationId": "AdminUserAuthLocalPasswordController_password",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUserAuthPasswordChangeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Change the password",
+        "tags": [
+          "AdminUser"
+        ]
+      }
+    },
+    "/api/admin-user/auth/refresh": {
+      "post": {
+        "operationId": "AdminUserAuthJwtController_accessToken",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthnTokenRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthnTokenResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get a new access token",
+        "tags": [
+          "AdminUser"
+        ]
+      }
+    },
+    "/api/admin-user/push-tokens": {
+      "post": {
+        "operationId": "AdminUserPushNotificationController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushNotificationTokenCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Register/update a new device for push notifications",
+        "tags": [
+          "AdminUser"
+        ]
+      },
+      "get": {
+        "operationId": "AdminUserPushNotificationController_paginate",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Order by fields (comma separated with +/- prefix): id, provider, expiresAt, createdAt",
+            "x-enumNames": [
+              "id",
+              "provider",
+              "expiresAt",
+              "createdAt"
+            ],
+            "schema": {
+              "example": "id",
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "description": "Filter",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "$ref": "#/components/schemas/PushNotificationTokenFiltersDto"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "description": "Items per response",
+            "schema": {
+              "minimum": 1,
+              "maximum": 20,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-indexed page number to begin from",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "ID of item to start after",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginationDto"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/PushNotificationTokenResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Paginate push notification tokens",
+        "tags": [
+          "AdminUser"
+        ]
+      }
+    },
+    "/api/admin-user/push-tokens/{id}": {
+      "delete": {
+        "operationId": "AdminUserPushNotificationController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "AdminUser"
+        ]
+      }
+    },
+    "/api/admin-user/me": {
+      "get": {
+        "operationId": "AdminUserMeController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUserMeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Get the requesting user",
+        "tags": [
+          "AdminUser"
+        ]
+      }
+    },
+    "/api/admin/admin-user": {
+      "get": {
+        "operationId": "AdminUserAdminController_paginate",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Order by fields (comma separated with +/- prefix): name, email, createdAt",
+            "x-enumNames": [
+              "name",
+              "email",
+              "createdAt"
+            ],
+            "schema": {
+              "example": "name",
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "$ref": "#/components/schemas/AdminUserPaginationFilterDto"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "description": "Items per response",
+            "schema": {
+              "minimum": 1,
+              "maximum": 20,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-indexed page number to begin from",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "ID of item to start after",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginationDto"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/AdminUserResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "List adminUsers",
+        "tags": [
+          "AdminUser Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "adminUser",
+            "action": "read"
+          }
+        ]
+      },
+      "post": {
+        "operationId": "AdminUserAdminController_createWithPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUserAuthPasswordRegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Create new adminUser",
+        "tags": [
+          "AdminUser Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "adminUser",
+            "action": "create"
+          }
+        ]
+      }
+    },
+    "/api/admin/admin-user/{id}": {
+      "get": {
+        "operationId": "AdminUserAdminController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Get adminUser",
+        "tags": [
+          "AdminUser Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "adminUser",
+            "action": "read"
+          }
+        ]
+      },
+      "put": {
+        "operationId": "AdminUserAdminController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUserUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUserResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Update adminUser",
+        "tags": [
+          "AdminUser Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "adminUser",
+            "action": "update"
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "AdminUserAdminController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Delete adminUser and authentications",
+        "tags": [
+          "AdminUser Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "adminUser",
+            "action": "delete"
+          }
+        ]
+      }
+    },
+    "/api/admin/admin-user/create-with-secret": {
+      "post": {
+        "operationId": "AdminUserAdminController_createWithSecret",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUserAuthPasswordAndSecretRegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminUserResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create new adminUser with Password and Secret",
+        "tags": [
+          "AdminUser Admin"
+        ]
+      }
+    },
+    "/api/admin/admin-user/bulk-delete": {
+      "post": {
+        "operationId": "AdminUserAdminController_bulkDelete",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminUserAdminBulkDeleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Bulk delete adminUsers",
+        "tags": [
+          "AdminUser Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "adminUser",
+            "action": "delete"
+          }
+        ]
+      }
+    },
+    "/api/admin/user/labels": {
+      "get": {
+        "operationId": "UserAdminController_listLabels",
+        "parameters": [
+          {
+            "name": "field",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/UserLabelsField"
+            }
+          },
+          {
+            "name": "name",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/UserLabelsName"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LabelResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Get labels for dropdowns/selects",
+        "tags": [
+          "User Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "user",
+            "action": "read"
+          }
+        ]
+      }
+    },
+    "/api/admin/user": {
+      "get": {
+        "operationId": "UserAdminController_paginate",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Order by fields (comma separated with +/- prefix): name, email, createdAt",
+            "x-enumNames": [
+              "name",
+              "email",
+              "createdAt"
+            ],
+            "schema": {
+              "example": "name",
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "$ref": "#/components/schemas/UserPaginationFilterDto"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "description": "Items per response",
+            "schema": {
+              "minimum": 1,
+              "maximum": 20,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-indexed page number to begin from",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "ID of item to start after",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginationDto"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/UserAdminResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "List users",
+        "tags": [
+          "User Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "user",
+            "action": "read"
+          }
+        ]
+      },
+      "post": {
+        "operationId": "UserAdminController_createWithPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserAuthPasswordRegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAdminResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Create new user",
+        "tags": [
+          "User Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "user",
+            "action": "create"
+          }
+        ]
+      }
+    },
+    "/api/admin/user/{id}": {
+      "get": {
+        "operationId": "UserAdminController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAdminResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Get user",
+        "tags": [
+          "User Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "user",
+            "action": "read"
+          }
+        ]
+      },
+      "put": {
+        "operationId": "UserAdminController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserAdminUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserAdminResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Update user",
+        "tags": [
+          "User Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "user",
+            "action": "update"
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "UserAdminController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Delete user and authentications",
+        "tags": [
+          "User Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "user",
+            "action": "delete"
+          }
+        ]
+      }
+    },
+    "/api/admin/user/bulk-delete": {
+      "post": {
+        "operationId": "UserAdminController_bulkDelete",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserAdminBulkDeleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Bulk delete users",
+        "tags": [
+          "User Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "user",
+            "action": "delete"
+          }
+        ]
+      }
+    },
+    "/api/admin/activities": {
+      "get": {
+        "operationId": "ActivityAdminController_paginate",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Order by fields (comma separated with +/- prefix): timestamp",
+            "x-enumNames": [
+              "timestamp"
+            ],
+            "schema": {
+              "example": "timestamp",
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "$ref": "#/components/schemas/ActivityPaginationFilterDto"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "description": "Items per response",
+            "schema": {
+              "minimum": 1,
+              "maximum": 20,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-indexed page number to begin from",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "ID of item to start after",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginationDto"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ActivityResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Activities Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "activity",
+            "action": "read"
+          }
+        ]
+      }
+    },
+    "/api/admin/activities/aggregations": {
+      "get": {
+        "operationId": "ActivityAdminController_aggregations",
+        "parameters": [
+          {
+            "name": "timeBucket",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/ActivityAggregationTimeBucket"
+            }
+          },
+          {
+            "name": "module",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "timestamp",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/DateRangeDto"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ActivityAggregationResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Activities Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "activity",
+            "action": "read"
+          }
+        ]
+      }
+    },
+    "/api/admin/activities/{id}": {
+      "get": {
+        "operationId": "ActivityAdminController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Activities Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "activity",
+            "action": "read"
+          }
+        ]
+      }
+    },
+    "/api/admin/media/library": {
+      "get": {
+        "operationId": "MediaAdminController_library",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaAdminLibraryResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Media Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "media",
+            "action": "upload"
+          }
+        ]
+      }
+    },
+    "/api/admin/media/labels": {
+      "get": {
+        "operationId": "MediaAdminController_listLabels",
+        "parameters": [
+          {
+            "name": "field",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/MediaLabelsField"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LabelResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Get labels for dropdowns/selects",
+        "tags": [
+          "Media Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "media",
+            "action": "read"
+          }
+        ]
+      }
+    },
+    "/api/admin/media": {
+      "get": {
+        "operationId": "MediaAdminController_paginate",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Order by fields (comma separated with +/- prefix): id, fileName, fileSize, userId, createdAt, mimeType",
+            "x-enumNames": [
+              "id",
+              "fileName",
+              "fileSize",
+              "userId",
+              "createdAt",
+              "mimeType"
+            ],
+            "schema": {
+              "example": "id",
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "$ref": "#/components/schemas/MediaAdminPaginationFilterDto"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "description": "Items per response",
+            "schema": {
+              "minimum": 1,
+              "maximum": 20,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-indexed page number to begin from",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "ID of item to start after",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginationDto"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/MediaAdminResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Media Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "media",
+            "action": "read"
+          }
+        ]
+      },
+      "post": {
+        "operationId": "MediaAdminController_upload",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaAdminUploadRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaUploadInstructionsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Media Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "media",
+            "action": "upload"
+          }
+        ],
+        "x-media-upload": true
+      }
+    },
+    "/api/admin/media/{id}": {
+      "get": {
+        "operationId": "MediaAdminController_find",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaAdminResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Media Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "media",
+            "action": "read"
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "MediaAdminController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Media deleted"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Media Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "media",
+            "action": "delete"
+          }
+        ]
+      }
+    },
+    "/api/admin/media/bulk-delete": {
+      "post": {
+        "operationId": "MediaAdminController_bulkDelete",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaAdminBulkDeleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Media bulk deleted"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Media Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "media",
+            "action": "delete"
+          }
+        ]
+      }
+    },
+    "/api/admin/notify/send": {
+      "post": {
+        "operationId": "PushNotificationAdminSendController_send",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushNotificationSendAdminRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Send push notification to specific device tokens",
+        "tags": [
+          "Push Notification Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "push-notification",
+            "action": "send"
+          }
+        ]
+      }
+    },
+    "/api/admin/notify/templates/labels": {
+      "get": {
+        "operationId": "PushNotificationAdminSendController_listLabels",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search query to filter labels by name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LabelResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Push Notification Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "push-notification-template",
+            "action": "send"
+          }
+        ]
+      }
+    },
+    "/api/admin/notify/templates/send": {
+      "post": {
+        "operationId": "PushNotificationAdminSendController_sendTemplate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushNotificationTemplateAdminSendRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Send push notification using a template",
+        "tags": [
+          "Push Notification Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "push-notification",
+            "action": "send"
+          }
+        ]
+      }
+    },
+    "/api/admin/notify/device-tokens": {
+      "get": {
+        "operationId": "PushNotificationDeviceTokenAdminController_paginate",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Order by fields (comma separated with +/- prefix): id, provider, expiresAt, createdAt",
+            "x-enumNames": [
+              "id",
+              "provider",
+              "expiresAt",
+              "createdAt"
+            ],
+            "schema": {
+              "example": "id",
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "description": "Filter",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "$ref": "#/components/schemas/PushNotificationTokenFiltersDto"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "description": "Items per response",
+            "schema": {
+              "minimum": 1,
+              "maximum": 20,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-indexed page number to begin from",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "ID of item to start after",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginationDto"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/PushNotificationDeviceTokenAdminResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "List paginated push notification device tokens",
+        "tags": [
+          "Push Notification Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "push-notification-device",
+            "action": "read"
+          }
+        ]
+      }
+    },
+    "/api/admin/notify/device-tokens/{id}": {
+      "delete": {
+        "operationId": "PushNotificationDeviceTokenAdminController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Device token deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Push Notification Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "push-notification-device",
+            "action": "delete"
+          }
+        ]
+      }
+    },
+    "/api/admin/notify/device-tokens/labels": {
+      "get": {
+        "operationId": "PushNotificationDeviceTokenAdminController_listLabels",
+        "parameters": [
+          {
+            "name": "field",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/PushNotificationLabelsField"
+            }
+          },
+          {
+            "name": "name",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/PushNotificationLabelsName"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LabelResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Push Notification Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "push-notification-device",
+            "action": "read"
+          }
+        ]
+      }
+    },
+    "/api/admin/notify/templates/system": {
+      "get": {
+        "operationId": "PushNotificationSystemTemplateAdminController_paginate",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Order by fields (comma separated with +/- prefix): name, module, createdAt, updatedAt",
+            "x-enumNames": [
+              "name",
+              "module",
+              "createdAt",
+              "updatedAt"
+            ],
+            "schema": {
+              "example": "name",
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "$ref": "#/components/schemas/PushNotificationSystemTemplateFilterDto"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "description": "Items per response",
+            "schema": {
+              "minimum": 1,
+              "maximum": 20,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-indexed page number to begin from",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "ID of item to start after",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginationDto"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/PushNotificationTemplateResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Push Notification Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "push-notification-template",
+            "action": "read"
+          }
+        ]
+      }
+    },
+    "/api/admin/notify/templates/system/{id}": {
+      "get": {
+        "operationId": "PushNotificationSystemTemplateAdminController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushNotificationTemplateResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Push Notification Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "push-notification-template",
+            "action": "read"
+          }
+        ]
+      },
+      "put": {
+        "operationId": "PushNotificationSystemTemplateAdminController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushNotificationTemplateUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushNotificationTemplateResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Push Notification Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "push-notification-template",
+            "action": "update"
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "PushNotificationSystemTemplateAdminController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Template deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Push Notification Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "push-notification-template",
+            "action": "delete"
+          }
+        ]
+      }
+    },
+    "/api/admin/notify/templates/custom": {
+      "get": {
+        "operationId": "PushNotificationCustomTemplateAdminController_paginate",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Order by fields (comma separated with +/- prefix): name, module, createdAt, updatedAt",
+            "x-enumNames": [
+              "name",
+              "module",
+              "createdAt",
+              "updatedAt"
+            ],
+            "schema": {
+              "example": "name",
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "$ref": "#/components/schemas/PushNotificationTemplateFilterDto"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "description": "Items per response",
+            "schema": {
+              "minimum": 1,
+              "maximum": 20,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-indexed page number to begin from",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "ID of item to start after",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginationDto"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/PushNotificationTemplateResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Push Notification Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "push-notification-template",
+            "action": "read"
+          }
+        ]
+      },
+      "post": {
+        "operationId": "PushNotificationCustomTemplateAdminController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushNotificationTemplateCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushNotificationTemplateResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Push Notification Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "push-notification-template",
+            "action": "create"
+          }
+        ]
+      }
+    },
+    "/api/admin/notify/templates/custom/labels": {
+      "get": {
+        "operationId": "PushNotificationCustomTemplateAdminController_listLabels",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search query to filter labels by name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LabelResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Push Notification Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "push-notification-template",
+            "action": "read"
+          }
+        ]
+      }
+    },
+    "/api/admin/notify/templates/custom/{id}": {
+      "get": {
+        "operationId": "PushNotificationCustomTemplateAdminController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushNotificationTemplateResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Push Notification Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "push-notification-template",
+            "action": "read"
+          }
+        ]
+      },
+      "put": {
+        "operationId": "PushNotificationCustomTemplateAdminController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushNotificationTemplateUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushNotificationTemplateResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Push Notification Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "push-notification-template",
+            "action": "update"
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "PushNotificationCustomTemplateAdminController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Template deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Push Notification Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "push-notification-template",
+            "action": "delete"
+          }
+        ]
+      }
+    },
+    "/api/admin/notify/activities": {
+      "get": {
+        "operationId": "PushNotificationActivityAdminController_paginate",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Order by fields (comma separated with +/- prefix): timestamp",
+            "x-enumNames": [
+              "timestamp"
+            ],
+            "schema": {
+              "example": "timestamp",
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "$ref": "#/components/schemas/PushNotificationActivityPaginationFilterDto"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "description": "Items per response",
+            "schema": {
+              "minimum": 1,
+              "maximum": 20,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-indexed page number to begin from",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "ID of item to start after",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginationDto"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/PushNotificationActivityAdminResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Push Notification Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "activity",
+            "action": "read"
+          }
+        ]
+      }
+    },
+    "/api/admin/notify/activities/{id}": {
+      "get": {
+        "operationId": "PushNotificationActivityAdminController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushNotificationActivityAdminResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Push Notification Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "activity",
+            "action": "read"
+          }
+        ]
+      }
+    },
+    "/api/admin/emails/send": {
+      "post": {
+        "operationId": "EmailAdminSendController_sendEmail",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailSendAdminRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Email Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "email",
+            "action": "send"
+          }
+        ]
+      }
+    },
+    "/api/admin/emails/templates/labels": {
+      "get": {
+        "operationId": "EmailAdminSendController_listLabels",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search query to filter labels by name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LabelResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Email Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "email-template",
+            "action": "read"
+          }
+        ]
+      }
+    },
+    "/api/admin/emails/templates/send": {
+      "post": {
+        "operationId": "EmailAdminSendController_sendEmailTemplate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailTemplateSendAdminRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Email Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "email",
+            "action": "send"
+          }
+        ]
+      }
+    },
+    "/api/admin/emails/templates/system": {
+      "get": {
+        "operationId": "EmailSystemTemplateAdminController_paginate",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Order by fields (comma separated with +/- prefix): name, engine, createdAt, updatedAt",
+            "x-enumNames": [
+              "name",
+              "engine",
+              "createdAt",
+              "updatedAt"
+            ],
+            "schema": {
+              "example": "name",
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "$ref": "#/components/schemas/EmailSystemTemplateFilterDto"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "description": "Items per response",
+            "schema": {
+              "minimum": 1,
+              "maximum": 20,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-indexed page number to begin from",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "ID of item to start after",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginationDto"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/EmailTemplateResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Email Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "email-template",
+            "action": "read"
+          }
+        ]
+      }
+    },
+    "/api/admin/emails/templates/system/{id}": {
+      "get": {
+        "operationId": "EmailSystemTemplateAdminController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailTemplateResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Email Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "email-template",
+            "action": "read"
+          }
+        ]
+      },
+      "put": {
+        "operationId": "EmailSystemTemplateAdminController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailTemplateUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailTemplateResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Email Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "email-template",
+            "action": "update"
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "EmailSystemTemplateAdminController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Email Template deleted"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Email Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "email-template",
+            "action": "delete"
+          }
+        ]
+      }
+    },
+    "/api/admin/emails/templates/custom": {
+      "get": {
+        "operationId": "EmailCustomTemplateAdminController_paginate",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Order by fields (comma separated with +/- prefix): name, engine, type, createdAt, updatedAt",
+            "x-enumNames": [
+              "name",
+              "engine",
+              "type",
+              "createdAt",
+              "updatedAt"
+            ],
+            "schema": {
+              "example": "name",
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "$ref": "#/components/schemas/EmailCustomTemplateFilterDto"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "description": "Items per response",
+            "schema": {
+              "minimum": 1,
+              "maximum": 20,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-indexed page number to begin from",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "ID of item to start after",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginationDto"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/EmailTemplateResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Email Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "email-template",
+            "action": "read"
+          }
+        ]
+      },
+      "post": {
+        "operationId": "EmailCustomTemplateAdminController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailTemplateCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailTemplateResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Email Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "email-template",
+            "action": "create"
+          }
+        ]
+      }
+    },
+    "/api/admin/emails/templates/custom/labels": {
+      "get": {
+        "operationId": "EmailCustomTemplateAdminController_listLabels",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search query to filter labels by name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LabelResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Email Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "email-template",
+            "action": "read"
+          }
+        ]
+      }
+    },
+    "/api/admin/emails/templates/custom/{id}": {
+      "get": {
+        "operationId": "EmailCustomTemplateAdminController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailTemplateResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Email Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "email-template",
+            "action": "read"
+          }
+        ]
+      },
+      "put": {
+        "operationId": "EmailCustomTemplateAdminController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailTemplateUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailTemplateResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Email Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "email-template",
+            "action": "update"
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "EmailCustomTemplateAdminController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Email Template deleted"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Email Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "email-template",
+            "action": "delete"
+          }
+        ]
+      }
+    },
+    "/api/admin/email/activities": {
+      "get": {
+        "operationId": "EmailActivityAdminController_paginate",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Order by fields (comma separated with +/- prefix): timestamp",
+            "x-enumNames": [
+              "timestamp"
+            ],
+            "schema": {
+              "example": "timestamp",
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "$ref": "#/components/schemas/EmailActivityPaginationFilterDto"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "description": "Items per response",
+            "schema": {
+              "minimum": 1,
+              "maximum": 20,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-indexed page number to begin from",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "ID of item to start after",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginationDto"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/EmailActivityAdminResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Email Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "activity",
+            "action": "read"
+          }
+        ]
+      }
+    },
+    "/api/admin/email/activities/{id}": {
+      "get": {
+        "operationId": "EmailActivityAdminController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailActivityAdminResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Email Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "activity",
+            "action": "read"
+          }
+        ]
+      }
+    },
+    "/api/admin/settings": {
+      "get": {
+        "operationId": "SettingsAdminController_list",
+        "parameters": [
+          {
+            "name": "populate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/SettingsPopulate"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SettingsSectionResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Settings Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "settings",
+            "action": "read"
+          }
+        ]
+      }
+    },
+    "/api/admin/settings/{module}": {
+      "get": {
+        "operationId": "SettingsAdminController_find",
+        "parameters": [
+          {
+            "name": "module",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "populate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/SettingsPopulate"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsModuleResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Settings Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "settings",
+            "action": "read"
+          }
+        ]
+      }
+    },
+    "/api/admin/queues/jobs": {
+      "get": {
+        "operationId": "QueueAdminController_paginateJobs",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Order by fields (comma separated with +/- prefix): id, processor, status, queue, createdAt, updatedAt, startedAt, completedAt",
+            "x-enumNames": [
+              "id",
+              "processor",
+              "status",
+              "queue",
+              "createdAt",
+              "updatedAt",
+              "startedAt",
+              "completedAt"
+            ],
+            "schema": {
+              "default": [
+                {
+                  "property": "updatedAt",
+                  "direction": "desc"
+                }
+              ],
+              "example": "id",
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "$ref": "#/components/schemas/QueueJobPaginationFilterDto"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "description": "Items per response",
+            "schema": {
+              "minimum": 1,
+              "maximum": 20,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-indexed page number to begin from",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "ID of item to start after",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginationDto"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/QueueJobResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "List jobs",
+        "tags": [
+          "Queue Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "queue",
+            "action": "read"
+          }
+        ]
+      },
+      "post": {
+        "operationId": "QueueAdminController_createJob",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueueJobCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueueJobResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Create a new job based on a processor",
+        "tags": [
+          "Queue Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "queue",
+            "action": "create"
+          }
+        ]
+      }
+    },
+    "/api/admin/queues/jobs/{id}": {
+      "get": {
+        "operationId": "QueueAdminController_getJob",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueueJobResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Get a job",
+        "tags": [
+          "Queue Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "queue",
+            "action": "read"
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "QueueAdminController_cancelJob",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Cancel a job",
+        "tags": [
+          "Queue Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "queue",
+            "action": "delete"
+          }
+        ]
+      }
+    },
+    "/api/admin/queues/labels": {
+      "get": {
+        "operationId": "QueueAdminController_listLabels",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search query to filter labels by name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LabelResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Get processor names for dropdowns/selects",
+        "tags": [
+          "Queue Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "queue",
+            "action": "read"
+          }
+        ]
+      }
+    },
+    "/api/admin/queues/processors": {
+      "get": {
+        "operationId": "QueueAdminController_paginateProcessors",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Order by fields (comma separated with +/- prefix): name, queue",
+            "x-enumNames": [
+              "name",
+              "queue"
+            ],
+            "schema": {
+              "example": "name",
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "$ref": "#/components/schemas/QueueProcessorPaginationFilterDto"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "description": "Items per response",
+            "schema": {
+              "minimum": 1,
+              "maximum": 20,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-indexed page number to begin from",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "ID of item to start after",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginationDto"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/QueueProcessorResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "List processors and their cron jobs",
+        "tags": [
+          "Queue Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "queue",
+            "action": "read"
+          }
+        ]
+      }
+    },
+    "/api/admin/rockets/labels": {
+      "get": {
+        "operationId": "RocketAdminController_listLabels",
+        "parameters": [
+          {
+            "name": "field",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RocketLabelsField"
+            }
+          },
+          {
+            "name": "name",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/RocketLabelsName"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LabelResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Get rocket labels for dropdowns/selects",
+        "tags": [
+          "Rocket Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "rocket",
+            "action": "read"
+          }
+        ]
+      }
+    },
+    "/api/admin/rockets": {
+      "get": {
+        "operationId": "RocketAdminController_paginate",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Order by fields (comma separated with +/- prefix): id, name, model, createdAt",
+            "x-enumNames": [
+              "id",
+              "name",
+              "model",
+              "createdAt"
+            ],
+            "schema": {
+              "example": "id",
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "$ref": "#/components/schemas/RocketPaginationFilterDto"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "description": "Items per response",
+            "schema": {
+              "minimum": 1,
+              "maximum": 20,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-indexed page number to begin from",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "ID of item to start after",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginationDto"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/RocketAdminResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "List rockets",
+        "tags": [
+          "Rocket Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "rocket",
+            "action": "read"
+          }
+        ]
+      },
+      "post": {
+        "operationId": "RocketAdminController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RocketAdminCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RocketAdminResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Create rocket",
+        "tags": [
+          "Rocket Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "rocket",
+            "action": "create"
+          }
+        ]
+      }
+    },
+    "/api/admin/rockets/{id}": {
+      "get": {
+        "operationId": "RocketAdminController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RocketAdminResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Get rocket",
+        "tags": [
+          "Rocket Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "rocket",
+            "action": "read"
+          }
+        ]
+      },
+      "put": {
+        "operationId": "RocketAdminController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RocketAdminUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RocketAdminResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Update rocket",
+        "tags": [
+          "Rocket Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "rocket",
+            "action": "update"
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "RocketAdminController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Rocket deleted"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Delete rocket",
+        "tags": [
+          "Rocket Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "rocket",
+            "action": "delete"
+          }
+        ]
+      }
+    },
+    "/api/admin/rockets/{id}/launch": {
+      "post": {
+        "operationId": "RocketAdminController_launch",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RocketAdminLaunchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Launch rocket",
+        "tags": [
+          "Rocket Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "rocket",
+            "action": "launch"
+          }
+        ]
+      }
+    },
+    "/api/admin/rocket-models": {
+      "get": {
+        "operationId": "RocketModelAdminController_paginate",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Order by fields (comma separated with +/- prefix): id, name, createdAt",
+            "x-enumNames": [
+              "id",
+              "name",
+              "createdAt"
+            ],
+            "schema": {
+              "example": "id",
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "$ref": "#/components/schemas/RocketModelPaginationFilterDto"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "description": "Items per response",
+            "schema": {
+              "minimum": 1,
+              "maximum": 20,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-indexed page number to begin from",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "ID of item to start after",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginationDto"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/RocketModelAdminResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "List rocket models",
+        "tags": [
+          "Rocket Model Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "rocket-model",
+            "action": "read"
+          }
+        ]
+      },
+      "post": {
+        "operationId": "RocketModelAdminController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RocketModelAdminCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RocketModelAdminResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Create rocket model",
+        "tags": [
+          "Rocket Model Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "rocket-model",
+            "action": "create"
+          }
+        ]
+      }
+    },
+    "/api/admin/rocket-models/{id}": {
+      "get": {
+        "operationId": "RocketModelAdminController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RocketModelAdminResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Get rocket model",
+        "tags": [
+          "Rocket Model Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "rocket-model",
+            "action": "read"
+          }
+        ]
+      },
+      "put": {
+        "operationId": "RocketModelAdminController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RocketModelAdminUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RocketModelAdminResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Update rocket model",
+        "tags": [
+          "Rocket Model Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "rocket-model",
+            "action": "update"
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "RocketModelAdminController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Rocket model deleted"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Delete rocket model",
+        "tags": [
+          "Rocket Model Admin"
+        ],
+        "x-acl": [
+          {
+            "subject": "rocket-model",
+            "action": "delete"
+          }
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "API Docs",
+    "description": "Documentation",
+    "version": "0.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [
+    {
+      "url": "http://localhost:4000"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "Authorization": {
+        "scheme": "Bearer",
+        "bearerFormat": "Bearer",
+        "name": "Authorization",
+        "type": "http",
+        "in": "Header"
+      }
+    },
+    "schemas": {
+      "RocketModelAdminUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "organization": {
+            "type": "string",
+            "description": "Organization"
+          }
+        }
+      },
+      "RocketModelAdminCreateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "organization": {
+            "type": "string",
+            "description": "Organization"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "RocketModelAdminResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "organization": {
+            "type": "string",
+            "description": "Organization"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Created date"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Updated date"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "RocketModelPaginationFilterDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          }
+        }
+      },
+      "RocketAdminLaunchRequest": {
+        "type": "object",
+        "properties": {
+          "launchAfter": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Launch After"
+          },
+          "launchDirectorId": {
+            "type": "string",
+            "description": "Launch Director ID",
+            "format": "uuid"
+          }
+        }
+      },
+      "RocketAdminUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "modelId": {
+            "type": "string",
+            "description": "Model ID",
+            "format": "uuid",
+            "x-field": {
+              "type": "reference-input",
+              "reference": "RocketManageController_listModels",
+              "optionValue": "id",
+              "optionText": "name"
+            }
+          },
+          "status": {
+            "description": "Status",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RocketStatusType"
+              }
+            ]
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "picture": {
+            "description": "Picture",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MediaAttachRequest"
+              }
+            ]
+          },
+          "timelapses": {
+            "description": "Time-lapse images",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaAttachRequest"
+            }
+          },
+          "ownerId": {
+            "type": "string",
+            "description": "Owner ID",
+            "format": "uuid"
+          }
+        }
+      },
+      "MediaAttachRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Media Id",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "RocketStatusType": {
+        "type": "string",
+        "enum": [
+          "unknown",
+          "ready",
+          "launching",
+          "exploded",
+          "in-flight"
+        ],
+        "description": "Status"
+      },
+      "RocketAdminCreateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "modelId": {
+            "type": "string",
+            "description": "Model ID",
+            "format": "uuid"
+          },
+          "ownerId": {
+            "type": "string",
+            "description": "Owner ID",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "name",
+          "modelId"
+        ]
+      },
+      "RocketAdminResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "description": "Status",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RocketStatusType"
+              }
+            ]
+          },
+          "id": {
+            "type": "string",
+            "description": "ID",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "modelId": {
+            "type": "string",
+            "description": "Model ID",
+            "format": "uuid"
+          },
+          "model": {
+            "type": "string",
+            "description": "Model name"
+          },
+          "picture": {
+            "description": "Picture",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MediaFetchInstructionsResponse"
+              }
+            ]
+          },
+          "timelapses": {
+            "description": "Time-lapse images",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaFetchInstructionsResponse"
+            }
+          },
+          "ownerId": {
+            "type": "string",
+            "description": "Owner ID",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Created date"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Updated date"
+          }
+        },
+        "required": [
+          "status",
+          "id",
+          "name",
+          "model",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "MediaFetchInstructionsResponse": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Url to media"
+          },
+          "id": {
+            "type": "string",
+            "description": "Media Id"
+          }
+        }
+      },
+      "RocketPaginationFilterDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "description": "Stage",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RocketStatusType"
+              }
+            ]
+          },
+          "createdAt": {
+            "description": "Creation date range filter",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DateRangeDto"
+              }
+            ]
+          },
+          "ownerId": {
+            "type": "string",
+            "description": "Owner ID",
+            "format": "uuid"
+          },
+          "ids": {
+            "description": "Ids",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "model": {
+            "type": "string",
+            "description": "Model"
+          },
+          "search": {
+            "type": "string",
+            "description": "Free search"
+          }
+        }
+      },
+      "DateRangeDto": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "end": {
+            "format": "date-time",
+            "type": "string"
+          }
+        }
+      },
+      "RocketLabelsName": {
+        "type": "string",
+        "enum": [
+          "name",
+          "name-details"
+        ]
+      },
+      "RocketLabelsField": {
+        "type": "string",
+        "enum": [
+          "id",
+          "name",
+          "modelId",
+          "modelName"
+        ]
+      },
+      "QueueProcessorResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "queue": {
+            "type": "string"
+          },
+          "timeout": {
+            "type": "number"
+          },
+          "cronJobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QueueCronJobResponse"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "queue"
+        ]
+      },
+      "QueueCronJobResponse": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "any"
+            }
+          },
+          "options": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "any"
+            }
+          },
+          "cron": {
+            "type": "string"
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "nextExecution": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "cron"
+        ]
+      },
+      "QueueProcessorPaginationFilterDto": {
+        "type": "object",
+        "properties": {
+          "names": {
+            "description": "Names",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "queue": {
+            "type": "string",
+            "description": "Queue"
+          }
+        }
+      },
+      "QueueJobCreateRequest": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "any"
+            }
+          },
+          "options": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "any"
+            }
+          },
+          "id": {
+            "type": "string"
+          },
+          "processor": {
+            "type": "string"
+          },
+          "startAfter": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "processor"
+        ]
+      },
+      "QueueJobResponse": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "any"
+            }
+          },
+          "options": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "any"
+            }
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QueueJobStatus"
+              }
+            ]
+          },
+          "result": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "any"
+            }
+          },
+          "id": {
+            "type": "string"
+          },
+          "processor": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "startAfter": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "startedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "doneAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "processor"
+        ]
+      },
+      "QueueJobStatus": {
+        "type": "string",
+        "enum": [
+          "queued",
+          "running",
+          "completed",
+          "failed",
+          "retry",
+          "cancelled"
+        ]
+      },
+      "QueueJobPaginationFilterDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "description": "Status",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/QueueJobStatus"
+              }
+            ]
+          },
+          "ids": {
+            "description": "Ids",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "processor": {
+            "type": "string",
+            "description": "Processor"
+          },
+          "queue": {
+            "type": "string",
+            "description": "Queue"
+          },
+          "search": {
+            "type": "string",
+            "description": "Free search data/results"
+          }
+        }
+      },
+      "SettingsModuleResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SettingsStatus"
+              }
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "statusMessage": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SettingsSectionItemResponse"
+            }
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SettingsSectionResponse"
+            }
+          }
+        },
+        "required": [
+          "status",
+          "name"
+        ]
+      },
+      "SettingsSectionResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SettingsStatus"
+              }
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "statusMessage": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SettingsSectionItemResponse"
+            }
+          }
+        },
+        "required": [
+          "status",
+          "name"
+        ]
+      },
+      "SettingsSectionItemResponse": {
+        "type": "object",
+        "properties": {
+          "actions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SettingsSettingAction"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "SettingsSettingAction": {
+        "type": "string",
+        "enum": [
+          "copy",
+          "edit",
+          "delete"
+        ]
+      },
+      "SettingsStatus": {
+        "type": "string",
+        "enum": [
+          "ok",
+          "error",
+          "warning",
+          "disabled"
+        ]
+      },
+      "SettingsPopulate": {
+        "type": "string",
+        "enum": [
+          "items",
+          "sections"
+        ]
+      },
+      "EmailActivityAdminResponse": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EmailLogEvent"
+              }
+            ]
+          },
+          "level": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BaseLogLevelEnum"
+              }
+            ]
+          },
+          "templateValues": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "any"
+            }
+          },
+          "templateOptions": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "any"
+            }
+          },
+          "response": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "any"
+            }
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "module": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "to": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cc": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "bcc": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "from": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "htmlContent": {
+            "type": "string"
+          },
+          "textContent": {
+            "type": "string"
+          },
+          "template": {
+            "type": "string"
+          },
+          "failedMessage": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "module",
+          "type",
+          "timestamp"
+        ]
+      },
+      "BaseLogLevelEnum": {
+        "type": "string",
+        "enum": [
+          "none",
+          "fatal",
+          "error",
+          "warn",
+          "log",
+          "debug",
+          "verbose"
+        ]
+      },
+      "EmailLogEvent": {
+        "type": "string",
+        "enum": [
+          "sent",
+          "failed",
+          "suppressed"
+        ]
+      },
+      "EmailActivityPaginationFilterDto": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EmailLogEvent"
+              }
+            ]
+          },
+          "templateName": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "timestamp": {
+            "$ref": "#/components/schemas/DateRangeDto"
+          },
+          "type": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "search": {
+            "type": "string"
+          }
+        }
+      },
+      "EmailTemplateCreateRequest": {
+        "type": "object",
+        "properties": {
+          "engine": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EmailCompilerType"
+              }
+            ]
+          },
+          "name": {
+            "type": "string",
+            "pattern": "/^[a-zA-Z0-9-_]+$/"
+          },
+          "externalTemplate": {
+            "type": "string"
+          },
+          "html": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "module": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string"
+          },
+          "cc": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "bcc": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "engine",
+          "name"
+        ]
+      },
+      "EmailCompilerType": {
+        "type": "string",
+        "enum": [
+          "mjml",
+          "html",
+          "external"
+        ]
+      },
+      "EmailCustomTemplateFilterDto": {
+        "type": "object",
+        "properties": {
+          "engine": {
+            "description": "Filter by engine type",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EmailCompilerType"
+              }
+            ]
+          },
+          "names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "search": {
+            "type": "string"
+          },
+          "module": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "$ref": "#/components/schemas/DateRangeDto"
+          }
+        }
+      },
+      "EmailTemplateUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "engine": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EmailCompilerType"
+              }
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "externalTemplate": {
+            "type": "string"
+          },
+          "html": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "module": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string"
+          },
+          "cc": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "bcc": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "engine"
+        ]
+      },
+      "EmailTemplateResponse": {
+        "type": "object",
+        "properties": {
+          "engine": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EmailCompilerType"
+              }
+            ]
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EmailTemplateType"
+              }
+            ]
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EmailTemplateStatus"
+              }
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "params": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmailTemplateParamResponse"
+            }
+          },
+          "from": {
+            "type": "string"
+          },
+          "cc": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "bcc": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "module": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "externalTemplate": {
+            "type": "string"
+          },
+          "html": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "engine",
+          "id",
+          "name"
+        ]
+      },
+      "EmailTemplateParamResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "required"
+        ]
+      },
+      "EmailTemplateStatus": {
+        "type": "string",
+        "enum": [
+          "valid",
+          "invalid"
+        ]
+      },
+      "EmailTemplateType": {
+        "type": "string",
+        "enum": [
+          "system",
+          "custom"
+        ]
+      },
+      "EmailSystemTemplateFilterDto": {
+        "type": "object",
+        "properties": {
+          "engine": {
+            "description": "Filter by engine type",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EmailCompilerType"
+              }
+            ]
+          },
+          "names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "search": {
+            "type": "string"
+          },
+          "isCustomized": {
+            "type": "boolean"
+          },
+          "updatedAt": {
+            "$ref": "#/components/schemas/DateRangeDto"
+          }
+        }
+      },
+      "EmailTemplateSendAdminRequest": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cc": {
+            "description": "Optional cc override",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "bcc": {
+            "description": "Optional bcc override",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "subject": {
+            "type": "string",
+            "description": "Optional subject override"
+          },
+          "html": {
+            "type": "string",
+            "description": "Optional html override"
+          },
+          "textContent": {
+            "type": "string",
+            "description": "Optional text override"
+          },
+          "templateName": {
+            "type": "string"
+          },
+          "templateVariables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EmailTemplateSendAdminRequestVariable"
+            }
+          },
+          "provider": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "to",
+          "templateName"
+        ]
+      },
+      "EmailTemplateSendAdminRequestVariable": {
+        "type": "object",
+        "properties": {
+          "param": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "param",
+          "value"
+        ]
+      },
+      "EmailSendAdminRequest": {
+        "type": "object",
+        "properties": {
+          "to": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "subject": {
+            "type": "string"
+          },
+          "htmlContent": {
+            "type": "string"
+          },
+          "textContent": {
+            "type": "string",
+            "description": "Optional text content\n defaults to cleaned up htmlContent"
+          },
+          "cc": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "bcc": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "provider": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "to",
+          "subject",
+          "htmlContent",
+          "textContent"
+        ]
+      },
+      "PushNotificationActivityAdminResponse": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PushNotificationLogEvent"
+              }
+            ]
+          },
+          "level": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/BaseLogLevelEnum"
+              }
+            ]
+          },
+          "templateValues": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "any"
+            }
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "any"
+            }
+          },
+          "response": {
+            "additionalProperties": {
+              "type": "any"
+            },
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "module": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "deviceTokens": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "template": {
+            "type": "string"
+          },
+          "failedMessage": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "module",
+          "type",
+          "timestamp"
+        ]
+      },
+      "PushNotificationLogEvent": {
+        "type": "string",
+        "enum": [
+          "sent",
+          "failed",
+          "suppressed"
+        ]
+      },
+      "PushNotificationActivityPaginationFilterDto": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PushNotificationLogEvent"
+              }
+            ]
+          },
+          "template": {
+            "type": "string"
+          },
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "timestamp": {
+            "$ref": "#/components/schemas/DateRangeDto"
+          },
+          "type": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "search": {
+            "type": "string"
+          }
+        }
+      },
+      "PushNotificationTemplateCreateRequest": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "any"
+            }
+          },
+          "name": {
+            "type": "string",
+            "pattern": "/^[a-zA-Z0-9-_]+$/"
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "module": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "title",
+          "body"
+        ]
+      },
+      "PushNotificationTemplateFilterDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "description": "Filter by template type",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PushNotificationTemplateType"
+              }
+            ]
+          },
+          "names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "search": {
+            "type": "string"
+          },
+          "module": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "PushNotificationTemplateType": {
+        "type": "string",
+        "enum": [
+          "custom",
+          "system"
+        ]
+      },
+      "PushNotificationTemplateUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "any"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "module": {
+            "type": "string"
+          }
+        }
+      },
+      "PushNotificationTemplateResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "any"
+            }
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PushNotificationTemplateType"
+              }
+            ]
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PushNotificationTemplateStatus"
+              }
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "params": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PushNotificationTemplateParamResponse"
+            }
+          },
+          "title": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "module": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "PushNotificationTemplateParamResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "required"
+        ]
+      },
+      "PushNotificationTemplateStatus": {
+        "type": "string",
+        "enum": [
+          "valid",
+          "invalid"
+        ]
+      },
+      "PushNotificationSystemTemplateFilterDto": {
+        "type": "object",
+        "properties": {
+          "names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "search": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "PushNotificationLabelsName": {
+        "type": "string",
+        "enum": [
+          "title",
+          "resourceName",
+          "resourceLabel",
+          "resourceLabel-title"
+        ]
+      },
+      "PushNotificationLabelsField": {
+        "type": "string",
+        "enum": [
+          "id",
+          "token",
+          "resourceName"
+        ]
+      },
+      "PushNotificationDeviceTokenAdminResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "resourceName": {
+            "type": "string"
+          },
+          "resourceLabel": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "module": {
+            "type": "string"
+          },
+          "resourceId": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "token": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "resourceName",
+          "provider",
+          "token",
+          "createdAt"
+        ]
+      },
+      "PushNotificationTemplateAdminSendRequest": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "description": "Custom Data",
+            "additionalProperties": {
+              "type": "any"
+            }
+          },
+          "tokens": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "resourceName": {
+            "type": "string"
+          },
+          "sendToAll": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "string",
+            "description": "Optional title override"
+          },
+          "body": {
+            "type": "string",
+            "description": "Optional body override"
+          },
+          "imageUrl": {
+            "type": "string"
+          },
+          "templateName": {
+            "type": "string"
+          },
+          "templateVariables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PushNotificationTemplateAdminSendRequestVariable"
+            }
+          }
+        },
+        "required": [
+          "templateName"
+        ]
+      },
+      "PushNotificationTemplateAdminSendRequestVariable": {
+        "type": "object",
+        "properties": {
+          "param": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "param",
+          "value"
+        ]
+      },
+      "PushNotificationSendAdminRequest": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "description": "Custom Data",
+            "additionalProperties": {
+              "type": "any"
+            }
+          },
+          "tokens": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "resourceName": {
+            "type": "string",
+            "description": "Resource name"
+          },
+          "sendToAll": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "string",
+            "description": "Optional title override"
+          },
+          "body": {
+            "type": "string",
+            "description": "Optional body override"
+          },
+          "imageUrl": {
+            "type": "string",
+            "description": "Optional image url override"
+          }
+        }
+      },
+      "MediaAdminBulkDeleteRequest": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "description": "Selected ids of media to delete",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      },
+      "MediaUploadInstructionsResponse": {
+        "type": "object",
+        "properties": {
+          "fields": {
+            "description": "Additional form fields to include in the POST upload request. Each item is a [key, value] pair.",
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 2
+            },
+            "example": [
+              [
+                "Content-Type",
+                "image/png"
+              ]
+            ]
+          },
+          "method": {
+            "type": "string",
+            "description": "Method to upload with - PUT, POST, or custom instructions"
+          },
+          "url": {
+            "type": "string",
+            "description": "Url to upload to"
+          },
+          "id": {
+            "type": "string",
+            "description": "Media ID"
+          }
+        }
+      },
+      "MediaAdminUploadRequest": {
+        "type": "object",
+        "properties": {
+          "resourceName": {
+            "type": "string",
+            "description": "Resource name supported by the system"
+          },
+          "fileName": {
+            "type": "string",
+            "description": "Original filename",
+            "example": "profile.png"
+          },
+          "fileSize": {
+            "type": "number",
+            "description": "Original file size in bytes",
+            "example": 1024,
+            "minimum": 1
+          },
+          "mimeType": {
+            "type": "string",
+            "description": "File mime type",
+            "example": "image/png"
+          },
+          "method": {
+            "type": "string",
+            "description": "Upload method",
+            "example": "put"
+          },
+          "type": {
+            "type": "string",
+            "description": "Upload type"
+          },
+          "module": {
+            "type": "string",
+            "description": "Upload module"
+          },
+          "resourceId": {
+            "type": "string",
+            "description": "Upload resourceId"
+          }
+        },
+        "required": [
+          "fileName",
+          "fileSize"
+        ]
+      },
+      "MediaAdminResponse": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "type": "object",
+            "description": "Additional specific meta data",
+            "additionalProperties": {
+              "type": "any"
+            }
+          },
+          "id": {
+            "type": "string",
+            "description": "Media Id"
+          },
+          "resourceName": {
+            "type": "string",
+            "description": "Resource name"
+          },
+          "fileName": {
+            "type": "string",
+            "description": "File name"
+          },
+          "fileSize": {
+            "type": "number",
+            "description": "File size in bytes"
+          },
+          "mimeType": {
+            "type": "string",
+            "description": "Mime type of the file"
+          },
+          "key": {
+            "type": "string",
+            "description": "Provider key/id"
+          },
+          "provider": {
+            "type": "string",
+            "description": "Media provider"
+          },
+          "uploaded": {
+            "format": "date-time",
+            "type": "string",
+            "description": "If the file was uploaded"
+          },
+          "validated": {
+            "format": "date-time",
+            "type": "string",
+            "description": "If the file was validated"
+          },
+          "deleted": {
+            "format": "date-time",
+            "type": "string",
+            "description": "If the file was deleted"
+          },
+          "module": {
+            "type": "string",
+            "description": "Module that owns this media"
+          },
+          "type": {
+            "type": "string",
+            "description": "Module scoped type of this file"
+          },
+          "resourceId": {
+            "type": "string",
+            "description": "Resource Id"
+          },
+          "userId": {
+            "type": "string",
+            "description": "User that uploaded the image"
+          },
+          "url": {
+            "type": "string",
+            "description": "URL to access the media"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Created date of the media"
+          }
+        },
+        "required": [
+          "id",
+          "resourceName",
+          "fileName",
+          "fileSize",
+          "mimeType",
+          "key",
+          "provider",
+          "createdAt"
+        ]
+      },
+      "MediaAdminPaginationFilterDto": {
+        "type": "object",
+        "properties": {
+          "fileSizeRanges": {
+            "description": "Array of file size ranges to filter by",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaFileSizeRangeDto"
+            }
+          },
+          "createdAt": {
+            "description": "Date range filter for creation date",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DateRangeDto"
+              }
+            ]
+          },
+          "module": {
+            "type": "string",
+            "description": "Module"
+          },
+          "type": {
+            "type": "string",
+            "description": "Type"
+          },
+          "search": {
+            "type": "string",
+            "description": "Search"
+          },
+          "userId": {
+            "type": "string",
+            "description": "User ID who uploaded the file"
+          },
+          "mimeTypes": {
+            "description": "Multiple MIME types filter",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "uploaded": {
+            "type": "boolean",
+            "description": "If the file was uploaded"
+          },
+          "validated": {
+            "type": "boolean",
+            "description": "If the file was validated"
+          }
+        }
+      },
+      "MediaFileSizeRangeDto": {
+        "type": "object",
+        "properties": {
+          "minSize": {
+            "type": "number",
+            "description": "Minimum file size in bytes",
+            "minimum": 0
+          },
+          "maxSize": {
+            "type": "number",
+            "description": "Maximum file size in bytes",
+            "minimum": 0
+          }
+        }
+      },
+      "MediaLabelsField": {
+        "type": "string",
+        "enum": [
+          "mimeType",
+          "module",
+          "type"
+        ]
+      },
+      "MediaAdminLibraryResponse": {
+        "type": "object",
+        "properties": {
+          "types": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaAdminLibraryTypeResponse"
+            }
+          }
+        }
+      },
+      "MediaAdminLibraryTypeResponse": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "fileSize": {
+            "type": "number"
+          },
+          "mimeTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "label",
+          "name"
+        ]
+      },
+      "ActivityAggregationResponse": {
+        "type": "object",
+        "properties": {
+          "bucket": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "bucket",
+          "count"
+        ]
+      },
+      "ActivityAggregationTimeBucket": {
+        "type": "string",
+        "enum": [
+          "minute",
+          "hour",
+          "day",
+          "week",
+          "month"
+        ]
+      },
+      "ActivityResponse": {
+        "type": "object",
+        "properties": {
+          "payload": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "any"
+            }
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "module": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "payload",
+          "id",
+          "module",
+          "type",
+          "timestamp"
+        ]
+      },
+      "ActivityPaginationFilterDto": {
+        "type": "object",
+        "properties": {
+          "module": {
+            "type": "string"
+          },
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "timestamp": {
+            "$ref": "#/components/schemas/DateRangeDto"
+          },
+          "type": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "search": {
+            "type": "string"
+          }
+        }
+      },
+      "UserAdminBulkDeleteRequest": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "description": "Selected ids of users to delete",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      },
+      "UserAdminUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "roles": {
+            "description": "User roles",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserRole"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email",
+            "format": "email"
+          }
+        },
+        "required": [
+          "roles"
+        ]
+      },
+      "UserRole": {
+        "type": "string",
+        "enum": [
+          "manager",
+          "client"
+        ],
+        "description": "User Roles"
+      },
+      "UserAuthPasswordRegisterRequest": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string",
+            "description": "Set password",
+            "minLength": 12
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email",
+            "format": "email"
+          }
+        },
+        "required": [
+          "password",
+          "name",
+          "email"
+        ]
+      },
+      "UserAdminResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Id"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email",
+            "format": "email"
+          },
+          "roles": {
+            "description": "Roles",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Created at"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Updated at"
+          }
+        },
+        "required": [
+          "id",
+          "roles",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "UserPaginationFilterDto": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "description": "Creation date range filter",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DateRangeDto"
+              }
+            ]
+          },
+          "ids": {
+            "description": "Ids",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email",
+            "format": "email"
+          },
+          "search": {
+            "type": "string",
+            "description": "Free search"
+          }
+        }
+      },
+      "LabelResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label"
+        ]
+      },
+      "UserLabelsName": {
+        "type": "string",
+        "enum": [
+          "email",
+          "name",
+          "name-email"
+        ]
+      },
+      "UserLabelsField": {
+        "type": "string",
+        "enum": [
+          "email",
+          "id"
+        ]
+      },
+      "AdminUserAdminBulkDeleteRequest": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "description": "Selected ids of admin users to delete",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      },
+      "AdminUserAuthPasswordAndSecretRegisterRequest": {
+        "type": "object",
+        "properties": {
+          "roles": {
+            "description": "Roles",
+            "example": [
+              "general-manager"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "password": {
+            "type": "string",
+            "description": "Set password",
+            "minLength": 8,
+            "example": "my-password"
+          },
+          "secret": {
+            "type": "string",
+            "example": "random-secret"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email",
+            "format": "email"
+          }
+        },
+        "required": [
+          "roles",
+          "password",
+          "secret",
+          "email"
+        ]
+      },
+      "AdminUserUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email",
+            "format": "email"
+          },
+          "roles": {
+            "description": "User Roles",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "roles"
+        ]
+      },
+      "AdminUserAuthPasswordRegisterRequest": {
+        "type": "object",
+        "properties": {
+          "roles": {
+            "description": "Roles",
+            "example": [
+              "general-manager"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "password": {
+            "type": "string",
+            "description": "Set password",
+            "minLength": 8,
+            "example": "my-password"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email",
+            "format": "email"
+          }
+        },
+        "required": [
+          "roles",
+          "password",
+          "email"
+        ]
+      },
+      "AdminUserResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Id"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email",
+            "format": "email"
+          },
+          "roles": {
+            "description": "Roles",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Created at"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Updated at"
+          }
+        },
+        "required": [
+          "id",
+          "roles",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "AdminUserPaginationFilterDto": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "description": "Creation date range filter",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DateRangeDto"
+              }
+            ]
+          },
+          "ids": {
+            "description": "Ids",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "model": {
+            "type": "string",
+            "description": "Model"
+          },
+          "search": {
+            "type": "string",
+            "description": "Free search"
+          }
+        }
+      },
+      "AdminUserMeResponse": {
+        "type": "object",
+        "properties": {
+          "aclRules": {
+            "description": "User ACL",
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email",
+            "format": "email"
+          },
+          "roles": {
+            "description": "User Roles",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PushNotificationTokenResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Id"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title",
+            "example": "My Device"
+          },
+          "token": {
+            "type": "string",
+            "description": "Token",
+            "example": "My Device"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Created At"
+          },
+          "provider": {
+            "type": "string",
+            "description": "Provider",
+            "example": "fcm"
+          }
+        },
+        "required": [
+          "createdAt",
+          "provider"
+        ]
+      },
+      "PaginationDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "description": "Items",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "page": {
+            "type": "number",
+            "description": "1-indexed page number to begin from"
+          },
+          "cursor": {
+            "type": "string",
+            "description": "ID of item to start after"
+          },
+          "nextCursor": {
+            "type": "string",
+            "description": "Cursor for next set of items"
+          },
+          "limit": {
+            "type": "number",
+            "description": "Items per response"
+          },
+          "totalItems": {
+            "type": "number",
+            "description": "Total available items"
+          }
+        },
+        "required": [
+          "items",
+          "limit",
+          "totalItems"
+        ]
+      },
+      "PushNotificationTokenFiltersDto": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "description": "Creation date range filter",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DateRangeDto"
+              }
+            ]
+          },
+          "provider": {
+            "type": "string",
+            "description": "Provider"
+          },
+          "search": {
+            "type": "string"
+          }
+        }
+      },
+      "StatusResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status\n@default ok"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message"
+          },
+          "code": {
+            "type": "string",
+            "description": "Alphanumeric code of the message type"
+          }
+        },
+        "required": [
+          "status",
+          "message",
+          "code"
+        ]
+      },
+      "PushNotificationTokenCreateRequest": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Token"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title",
+            "example": "My Device"
+          },
+          "replace": {
+            "type": "boolean",
+            "description": "Replace existing tokens assigned to other resources",
+            "example": false
+          }
+        },
+        "required": [
+          "token",
+          "replace"
+        ]
+      },
+      "AuthnTokenRequest": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "Refresh Token\n - use to get a new access token when the current one expires"
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "AdminUserAuthPasswordChangeRequest": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string",
+            "description": "Set new password",
+            "minLength": 12
+          }
+        },
+        "required": [
+          "password"
+        ]
+      },
+      "AuthnTokenResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "Access Token\n - use to authenticate requests with `Authorization: Bearer ${token}`\n - read { exp: number } from the token to determine when it expires"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Refresh Token\n - use to get a new access token when the current one expires"
+          }
+        },
+        "required": [
+          "accessToken"
+        ]
+      },
+      "AdminUserAuthPasswordLoginRequest": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string",
+            "description": "Password",
+            "example": "my-password"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email",
+            "format": "email"
+          }
+        },
+        "required": [
+          "password",
+          "email"
+        ]
+      }
+    }
+  }
+}

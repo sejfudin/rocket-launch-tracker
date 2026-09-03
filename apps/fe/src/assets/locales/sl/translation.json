@@ -1,0 +1,179 @@
+{
+  "appName": "App name",
+  "appDescription": "App description",
+  "shared": {
+    "languages": {
+      "slovenian": "Slovenščina",
+      "english": "Angleščina"
+    },
+    "errorState": {
+      "retryBtn": "Poskusite znova"
+    },
+    "notFound": {
+      "head": {
+        "title": "Stran ni najdena",
+        "description": "Stran, ki jo iščete, ne obstaja."
+      },
+      "heading": "Stran ni najdena",
+      "subheading": "Stran, ki jo iščete, ne obstaja.",
+      "homeBtn": "Pojdi domov"
+    },
+    "errorFallback": {
+      "heading": "Nekaj je šlo narobe",
+      "subheading": "Napaka: {{error}}",
+      "retryBtn": "Poskusi ponovno"
+    },
+    "errors": {
+      "unknownError": "Prišlo je do neznane napake. Poskusite znova.",
+      "invalidCredentials": "Neveljavni podatki",
+      "userAlreadyExists": "Uporabnik že obstaja",
+      "identityNotFound": "E-poštni naslov ne obstaja! Preverite svoj e-poštni naslov in poskusite znova."
+    }
+  },
+  "auth": {
+    "shared": {
+      "name": {
+        "label": "Ime",
+        "required": "Ime je obvezno"
+      },
+      "email": {
+        "label": "Email naslov",
+        "invalid": "Vnesite veljaven elektronski naslov",
+        "required": "E-poštni naslov je obvezen"
+      },
+      "password": {
+        "label": "Geslo",
+        "weak": "Geslo je prešibko",
+        "required": "zahtevano je geslo"
+      },
+      "socials": {
+        "google": "Nadaljujte z Googlom",
+        "facebook": "Nadaljujte s Facebookom",
+        "amazon": "Nadaljujte z Amazonom",
+        "apple": "Nadaljujte z Appleom",
+        "magic": "Nadaljujte z Magic Link"
+      },
+      "separator": {
+        "or": "ALI"
+      }
+    },
+    "register": {
+      "head": {
+        "title": "Registrirajte se",
+        "description": "Ustvari nov račun"
+      },
+      "title": "Registrirajte se",
+      "description": "Vnesite svoje podatke za dostop do računa",
+      "submitBtn": "Registrirajte se",
+      "successToast": "Uspešno ste ustvarili račun!",
+      "passwordRequirements": {
+        "header": "Geslo mora vsebovati:",
+        "minLength": "Vsaj 8 znakov",
+        "oneDigit": "Eno števko",
+        "oneUpperCase": "Eno veliko črko"
+      },
+      "alreadyHaveAccount": "Imate že račun?",
+      "logInWithEmail": "Prijavite se z e-pošto"
+    },
+    "login": {
+      "head": {
+        "title": "Vpiši se",
+        "description": "Prijavite se v svoj račun"
+      },
+      "title": "Dobrodošel nazaj",
+      "heading": "Vpiši se",
+      "description": "Vnesite svoje podatke za dostop do računa",
+      "submitBtn": "Vpiši se",
+      "invalidCredentials": "Neveljavni podatki",
+      "confirmAccount": "Kliknite tukaj, da potrdite svoj račun",
+      "successToast": "Uspešno ste se prijavili!",
+      "noAccount": "Nimate računa?",
+      "signUp": "Registrirajte se"
+    },
+    "forgotPassword": {
+      "head": {
+        "title": "Ste pozabili geslo",
+        "description": "Ste pozabili geslo?"
+      },
+      "link": "Ste pozabili geslo?",
+      "title": "Ste pozabili geslo",
+      "description": "Prosimo vnesite svoj e-poštni naslov za ponastavitev gesla.",
+      "successToast": "Poslali smo vam kodo za ponastavitev gesla.",
+      "submitBtn": "Pošlji potrditveno povezavo",
+      "success": {
+        "title": "Preverite svoj e-mail",
+        "description": "Povezava s instrukcijami za ponastavitev gesla je bila poslana na {{email}}.",
+        "continueToLogin": "Nadaljujte na prijavo"
+      }
+    },
+    "resetPassword": {
+      "head": {
+        "title": "Ponastavitev gesla",
+        "description": "Ponastavi geslo"
+      },
+      "title": "Nastavite novo geslo",
+      "description": "Prosimo nastavite novo geslo za dokončanje postopka.",
+      "noEmailLink": "Nisem prejel e-pošte",
+      "code": {
+        "label": "Koda"
+      },
+      "newPassword": {
+        "label": "novo geslo"
+      },
+      "passwordRequirements": {
+        "header": "Geslo mora vsebovati:",
+        "minLength": "Vsaj 8 znakov",
+        "oneDigit": "Eno števko",
+        "oneUpperCase": "Eno veliko črko"
+      },
+      "submitBtn": "Nastavite novo geslo",
+      "successToast": "Uspešno ste ponastavili geslo!"
+    },
+    "confirm": {
+      "head": {
+        "title": "Potrdite račun",
+        "description": "Potrdite svoj račun"
+      },
+      "title": "Poslali smo vam kodo. ",
+      "success": "Vaš račun je preverjen. ",
+      "resend": {
+        "btn": "Ponovno pošlji kodo",
+        "success": "Poslali smo vam kodo.",
+        "error": "Napaka pri ponovnem pošiljanju kode, poskusite znova."
+      },
+      "code": {
+        "label": "Koda"
+      },
+      "submitBtn": "Potrdi"
+    },
+    "errors": {
+      "magic-link-disabled": "Magic link avtentikacija ni omogočena.",
+      "code-invalid": "Neveljavna koda.",
+      "code-expired": "Koda je potekla.",
+      "callback-invalid": "Neveljaven povratni klic za avtentikacijo."
+    }
+  },
+  "navbar": {
+    "links": {
+      "home": "Domov"
+    },
+    "auth": {
+      "login": "Vpiši se",
+      "register": "Nov račun",
+      "loginToManageRocket": "Vpiši se za upravljanje rakete"
+    },
+    "languageSwitcher": {
+      "open": "Odpri preklopnik jezikov",
+      "title": "Spremeni jezik",
+      "label": "Izberite jezik"
+    }
+  },
+  "profile": {
+    "head": {
+      "title": "Profil",
+      "description": "Tvoj profil"
+    },
+    "fullName": "Polno ime",
+    "logoutBtn": "Odjava"
+  }
+}

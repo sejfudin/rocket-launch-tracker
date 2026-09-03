@@ -1,0 +1,109 @@
+---
+description: Rules for configuration classes
+globs:
+  - "**/*.config.ts"
+alwaysApply: false
+---
+
+# Configuration Classes
+
+## Basic Structure
+
+```typescript
+import { Expose, Type } from 'class-transformer';
+import { IsString, IsNumber, IsBoolean, IsOptional, IsEnum, ValidateIf } from 'class-validator';
+import { ConfigDecorator } from '~common/config';
+import { TransformInputToBoolean } from '~common/validate';
+
+@ConfigDecorator('namespace')
+export class FeatureConfig {
+  // Required
+  @Expose()
+  @IsString()
+  readonly requiredProperty!: string;
+
+  // Optional
+  @Expose()
+  @IsString()
+  @IsOptional()
+  readonly optionalProperty?: string;
+
+  // With default
+  @Expose()
+  @IsNumber()
+  readonly timeout = 3000;
+
+  // Number from YAML (use @Type)
+  @Expose()
+  @IsNumber()
+  @Type(() => Number)
+  readonly port = 4000;
+
+  // Boolean from YAML
+  @Expose()
+  @IsBoolean()
+  @TransformInputToBoolean()
+  readonly enabled = true;
+
+  // Conditional validation
+  @Expose()
+  @IsString()
+  @ValidateIf((x: FeatureConfig) => x.enabled)
+  readonly clientID!: string;
+
+  // Enum
+  @Expose()
+  @IsEnum(['warn', 'ignore', 'throw'])
+  readonly mode = 'warn';
+}
+```
+
+## Implementation Rules
+
+### Naming & Structure
+- **Class**: End with `Config` (e.g., `UserAuthConfig`)
+- **File**: `{feature}.config.ts` or `{feature}-{provider}.config.ts`
+- **Namespace**: `@ConfigDecorator('namespace')` maps to YAML `namespace.property`
+
+### Properties
+- All properties must be `readonly`
+- Required: `!` | Optional: `?` with `@IsOptional()`
+- Always use `@Expose()`
+- Numbers from YAML: `@Type(() => Number)`
+- Booleans from YAML: `@TransformInputToBoolean()`
+- Add JSDoc for complex/default values
+
+### Module Registration
+```typescript
+import { getConfigFactory } from '~common/config';
+
+@Module({
+  providers: [getConfigFactory(FeatureConfig)],
+})
+```
+
+### Direct Usage
+```typescript
+import { getConfig } from '~common/config';
+const config = getConfig(FeatureConfig);
+```
+
+## Adding YAML Values
+
+Add to `.config/local.api.template.yml` matching namespace:
+
+**TypeScript:** `@ConfigDecorator('user.auth')` → **YAML:** `user.auth.secret`
+
+```yaml
+user:
+  auth:
+    secret: "random-user-secret"
+    accessTokenExpiration: 86400
+```
+
+### YAML Guidelines
+- 2 spaces indentation
+- Match property names exactly (camelCase)
+- Use `${env:VARIABLE}` for secrets, `${func:functionName}` for dynamic values
+- Add `#` comments for explanations
+- Required values must be provided; optional can be omitted

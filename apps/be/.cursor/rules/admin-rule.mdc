@@ -1,0 +1,166 @@
+---
+description: Rules for admin modules and controllers
+globs:
+  - "**/admin/**/*.ts"
+alwaysApply: false
+---
+
+# Admin Modules
+
+For each module, an admin module can optionally be generated. Admin modules use the same structure as other modules but with `@AdminController` decorators and strict REST patterns.
+The admin module should be placed within the `src/admin/` folder and named the same as the main module.
+
+## Basic Structure
+
+```typescript
+import { Body, Delete, Get, HttpCode, Post, Put, Param, Query } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { AdminController } from '~modules/admin/common';
+import { AdminUserAclCheck } from '~modules/admin/admins/auth';
+import { ApiPaginationResponse, PaginationDto } from '~common/http/pagination';
+import { NotFoundException } from '~common/exceptions';
+
+import { FeatureService } from '~modules/feature/feature.service';
+import { FeatureAdminResponse } from './models/feature-admin.response';
+import { FeatureAdminUpdateRequest } from './models/feature-admin-update.request';
+
+@ApiTags('Feature Admin')
+@AdminController('features')
+export class FeatureAdminController {
+  constructor(private readonly featureService: FeatureService) {}
+
+  @Get()
+  @AdminUserAclCheck('feature:read')
+  @ApiPaginationResponse(FeatureAdminResponse)
+  async paginate(@Query() query: FeaturePaginationQueryDto): Promise<PaginationDto<FeatureAdminResponse>> {
+    const features = await this.featureService.paginate(query);
+    return PaginationDto.fromDomain(features, FeatureAdminResponse.fromDomain);
+  }
+
+  @Get(':id')
+  @AdminUserAclCheck('feature:read')
+  async get(@Param('id') id: string): Promise<FeatureAdminResponse> {
+    const feature = await this.featureService.find({ id });
+    if (!feature) {
+      throw new NotFoundException('Feature not found');
+    }
+    return FeatureAdminResponse.fromDomain(feature);
+  }
+
+  @Post()
+  @AdminUserAclCheck('feature:create')
+  async create(@Body() data: FeatureCreateRequest): Promise<FeatureAdminResponse> {
+    const feature = await this.featureService.create(data);
+    return FeatureAdminResponse.fromDomain(feature);
+  }
+
+  @Put(':id')
+  @AdminUserAclCheck('feature:update')
+  async update(@Param('id') id: string, @Body() data: FeatureAdminUpdateRequest): Promise<FeatureAdminResponse> {
+    const feature = await this.featureService.update(id, data);
+    return FeatureAdminResponse.fromDomain(feature);
+  }
+
+  @Delete(':id')
+  @AdminUserAclCheck('feature:delete')
+  @HttpCode(204)
+  async delete(@Param('id') id: string): Promise<void> {
+    await this.featureService.delete(id);
+  }
+}
+```
+
+## Implementation Rules
+
+### File Organization
+- **Controller**: `{feature}.admin.controller.ts` (in `admin/` subdirectory or main module)
+- **Module**: `{feature}.admin.module.ts`
+- **Service**: `{feature}.admin.service.ts` (optional, use base service when possible)
+- **Models**: `models/feature-admin.{request|response}.ts`
+
+### Controller Decorator
+- Use `@AdminController(path)` instead of `@Controller()`
+- Import from `~modules/admin/common`
+- Add `@ApiTags('Feature Admin')` for Swagger documentation
+
+### Strict REST Pattern
+- **GET** `/` - List/paginate (returns `PaginationDto<Response>`)
+- **GET** `/:id` - Get single (returns `Response`)
+- **POST** `/` - Create (returns `Response`)
+- **PUT** `/:id` - Update (returns `Response`)
+- **DELETE** `/:id` - Delete (returns `204 No Content`)
+
+### Request/Response Models
+- **Request models** must include `id` field in update requests (via `@Param('id')`)
+- **Response models** must include `id` field (always required)
+- Use `FeatureAdminResponse.fromDomain()` for transformations
+- Follow same patterns as regular models (see `models-rule.mdc`)
+
+### Authorization
+- Use `@AdminUserAclCheck('resource:action')` for ACL checks
+- Format: `@AdminUserAclCheck('feature:read')`, `@AdminUserAclCheck('feature:create')`, etc.
+- Import from `~modules/admin/admins/auth`
+
+### Service Usage
+- Prefer using base module service when possible
+- Create `{feature}.admin.service.ts` only when additional admin-specific logic is needed
+- Inject base service in admin controller constructor
+
+### Module Registration
+
+```typescript
+import { Module } from '@nestjs/common';
+import { FeatureModule } from '~modules/feature/feature.module';
+import { FeatureAdminController } from './feature.admin.controller';
+
+@Module({
+  controllers: [FeatureAdminController],
+  imports: [FeatureModule],
+})
+export class FeatureAdminModule {}
+```
+
+### Minimum Structure
+- Minimum admin module requires:
+  - `{feature}.admin.controller.ts`
+  - `{feature}.admin.module.ts`
+- Optionally add:
+  - `{feature}.admin.service.ts` (if custom logic needed)
+  - `models/` directory with request/response DTOs
+
+## Examples
+
+### Minimal Admin Module
+```typescript
+// feature.admin.controller.ts
+@AdminController('features')
+export class FeatureAdminController {
+  constructor(private readonly featureService: FeatureService) {}
+
+  @Get()
+  @AdminUserAclCheck('feature:read')
+  async paginate(@Query() query: FeaturePaginationQueryDto) {
+    // ...
+  }
+}
+
+// feature.admin.module.ts
+@Module({
+  controllers: [FeatureAdminController],
+  imports: [FeatureModule],
+})
+export class FeatureAdminModule {}
+```
+
+### With Admin Service
+```typescript
+// feature.admin.service.ts
+@Injectable()
+export class FeatureAdminService {
+  constructor(private readonly featureService: FeatureService) {}
+
+  async bulkDelete(ids: string[]): Promise<void> {
+    // Custom admin logic
+  }
+}
+```

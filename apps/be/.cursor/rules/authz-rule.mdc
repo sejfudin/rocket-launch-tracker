@@ -1,0 +1,101 @@
+---
+description: Rules for ACL authorization providers
+globs:
+  - "**/*.authz.ts"
+alwaysApply: false
+---
+
+# ACL Authorization Providers
+
+## Basic Structure
+
+```typescript
+import { AbilityBuilder } from '@casl/ability';
+import { Injectable, OnModuleInit } from '@nestjs/common';
+
+import { AppAbility, AuthzProvider } from '~common/authz/authz-provider.abstract';
+import { AuthzLoader } from '~common/authz/authz.loader';
+
+import { FEATURE_AUTHN_KEY } from './feature-auth.constants';
+import { IFeatureAuthRequestUser } from './feature-auth.types';
+
+@Injectable()
+export class FeatureAuthAuthz implements AuthzProvider, OnModuleInit {
+  constructor(private readonly authzLoader: AuthzLoader) {}
+
+  onModuleInit() {
+    this.authzLoader.registerProvider(FEATURE_AUTHN_KEY, this);
+  }
+
+  async applyRules(request: { user: IFeatureAuthRequestUser }, builder: AbilityBuilder<AppAbility>): Promise<void> {
+    if (request.user.namespace === FEATURE_AUTHN_KEY) {
+      for (const role of request.user.roles || []) {
+        switch (role) {
+          case 'manager':
+            builder.can('manage', 'all');
+            break;
+          case 'client':
+            builder.can('read', 'rocket');
+            break;
+          case 'email-manager':
+            builder.can('manage', 'email');
+            builder.can('manage', 'email-log');
+            builder.can('manage', 'email-template');
+            break;
+        }
+      }
+    }
+  }
+}
+```
+
+## Implementation Rules
+
+### Class Structure
+- **Implements**: `AuthzProvider` and `OnModuleInit`
+- **Naming**: `{Feature}Authz` (e.g., `UserAuthAuthz`)
+- **File**: `{feature}.authz.ts`
+
+### Registration
+- Inject `AuthzLoader` in constructor
+- Register in `onModuleInit()` with namespace key constant
+- Add to module `providers` array
+
+### applyRules Method
+- Check `request.user.namespace` matches namespace key
+- Iterate over `request.user.roles` array
+- Use `switch` for role-based permissions
+- Grant with `builder.can(action, subject)`
+
+### Permission Actions
+- `'read'`, `'create'`, `'update'`, `'delete'`, `'manage'` (full CRUD)
+
+### Permission Subjects
+- Resource names: `'rocket'`, `'user'`, `'email'`, etc.
+- `'all'` - All resources (use with `'manage'`)
+
+### Module Registration
+```typescript
+@Module({
+  providers: [FeatureAuthAuthz],
+})
+```
+
+### Adding Permissions for New Features
+
+When adding a new feature module, remember to add permissions to the appropriate roles in `UserAuthAuthz` (or relevant authz provider):
+
+```typescript
+case 'client':
+  builder.can('read', 'rocket');
+  
+  // Add permissions for new feature
+  builder.can('read', 'book-club');
+  builder.can('edit-own-favorite', 'book-club');
+  builder.can('read-own-favorite', 'book-club');
+  break;
+```
+
+### Admin Specific
+
+When using admin-specific permissions (AdminUserAclCheck), use the AdminUserAuthAuthz class.

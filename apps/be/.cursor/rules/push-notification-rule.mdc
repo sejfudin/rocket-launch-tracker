@@ -1,0 +1,100 @@
+---
+description: Rules for push notification templates and sending push notifications
+globs:
+  - "**/*push-notification*.ts"
+alwaysApply: false
+---
+
+# Push Notification Templates and Sending
+
+## Complete Structure
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { Expose } from 'class-transformer';
+import { IsString } from 'class-validator';
+import {
+  IPushNotificationMessage,
+  PushNotificationService,
+  RegisterPushNotificationTemplate,
+} from '~common/push-notifications';
+
+// Template Data Class
+export class FeaturePushNotificationTemplateData {
+  @Expose()
+  @IsString()
+  name!: string;
+}
+
+// Template Provider Service
+@Injectable()
+export class FeaturePushNotificationService {
+  constructor(private readonly pushNotificationService: PushNotificationService) {}
+
+  @RegisterPushNotificationTemplate({
+    template: {
+      name: 'feature-notification',
+      notification: {
+        title: 'Hello, {{name}}!',
+        body: 'This is a notification for {{name}}',
+      },
+    },
+    validate: FeaturePushNotificationTemplateData,
+  })
+  featureNotification(message: IPushNotificationMessage): IPushNotificationMessage {
+    // Optional: preprocess message before sending
+    return message;
+  }
+}
+```
+
+## Implementation Rules
+
+### File Organization
+- File: `{feature}.push-notification.service.ts`
+- Contains: Template data class and service class with template methods
+
+### Template Data Class
+- Use `@Expose()` and validation decorators (`@IsString()`, `@IsNumber()`, etc.)
+- Properties: `readonly` with `!` for required, `?` for optional
+- Property names must match template variables (`{{variableName}}`)
+
+### Template Definition
+- **name**: Unique identifier (kebab-case)
+- **notification.title**: Notification title (supports `{{variable}}`)
+- **notification.body**: Notification body (supports `{{variable}}`)
+- **notification.imageUrl**: Optional image URL (supports `{{variable}}`)
+
+### Template Provider Service
+- Must be `@Injectable()` class
+- Inject `PushNotificationService` in constructor
+- Methods decorated with `@RegisterPushNotificationTemplate()`
+- Receives `IPushNotificationMessage`, returns `IPushNotificationMessage`
+- Can preprocess message before sending
+- Register in module providers
+
+### Sending Push Notifications
+
+```typescript
+import { PushNotificationService } from '~common/push-notifications';
+
+await this.pushNotificationService.sendMessagesTemplate(
+  {
+    resourceName: userId, // Send to all tokens for this resource
+    // or tokens: ['token1', 'token2'], // Send to specific tokens
+  },
+  'feature-notification', // Template name
+  {
+    name: 'John Doe',
+  },
+);
+```
+
+### Module Registration
+
+```typescript
+@Module({
+  imports: [PushNotificationModule.forFeature([/* plugins */])],
+  providers: [FeaturePushNotificationService],
+})
+```

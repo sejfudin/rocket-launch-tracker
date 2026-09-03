@@ -1,0 +1,43 @@
+# Auth
+
+This template supports multiple auth options:
+
+- Custom JWT
+- Auth0
+- Cognito
+
+## How it works
+
+The auth system is based on the `packages/auth/src/auth/auth.context.tsx`. This context accepts certain methods and data that every auth provider needs (login, register, logout, is the user logged in, ...).
+
+The context has a couple of responsibilities:
+
+- It provides its children a context that can be accessed via `useAuth` hook
+- It only renders the children once the auth is successful
+- It logs the user out if the access token expires.
+- It applies axios middleware to the backend client, so that the access token is automatically added to every request.
+
+All of the actual auth providers (like cognito, auth0, ...) need to use this context in their code. For example, open `packages/auth/src/auth/providers/cognito/cognito.provider.tsx`. You will notice that the provider declares all needed properties for the auth context, and then renders it along with its children.
+
+## Auth methods
+
+There are two methods the template supports (configurable with an environment variable, check `.config/${stage}.template.yml`:
+
+- On-site: this kind of method keeps the user on the website as they login or register. Custom forms are used to collect user's information (username/password for login and personal info for registration). The user is never redirected away.
+- Redirect: the site redirects the user to an external site, where they login/register, and then they get redirected back.
+
+Not every provider supports every method. For example, auth0 only supports redirect, while cognito supports both. The providers are implemented in a way that they can react to different inputs. For example, the login function either receives the username/password combination (on-site login attempt), or `undefined` (redirect login attempt). Then, the provider can react accordingly.
+
+## Consuming the AuthContext
+
+Use the `useAuth` hook to access the auth context. This hook contains all the functions and information that you will need to implement auth, such as the login/register mutations, whether or not the user is logged in, etc. The hook doesn't have the knowledge regarding the provider that is being used behind the scenes, so it is written in general language.
+
+## Backend authentication
+
+If you are using our backend template, watch this video for an introduction to the authentication: [Authentication introduction](https://www.youtube.com/watch?v=ALQpjejom1c).
+
+## Template instructions
+
+Choose the auth option you want to use and follow the instructions in the corresponding doc.
+
+If using some other auth provider, implement it's interface, and then consider making a PR to the template to share the provider with rest of the company.

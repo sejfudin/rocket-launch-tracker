@@ -1,0 +1,21 @@
+model PushNotificationToken {
+  id String @id @default(uuid()) @db.Uuid
+
+  // module specific meta data or generic name
+  resourceName String
+
+  // module specific label for display purposes
+  resourceLabel String?
+
+  module String?
+  resourceId String? @db.Uuid
+
+  token     String
+  provider  String
+  expiresAt DateTime?
+
+  title String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

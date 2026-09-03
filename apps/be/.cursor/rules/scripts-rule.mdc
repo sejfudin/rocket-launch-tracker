@@ -1,0 +1,150 @@
+---
+description: Rules for creating and organizing scripts
+globs:
+  - "scripts/**/*.{mjs,js,sh}"
+alwaysApply: false
+---
+
+# Scripts
+
+Scripts are organized in directories and executed in numbered order. Each step should be in its own file, prefixed with a 2-digit number for ordering.
+
+## Structure
+
+Scripts are located in `scripts/[name].d/` directories and executed via:
+- `yarn script [name]`
+- `zx scripts/execute.mjs [name]`
+
+## File Organization
+
+```
+scripts/
+├── [name].d/
+│   ├── 10_first-step.mjs
+│   ├── 20_second-step.mjs
+│   ├── 30_third-step.mjs
+│   └── 40_final-step.mjs
+```
+
+### File Naming
+- **Pattern**: `NN_description.{mjs|js|sh}`
+- **NN**: Two-digit number (00-99) for ordering
+- **Description**: Descriptive name with underscores
+- **Extension**: `.mjs` (preferred), `.js`, or `.sh`
+
+### Numbering Strategy
+- Use well-spaced numbers: `10, 20, 30, 40, 50...`
+- Allows insertion between steps without renumbering
+- Examples:
+  - `10_setup.mjs`
+  - `20_configure.mjs`
+  - `30_execute.mjs`
+  - `40_cleanup.mjs`
+
+## File Types
+
+### .mjs (Preferred - Google zx format)
+
+```javascript
+#!/usr/bin/env zx
+
+import { $ } from 'zx';
+
+await $`command to execute`;
+```
+
+### .js (zx format)
+
+```javascript
+#!/usr/bin/env zx
+
+import { $ } from 'zx';
+
+await $`command to execute`;
+```
+
+### .sh (Bash)
+
+```bash
+#!/bin/bash
+
+set -e
+
+# Your bash commands here
+command to execute
+```
+
+## Implementation Rules
+
+1. **Shebang**: All script files must start with appropriate shebang
+   - `.mjs` and `.js`: `#!/usr/bin/env zx`
+   - `.sh`: `#!/bin/bash`
+
+2. **Error Handling**:
+   - Bash scripts: Include `set -e` to exit on error
+   - zx scripts: Errors propagate automatically
+
+3. **Ordering**:
+   - Files are executed in alphabetical order (determined by number prefix)
+   - Use consistent numbering spacing (10, 20, 30, etc.)
+
+4. **Single Responsibility**:
+   - Each file should perform a single, well-defined step
+   - Break complex operations into multiple numbered files
+
+5. **Naming**:
+   - Use descriptive names with underscores
+   - Keep names concise but clear
+
+## Examples
+
+### Complete Script Set
+
+```javascript
+// scripts/deploy.d/10_build.mjs
+#!/usr/bin/env zx
+import { $ } from 'zx';
+await $`npm run build`;
+
+// scripts/deploy.d/20_test.mjs
+#!/usr/bin/env zx
+import { $ } from 'zx';
+await $`npm test`;
+
+// scripts/deploy.d/30_deploy.mjs
+#!/usr/bin/env zx
+import { $ } from 'zx';
+await $`deploy.sh production`;
+```
+
+### Adding Steps
+
+To insert a step between existing ones:
+```javascript
+// Original: 10, 20, 30, 40
+// Add new step between 20 and 30:
+// New: 10, 20, 25, 30, 40
+// scripts/deploy.d/25_validate.mjs
+#!/usr/bin/env zx
+import { $ } from 'zx';
+await $`npm run validate`;
+```
+
+### Mixed Types
+
+```javascript
+// scripts/setup.d/10_config.mjs
+#!/usr/bin/env zx
+import { $ } from 'zx';
+await $`resolve-config apply`;
+
+// scripts/setup.d/20_install.sh
+#!/bin/bash
+set -e
+apt-get install -y package-name
+
+// scripts/setup.d/30_migrate.mjs
+#!/usr/bin/env zx
+import { $ } from 'zx';
+await $`npx prisma migrate deploy`;
+```

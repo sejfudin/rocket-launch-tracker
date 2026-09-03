@@ -1,0 +1,1059 @@
+# Dynamic Inputs Helper
+
+## Overview
+
+The `dynamicInputs` helper generates type-safe form input definitions from Zod schemas, automatically inferring appropriate input types and providing flexible customization options.
+
+**Designed for use with the `Inputs` component:**
+
+Similar to how `dynamicColumns` generates column definitions for the `Table` component (TanStack Table), `dynamicInputs` generates input definitions (`InputDef[]`) specifically for the `Inputs` component. The `Inputs` component accepts this array and renders the form inputs accordingly.
+
+**Why use it:**
+- ✅ Automatic input type inference from Zod schemas
+- ✅ Type-safe input configurations
+- ✅ Built-in props for enums (automatic items generation)
+- ✅ Flexible type overrides within constraints
+- ✅ Consistent form generation across your application
+
+**When to use it:**
+- You have a Zod schema defining your form data
+- You want to quickly generate form inputs with sensible defaults
+- You need type-safe input configurations
+
+## Examples in admin
+
+See how `dynamicInputs` is used in production on admin:
+
+- [Form example](https://github.com/povio/monorepo-template/blob/develop/apps/admin/src/components/notifications/templates/NotificationTemplateCreatePage.tsx) - Note: using the Form component is usually preferred for these regular use cases
+- [Filters example](https://github.com/povio/monorepo-template/blob/develop/apps/admin/src/components/tables/filters/NotificationLogsFilters.tsx) - This helper is more useful for standardized forms like filters, which don't require any custom layouts
+- [PageBuilder Filters example](https://github.com/povio/monorepo-template/blob/develop/apps/admin/src/components/email/filters/EmailManagementFilters.tsx) - only defines parameters which page builder passes to dynamicInputs internally
+
+## Quick Start
+
+Here's a comparison showing the value of `dynamicInputs`:
+
+```typescript
+const UserSchema = z.object({
+  firstName: z.string(),
+  age: z.number(),
+  role: z.enum(["admin", "user"]),
+  isActive: z.boolean()
+});
+
+// ❌ Manual approach - verbose and repetitive
+const manualInputDefs = [
+  {
+    name: "firstName",
+    type: "textInput",
+    label: "First Name",
+    props: {}
+  },
+  {
+    name: "age",
+    type: "numberInput",
+    label: "Age",
+    props: {}
+  },
+  {
+    name: "role",
+    type: "select",
+    label: "Role",
+    props: {
+      items: [
+        { id: "admin", label: "Admin" },
+        { id: "user", label: "User" }
+      ],
+      selectionMode: "single"
+    }
+  },
+  // ... more boilerplate
+];
+
+// ✅ Using dynamicInputs - concise and type-safe
+const inputDefs = dynamicInputs({
+  schema: UserSchema,
+  options: {
+    inputs: {
+      firstName: true,  // Uses textInput
+      age: true,        // Uses numberInput
+      role: true,       // Uses select with auto-generated items
+      isActive: true,   // Uses toggle
+    }
+  }
+});
+
+// Use with Inputs component
+<Inputs form={form} inputDefs={inputDefs} />
+```
+
+The `dynamicInputs` helper returns an `InputDef[]` array that the `Inputs` component expects, similar to how TanStack Table works with column definitions.
+
+**Complete working example:**
+
+```typescript
+import { dynamicInputs, Inputs, useForm, useTranslationMemo } from "@povio/ui";
+import { z } from "zod";
+
+const UserSchema = z.object({
+  firstName: z.string(),
+  age: z.number(),
+  role: z.enum(["admin", "user"]),
+});
+
+const getInputDefs = () => dynamicInputs({
+  schema: UserSchema,
+  options: {
+    inputs: {
+      firstName: true,
+      age: true,
+      role: true,
+    },
+    namespace: "user.form"
+  }
+});
+
+function UserForm() {
+  const form = useForm({ zodSchema: UserSchema });
+  const inputDefs = useTranslationMemo(getInputDefs);
+  
+  return (
+    <form onSubmit={form.handleSubmit(console.log)}>
+      <Inputs form={form} inputDefs={inputDefs} />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+## Basic Input Configuration
+
+Control which inputs appear and how they're configured:
+
+```typescript
+dynamicInputs({
+  schema: UserSchema,
+  options: {
+    inputs: {
+      // Include with defaults
+      firstName: true,
+      
+      // Exclude from form (default behaviour, not required)
+      internal: false,
+      
+      // Add custom label
+      age: {
+        label: "User Age"
+      },
+      
+      // Full configuration
+      email: {
+        label: "Email Address",
+        placeholder: "Enter your email",
+        props: {
+          className: "w-full"
+        }
+      }
+    }
+  }
+});
+```
+
+## Automatic Type-Based Inference
+
+Input types are automatically inferred from your Zod schema:
+
+```
+| Zod Type      | Default Input Type   | Example Props
+|---------------|----------------------|-------------------------------------------------
+| `z.string()`  | `textInput`          | —
+| `z.uuid()`    | `select`             | —
+| `z.email()`   | `textInput`          | —
+| `z.number()`  | `numberInput`        | —
+| `z.boolean()` | `toggle`             | —
+| `z.enum()`    | `select`             | `items` auto-generated, `selectionMode: "single"`
+| `z.array()`   | `select`             | `items` from inner enum, `selectionMode: "multiple"`
+| Date/DateTime | `datePicker`         | —
+| DateRange     | `dateRangePicker`    | —
+| TextEditor    | `textEditor`         | —
+| `z.object()`  | `unknown`            | Won't render (use custom render function)
+```
+
+**Type inference happens when:**
+- You set a field to `true`
+- You provide configuration without specifying `type`
+
+```typescript
+const UserSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  age: z.number(),
+  role: z.enum(["admin", "user", "guest"]),
+});
+
+const inputDefs = dynamicInputs({
+  schema: UserSchema,
+  options: {
+    inputs: {
+      // Type inferred as "textInput"
+      firstName: true,
+      
+      // Type inferred as "textInput" (no type specified)
+      lastName: {
+        label: "Last Name",
+        props: {
+          className: "w-full",
+        },
+      },
+      
+      // Type inferred as "numberInput"
+      age: {
+        label: "Age",
+        placeholder: "Enter age",
+      },
+      
+      // Type inferred as "select" with auto-generated items
+      role: true,
+      // Generates: { items: [{ id: "admin", label: "Admin" }, ...] }
+    },
+  },
+});
+```
+
+## Common Patterns
+
+### Type Overrides with Constraints
+
+Each Zod type can only be mapped to specific input components. TypeScript enforces these mappings:
+
+```
+| Zod Type      | Allowed Input Types
+|---------------|--------------------------------------------------------------------
+| `datetime`    | `datePicker`, `dateTimePicker`, `timePicker`
+| `dateRange`   | `dateRangePicker`
+| `textEditor`  | `textEditor`
+| `boolean`     | `toggle`, `checkbox`
+| `number`      | `numberInput`, `slider`, `select`, `autocomplete`, `queryAutocomplete`, `segment`
+| `enum`        | `select`, `autocomplete`, `segment`
+| `string`      | `textInput`, `passwordInput`, `textArea`, `select`, `autocomplete`, `queryAutocomplete`, `segment`
+| `email`       | `textInput`
+| `array`       | `select`, `autocomplete`, `queryAutocomplete`, `segment`
+| `uuid`        | `select`, `autocomplete`, `queryAutocomplete`, `segment`
+```
+
+**Examples:**
+
+```typescript
+dynamicInputs({
+  schema: z.object({
+    age: z.number(),
+    weight: z.number(),
+    role: z.enum(["admin", "user"]),
+    bio: z.string(),
+  }),
+  options: {
+    inputs: {
+      // Override default "numberInput" with "slider"
+      age: {
+        type: "slider",
+        label: "Age",
+        props: {
+          minValue: 0,
+          maxValue: 100,
+        }
+      },
+      
+      // Override default "numberInput" with "select"
+      weight: {
+        type: "select",
+        label: "Weight Range",
+        props: {
+          items: [
+            { id: "50", label: "Under 50kg" },
+            { id: "75", label: "50-75kg" },
+            { id: "100", label: "Over 75kg" }
+          ],
+          selectionMode: "single"
+        }
+      },
+      
+      // Override default "select" with "segment"
+      role: {
+        type: "segment",
+        label: "User Role",
+        // Items still auto-generated from enum
+      },
+      
+      // Override default "textInput" with "textArea"
+      bio: {
+        type: "textArea",
+        label: "Biography",
+        props: {
+          rows: 4
+        }
+      },
+      
+      // ❌ TypeScript error - "textInput" not allowed for numbers
+      // age: {
+      //   type: "textInput"  // Error!
+      // }
+    }
+  }
+});
+```
+
+### Custom Input Rendering
+
+For complete control, use render functions:
+
+```typescript
+dynamicInputs({
+  schema: UserSchema,
+  options: {
+    inputs: {
+      // Function shorthand
+      firstName: (formControl) => (
+        <div className="flex flex-col gap-2">
+          <TextInput
+            formControl={formControl}
+            label="First Name"
+            placeholder="Enter your first name"
+          />
+          <span className="text-sm text-gray-500">
+            This will be displayed on your profile
+          </span>
+        </div>
+      ),
+      
+      // Using render property
+      lastName: {
+        render: (formControl, form) => {
+          const firstName = form.watch("firstName");
+          return (
+            <TextInput
+              formControl={formControl}
+              label="Last Name"
+              placeholder={`Last name for ${firstName || "user"}`}
+            />
+          );
+        }
+      }
+    }
+  }
+});
+```
+
+## Translation & Labels
+
+Labels and placeholders are resolved in this priority order:
+
+1. **Direct `label`/`placeholder` property** (highest priority)
+2. **Translation keys**:
+   - Label: `"{namespace}.{fieldName}.label"`
+   - Placeholder: `"{namespace}.{fieldName}.placeholder"`
+3. **Fallbacks**:
+   - Label: Capitalized field name
+   - Placeholder: `undefined` (empty)
+
+```typescript
+dynamicInputs({
+  schema: UserSchema,
+  options: {
+    inputs: {
+      // 1. Direct label - no translation lookup
+      firstName: {
+        label: "Custom First Name",
+        placeholder: "Enter name"
+      },
+      
+      // 2. Translation lookup at "user.form.lastName.label"
+      lastName: true,
+      
+      // 3. Fallback to "Email" if no translation found
+      email: true
+    },
+    // Translation namespace (default: "dynamicInputs")
+    namespace: "user.form"
+  }
+});
+```
+
+**Example translation file:**
+
+```json
+{
+  "user": {
+    "form": {
+      "lastName": {
+        "label": "Last Name",
+        "placeholder": "Enter your last name"
+      },
+      "email": {
+        "label": "Email Address",
+        "placeholder": "user@example.com"
+      }
+    }
+  }
+}
+```
+
+## Advanced Configuration
+
+### Global Props
+
+Apply props to all inputs:
+
+```typescript
+dynamicInputs({
+  schema: UserSchema,
+  options: {
+    inputs: {
+      firstName: true,
+      email: true,
+      age: true,
+    },
+    // Applied to all inputs (can be overridden per-input)
+    globalProps: {
+      className: "w-full",
+      ignoreTriggerWidth: true,
+    },
+  }
+});
+```
+
+### Global Input Wrapper
+
+Wrap all inputs with consistent structure:
+
+```typescript
+dynamicInputs({
+  schema: UserSchema,
+  options: {
+    inputs: {
+      firstName: true,
+      lastName: true,
+    },
+    // Wrapper applied to all inputs
+    globalInputWrapper: (children, label) => (
+      <div className="flex items-start gap-4 p-4 border rounded-md">
+        <span className="font-semibold min-w-32">{label}:</span>
+        <div className="flex-1">{children}</div>
+      </div>
+    ),
+  }
+});
+```
+
+You can also override the wrapper for specific inputs:
+
+```typescript
+dynamicInputs({
+  schema: UserSchema,
+  options: {
+  inputs: {
+      firstName: true,  // Uses global wrapper
+      
+      // Custom wrapper for this input only
+      lastName: {
+        label: "Last Name",
+        inputWrapper: (children, label) => (
+          <div className="bg-blue-50 p-2 rounded">
+            <span className="text-blue-700">{label}</span>
+            {children}
+          </div>
+        )
+      }
+    },
+    globalInputWrapper: (children, label) => (
+      <div className="p-4">{children}</div>
+    ),
+  }
+});
+```
+
+### Custom Layout with Inputs Component
+
+Use the `children` render function to get full control over input positioning and layout:
+
+```typescript
+const inputDefs = dynamicInputs({
+  schema: UserSchema,
+  options: {
+    inputs: {
+      firstName: true,
+      lastName: true,
+      email: true,
+      phone: true,
+      address: true,
+      city: true,
+      country: true,
+      bio: { type: "textArea" },
+    },
+    namespace: "user.form"
+  }
+});
+
+function UserForm() {
+  const form = useForm({ zodSchema: UserSchema });
+  
+  return (
+    <form onSubmit={form.handleSubmit(onSubmit)}>
+      <Inputs form={form} inputDefs={inputDefs}>
+        {(inputs) => (
+          <div className="space-y-6">
+            {/* Name section - side by side */}
+            <div className="grid grid-cols-2 gap-4">
+              {inputs.firstName}
+              {inputs.lastName}
+            </div>
+            
+            {/* Contact section */}
+            <div className="space-y-4">
+              <h3 className="font-semibold">Contact Information</h3>
+              {inputs.email}
+              {inputs.phone}
+            </div>
+            
+            {/* Address section */}
+            <div className="space-y-4">
+              <h3 className="font-semibold">Address</h3>
+              {inputs.address}
+              <div className="grid grid-cols-2 gap-4">
+                {inputs.city}
+                {inputs.country}
+              </div>
+            </div>
+            
+            {/* Bio section - full width */}
+            {inputs.bio}
+            
+            <button type="submit">Save</button>
+          </div>
+        )}
+      </Inputs>
+    </form>
+  );
+}
+```
+
+**Without the children function**, inputs render in the order defined by the `order` option or the order they appear in `inputs`:
+
+```typescript
+// Simple approach - inputs render in default order
+<Inputs form={form} inputDefs={inputDefs} />
+```
+
+### Field Ordering
+
+When not using custom layout, control the display order with the `order` option:
+
+```typescript
+dynamicInputs({
+  schema: UserSchema,
+  options: {
+    inputs: {
+      lastName: true,
+      firstName: true,
+      email: true,
+      age: true,
+    },
+    // Specify display order
+    order: ["firstName", "lastName", "email", "age"],
+    // Fields not in 'order' appear at the end
+  }
+});
+```
+
+**With preset inputs:**
+
+```typescript
+const presetInputs = [
+  { name: "acceptTerms", type: "checkbox", label: "Accept Terms" },
+  { name: "newsletter", type: "checkbox", label: "Subscribe to newsletter" },
+];
+
+dynamicInputs({
+  schema: UserSchema,
+  preset: presetInputs,
+  options: {
+    inputs: {
+      firstName: true,
+      email: true,
+    },
+    // Order works with both schema fields and preset names
+    order: ["firstName", "email", "acceptTerms", "newsletter"],
+  }
+});
+```
+
+### Working with Preset Inputs
+
+Combine, override, or remove preset input definitions:
+
+```typescript
+const presetInputs = [
+  { 
+    name: "agreeToTerms", 
+    type: "checkbox", 
+    label: "I agree to terms" 
+  },
+  { 
+    name: "newsletter", 
+    type: "toggle", 
+    label: "Subscribe" 
+  },
+];
+
+dynamicInputs({
+  schema: UserSchema,
+  preset: presetInputs,
+  options: {
+    inputs: {
+      firstName: true,
+      email: true,
+      
+      // Override preset definition
+      agreeToTerms: {
+        type: "toggle",  // Change from checkbox to toggle
+        label: "Accept Terms & Conditions",
+      },
+      
+      // Remove preset input
+      newsletter: false,
+    },
+    
+    // Override preset labels/placeholders with translations
+    overridePresetLocales: true,
+    namespace: "user.form"
+  }
+});
+```
+
+### Include All Schema Fields
+
+Automatically include all schema fields:
+
+```typescript
+dynamicInputs({
+  schema: UserSchema,
+  options: {
+    // Include ALL schema fields by default
+    includeAll: true,
+    
+    inputs: {
+      // Only customize specific fields
+      firstName: {
+        label: "First Name",
+      },
+      // Hide specific fields
+      internalId: false,
+    },
+    
+    order: ["firstName", "lastName", "email"]
+  }
+});
+```
+
+This is useful when:
+- You want most fields displayed with defaults
+- You only need to customize a few specific inputs
+- Your schema changes frequently
+
+## Complete API Reference
+
+### `dynamicInputs(params)`
+
+```typescript
+interface DynamicInputsParams<TSchema extends z.ZodObject<any>> {
+  schema: TSchema;                              // Required: Your Zod schema
+  preset?: InputDef<z.infer<TSchema>>[];        // Optional: Predefined inputs
+  options: DynamicInputsOptions<TSchema>;       // Required: Configuration options
+}
+```
+
+### `DynamicInputsOptions`
+
+```
+| Option                  | Type              | Default           | Description
+|-------------------------|-------------------|-------------------|---------------------------------------------
+| `inputs`                | `InputsConfig`    | `{}`              | Input definitions mapped by schema field names
+| `order`                 | `string[]`        | `undefined`       | Display order of fields
+| `globalProps`           | `Partial<Props>`  | `{}`              | Props applied to all inputs
+| `globalInputWrapper`    | `InputWrapperType`| `undefined`       | Wrapper for all inputs
+| `namespace`             | `string`          | `"dynamicInputs"` | Translation namespace for labels/placeholders
+| `overridePresetLocales` | `boolean`         | `false`           | Apply namespace translations to preset inputs
+| `includeAll`            | `boolean`         | `false`           | Include all schema fields by default
+```
+
+### Input Configuration Values
+
+For each field in the `inputs` object, you can use:
+
+```
+| Value      | Description                 | Example
+|------------|-----------------------------|---------------------------------------------
+| `true`     | Use default type            | `firstName: true`
+| `false`    | Exclude input               | `internal: false`
+| `function` | Direct render function      | `name: (fc) => <TextInput {...fc} />`
+| `object`   | Full input configuration    | `age: { type: "slider", label: "Age" }`
+```
+
+### Input Definition Object
+
+```typescript
+{
+  type?: InputComponentType;      // Override inferred type (within constraints)
+  label?: string;                 // Input label text
+  placeholder?: string;           // Input placeholder text
+  props?: Partial<ComponentProps>;// Component-specific props
+  inputWrapper?: InputWrapperType;// Custom wrapper for this input
+  render?: RenderFunction;        // Custom render function
+}
+```
+
+## Complete Examples
+
+### User Registration Form
+
+```typescript
+const RegistrationSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+  confirmPassword: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
+  age: z.number().min(18),
+  country: z.enum(["us", "uk", "ca", "au"]),
+  acceptTerms: z.boolean(),
+  newsletter: z.boolean(),
+});
+
+const inputDefs = dynamicInputs({
+  schema: RegistrationSchema,
+  options: {
+    inputs: {
+      // Basic inputs with defaults
+      firstName: true,
+      lastName: true,
+      
+      // Email with custom placeholder
+      email: {
+        placeholder: "user@example.com"
+      },
+      
+      // Password inputs
+      password: {
+        type: "passwordInput",
+        label: "Password",
+        placeholder: "Min 8 characters"
+      },
+      confirmPassword: {
+        type: "passwordInput",
+        label: "Confirm Password",
+      },
+      
+      // Number input with custom props
+      age: {
+        label: "Age",
+        placeholder: "Must be 18+",
+        props: {
+          min: 18,
+          max: 120
+        }
+      },
+      
+      // Enum as segment control
+      country: {
+        type: "segment",
+        label: "Country",
+        // Items auto-generated from enum
+      },
+      
+      // Booleans as checkboxes
+      acceptTerms: {
+        type: "checkbox",
+        label: "I accept the Terms & Conditions"
+      },
+      newsletter: {
+        type: "checkbox",
+        label: "Subscribe to newsletter"
+      },
+    },
+    
+    // Field order
+    order: [
+      "firstName",
+      "lastName",
+      "email",
+      "password",
+      "confirmPassword",
+      "age",
+      "country",
+      "acceptTerms",
+      "newsletter"
+    ],
+    
+    // Global styling
+    globalProps: {
+      className: "w-full"
+    },
+    
+    namespace: "registration.form"
+  }
+});
+```
+
+### Product Filtering Form with Custom Rendering
+
+```typescript
+const FilterSchema = z.object({
+  search: z.string(),
+  category: z.enum(["electronics", "clothing", "books", "home"]),
+  priceRange: z.object({
+    min: z.number(),
+    max: z.number(),
+  }),
+  inStock: z.boolean(),
+  rating: z.number(),
+  tags: z.array(z.enum(["new", "sale", "featured", "clearance"])),
+});
+
+const inputDefs = dynamicInputs({
+  schema: FilterSchema,
+  options: {
+    inputs: {
+      // Search with custom icon
+      search: (formControl, form) => (
+        <div className="relative">
+          <SearchIcon className="absolute left-3 top-3" />
+          <TextInput
+            formControl={formControl}
+            label="Search Products"
+            placeholder="Search..."
+            props={{ className: "pl-10" }}
+          />
+        </div>
+      ),
+      
+      // Category as autocomplete
+      category: {
+        type: "autocomplete",
+        label: "Category",
+      },
+      
+      // Complex nested object - custom render
+      priceRange: (formControl, form) => {
+        const [min, max] = form.watch("priceRange") || [0, 1000];
+        return (
+          <div className="flex flex-col gap-2">
+            <label className="font-medium">Price Range</label>
+            <div className="flex gap-4 items-center">
+              <NumberInput
+                formControl={{ control: form.control, name: "priceRange.min" }}
+                placeholder="Min"
+              />
+              <span>to</span>
+              <NumberInput
+                formControl={{ control: form.control, name: "priceRange.max" }}
+                placeholder="Max"
+              />
+            </div>
+            <span className="text-sm text-gray-500">
+              ${min} - ${max}
+            </span>
+          </div>
+        );
+      },
+      
+      // Boolean as toggle
+      inStock: {
+        type: "toggle",
+        label: "In Stock Only"
+      },
+      
+      // Number as slider
+      rating: {
+        type: "slider",
+        label: "Minimum Rating",
+        props: {
+          minValue: 0,
+          maxValue: 5,
+          step: 0.5,
+        }
+      },
+      
+      // Array with auto-generated items
+      tags: {
+        type: "segment",
+        label: "Tags",
+        // selectionMode: "multiple" is auto-inferred from array
+      },
+    },
+    
+    globalProps: {
+      className: "w-full"
+    },
+    
+    globalInputWrapper: (children, label) => (
+      <div className="mb-4">
+        {children}
+      </div>
+    ),
+    
+    namespace: "products.filters"
+  }
+});
+```
+
+### Form with Preset and Dynamic Fields
+
+```typescript
+const ProfileSchema = z.object({
+  username: z.string(),
+  email: z.string().email(),
+  bio: z.string(),
+  isPublic: z.boolean(),
+});
+
+// Preset inputs for common form fields
+const commonPresets = [
+  {
+    name: "createdAt",
+    type: "datePicker",
+    label: "Member Since",
+    props: { disabled: true }
+  },
+  {
+    name: "lastLogin",
+    type: "datePicker",
+    label: "Last Login",
+    props: { disabled: true }
+  }
+];
+
+const inputDefs = dynamicInputs({
+  schema: ProfileSchema,
+  preset: commonPresets,
+  options: {
+    inputs: {
+      username: {
+        label: "Username",
+        placeholder: "Choose a unique username"
+      },
+      
+      email: {
+        placeholder: "your.email@example.com"
+      },
+      
+      bio: {
+        type: "textArea",
+        label: "Biography",
+        placeholder: "Tell us about yourself...",
+        props: {
+          rows: 4,
+          maxLength: 500
+        }
+      },
+      
+      isPublic: {
+        type: "toggle",
+        label: "Make profile public"
+      },
+    },
+    
+    order: [
+      "username",
+      "email",
+      "bio",
+      "isPublic",
+      "createdAt",
+      "lastLogin"
+    ],
+    
+    globalProps: {
+      className: "max-w-xl"
+    },
+    
+    namespace: "profile.settings"
+  }
+});
+```
+
+### Table Filters with URL Sync
+
+A common pattern is using `dynamicInputs` for table filters that automatically sync with URL query parameters:
+
+```typescript
+// Define filter schema
+const UserFilterSchema = z.object({
+  role: z.enum(["admin", "user", "guest"]).optional(),
+  status: z.enum(["active", "inactive"]).optional(),
+  createdAt: z.object({ start: z.iso.datetime().nullable(), end: z.iso.datetime().nullable() }).optional(),
+  tags: z.array(z.enum(["verified", "premium"])).optional(),
+}).partial();
+
+// Create filter definitions
+const getFilterDefs = () => dynamicInputs({
+  schema: UserFilterSchema,
+  options: {
+    inputs: {
+      role: true,        // Auto-generates select items from enum
+      status: true,
+      createdAt: true,   // Uses dateRangePicker for objects
+      tags: true,        // Uses multi-select for arrays
+    },
+    namespace: "users.filters",
+  }
+});
+
+// Filters component
+function UserTableFilters({ store }: { store: FilterStore<UserFilter> }) {
+  const filterDefs = useTranslationMemo(getFilterDefs);
+  return <Filters schema={UserFilterSchema} store={store} filterDefs={filterDefs} />;
+}
+
+// Usage in page
+function UsersPage() {
+  const filterStore = useFilters<UserFilter>({ status: "active" });
+  const { data } = useQuery({
+    queryKey: ["users", filterStore.filterData],
+    queryFn: () => fetchUsers(filterStore.filterData),
+  });
+  
+  return (
+    <div>
+      <UserTableFilters store={filterStore} />
+      <UserTable data={data} />
+    </div>
+  );
+}
+```
+
+**Advanced patterns:**
+
+```typescript
+// Custom rendering and query autocomplete
+const advancedFilters: DynamicInputsOptions<typeof FilterSchema> = {
+  inputs: {
+    customField: (formControl, form) => <CustomFilter formControl={formControl} />,
+    userId: {
+      type: "queryAutocomplete",
+      props: { query: UserQueries.useGetNameLabels },
+    },
+    createdAt: true,
+  },
+  namespace: "filters",
+};
+```
+
+**FilterStore interface:**
+
+```typescript
+interface FilterStore<TFilterData> {
+  filterData: TFilterData;                                  // Current values (synced with URL)
+  setFilterValue: (data: Partial<TFilterData>) => void;     // Update filters
+  getFilterValue: (keys: (keyof TFilterData)[]) => Partial<TFilterData>;
+  clearAllFilters: () => void;                              // Reset to defaults
+}
+```
+
+**Key benefits:** URL sync, shareable links, browser navigation, auto-save, type safety, auto-generated enum items.

@@ -1,0 +1,25 @@
+model EmailTemplate {
+  id   String @id @default(uuid()) @db.Uuid
+  name String @unique
+
+  from String?
+  cc   String?
+  bcc  String?
+  
+  // compiler
+  engine        String
+  engineOptions Json?
+
+
+  subject String?
+  html    String?
+  text    String?
+  
+  type String @default("custom")
+
+  module      String?
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

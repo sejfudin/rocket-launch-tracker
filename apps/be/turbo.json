@@ -1,0 +1,21 @@
+{
+  "extends": ["//"],
+  "tags": ["api"],
+  "tasks": {
+    "lint:check": {
+      "dependsOn": ["generate"]
+    },
+    "format:check": {
+      "dependsOn": ["generate"]
+    },
+    "typecheck": {
+      "dependsOn": ["generate"]
+    },
+    "check:ci": {
+      "dependsOn": ["generate", "typecheck", "lint:check", "format:check"]
+    },
+    "generate": {
+      "dependsOn": ["^generate"]
+    }
+  }
+}

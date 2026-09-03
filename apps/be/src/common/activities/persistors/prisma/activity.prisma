@@ -1,0 +1,15 @@
+model Activity {
+  id String @id @default(uuid(7)) @db.Uuid
+
+  timestamp DateTime @db.Timestamp(6)
+  payload   Json     @db.JsonB
+  metadata  Json?    @db.JsonB
+
+  module     String  @db.Text
+  type       String  @db.Text
+  userId     String? @map("user_id") @db.Uuid
+  resourceId String? @map("resource_id") @db.Uuid
+
+  @@index([module, timestamp])
+  @@index([timestamp])
+}

@@ -1,0 +1,140 @@
+# Fonts
+
+We use [Fontsource](https://fontsource.org/) to import fonts, which provides self-hosted web fonts with optimal performance. Fonts are imported in `styles/globals.css` and exposed using CSS variables in `styles/fonts/fonts.tsx`, which are then used inside the `tailwind.css` theme.
+
+## Fontsource fonts
+
+If a font is available on Fontsource, you should use it as it provides the best performance and simplicity. Fontsource packages are self-hosted, meaning the fonts are served from your own domain.
+
+### Installation
+
+First, install the font package using yarn. For variable fonts, use the `-variable` suffix:
+
+```bash
+yarn add @fontsource-variable/inter
+yarn add @fontsource-variable/geist
+```
+
+For static fonts, install without the `-variable` suffix:
+
+```bash
+yarn add @fontsource/roboto
+```
+
+### Importing
+
+Import the font in `styles/globals.css`:
+
+```css
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/geist";
+```
+
+For static fonts, you can import specific weights and styles. Import each weight and style combination you need:
+
+```css
+@import "@fontsource/roboto/400.css";
+@import "@fontsource/roboto/400-italic.css";
+@import "@fontsource/roboto/500-italic.css";
+```
+
+### Assigning CSS variables
+
+Define CSS variables for the font in `styles/fonts/fonts.tsx`. The font name should match the Fontsource package name (capitalized, with spaces for variable fonts):
+
+```tsx
+export const Fonts = () => (
+  <style>{`
+    :root {
+      --font-inter-base: "Inter Variable";
+      --font-geist-base: "Geist Variable";
+    }
+  `}</style>
+);
+```
+
+For static fonts, use the font name without "Variable":
+
+```tsx
+:root {
+  --font-roboto-base: "Roboto";
+}
+```
+
+## Local (custom) fonts
+
+If a font is not available on Fontsource, you can use local font files. This is useful for custom fonts, proprietary fonts, or fonts that haven't been added to Fontsource yet.
+
+### Setup
+
+<div className="[&>ol]:list-decimal">
+1. **Place font files** in `src/assets/fonts/` directory. It's recommended to use `woff2` format as it provides the best compression and performance.
+
+2. **Convert fonts to woff2** if needed using [Font Squirrel](https://www.fontsquirrel.com/tools/webfont-generator) or similar tools.
+
+3. **Create a separate font file** (e.g., `styles/fonts/custom-font.css`) and define `@font-face` rules there:
+
+```css
+@font-face {
+  font-family: "Custom Font";
+  src: url("../../assets/fonts/custom-font.woff2") format("woff2");
+  font-weight: 100 900; /* For variable fonts */
+  font-style: normal;
+  font-display: swap; /* Improves loading performance */
+}
+
+@font-face {
+  font-family: "Custom Font";
+  src: url("../../assets/fonts/custom-font-italic.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+```
+
+For static fonts with multiple weights, define separate @font-face rules for each weight:
+
+```css
+@font-face {
+  font-family: "Custom Font";
+  src: url("../../assets/fonts/custom-font-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Custom Font";
+  src: url("../../assets/fonts/custom-font-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+```
+
+4. **Import the font file** in `styles/globals.css`:
+
+```css
+@import "./fonts/custom-font.css";
+```
+
+5. **Assign CSS variable** in `styles/fonts/fonts.tsx`:
+
+```tsx
+export const Fonts = () => (
+  <style>{`
+    :root {
+      --font-custom-base: "Custom Font";
+    }
+  `}</style>
+);
+```
+</div>
+
+## Modifying
+
+- Install font packages from Fontsource when available
+- Import fonts in `styles/globals.css` using `@import` statements
+- Add CSS variables in `styles/fonts/fonts.tsx` matching the font family names
+- For local fonts, add `@font-face` declarations and corresponding CSS variables
+- Cross-check that variable names match those used in `tailwind.css` theme configuration

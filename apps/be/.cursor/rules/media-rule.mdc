@@ -1,0 +1,152 @@
+---
+description: Rules for handling media files (upload, validation, association, fetching)
+globs:
+  - "**/*.media.service.ts"
+alwaysApply: false
+---
+
+# Media Handling
+
+## Media Service Structure
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { MediaService } from '~common/media';
+import { MediaLibrary } from '~modules/media';
+
+import type { IFeature } from './models';
+
+@Injectable()
+export class FeatureMediaService {
+  constructor(private readonly mediaService: MediaService) {}
+
+  /**
+   * Validate and associate media to the feature
+   */
+  async validateMedia(featureId: string, data: Pick<IFeature, 'picture' | 'attachments'>): Promise<void> {
+    if (data.picture?.id) {
+      const media = await this.mediaService.validate(data.picture.id, MediaLibrary.SmallImage);
+      await this.mediaService.associate(media, {
+        module: 'feature',
+        type: 'feature-picture',
+        resourceId: featureId,
+      });
+    }
+    if (data.attachments) {
+      for (const { id } of data.attachments) {
+        if (!id) continue;
+        const media = await this.mediaService.validate(id, MediaLibrary.SmallImage);
+        await this.mediaService.associate(media, {
+          module: 'feature',
+          type: 'feature-attachment',
+          resourceId: featureId,
+        });
+      }
+    }
+  }
+
+  /**
+   * Resolve media fetch requests and apply to feature(s)
+   */
+  async resolveMedia<T extends IFeature[] | IFeature>(feature: T): Promise<T> {
+    const features: IFeature[] = Array.isArray(feature) ? feature : [feature];
+    
+    const mediaIds: string[] = features
+      .map((f) => [f.picture?.id, ...(f.attachments ?? []).map((x) => x.id)])
+      .flat()
+      .filter((x) => x !== undefined);
+
+    const mediaRequests = await this.mediaService.createMediaFetchRequests(mediaIds);
+
+    for (const feature of features) {
+      if (feature.picture?.id && mediaRequests[feature.picture?.id]) {
+        feature.picture = { ...mediaRequests[feature.picture?.id] };
+      }
+      if (feature.attachments) {
+        feature.attachments = feature.attachments.map((a) => {
+          return a.id && mediaRequests[a.id] ? { ...a, ...mediaRequests[a.id] } : a;
+        });
+      }
+    }
+
+    return Array.isArray(feature) ? (features as T) : (features[0] as T);
+  }
+}
+```
+
+## Implementation Rules
+
+### File Organization
+- **File**: `{feature}.media.service.ts`
+- **Service**: `{Feature}MediaService`
+- Contains: `validateMedia()` and `resolveMedia()` methods
+
+### validateMedia Method
+- Validate media IDs using `mediaService.validate(id, MediaLibrary.*)`
+- Associate validated media using `mediaService.associate(media, { module, type, resourceId })`
+- Call in service `update()` method before repository update
+- Handle single media fields (`picture`) and arrays (`attachments`, `timelapses`)
+
+### resolveMedia Method
+- Collect all media IDs from feature(s)
+- Use `mediaService.createMediaFetchRequests(mediaIds)` to get fetch instructions
+- Apply media fetch instructions to feature objects
+- Handle both single and array inputs
+- Call in service `paginate()` and `find()` methods after repository calls
+
+### Media Library Constraints
+- Use `MediaLibrary.*` constants for resource constraints
+- Examples: `MediaLibrary.SmallImage`, `MediaLibrary.LargeImage`
+
+### Media Types in Models
+
+**Request Models (Update/Create):**
+```typescript
+import { IMediaAttachRequest } from '~common/media';
+
+export interface IFeatureUpdate {
+  picture?: IMediaAttachRequest;
+  attachments?: Array<IMediaAttachRequest>;
+}
+```
+
+**Domain Models:**
+```typescript
+import { IMediaFetchInstructions } from '~common/media';
+
+export interface IFeature {
+  picture?: IMediaFetchInstructions;
+  attachments?: Array<IMediaFetchInstructions>;
+}
+```
+
+### Service Integration
+- Inject `{Feature}MediaService` in main service
+- Call `validateMedia()` in `update()` before repository update
+- Call `resolveMedia()` in `paginate()` and `find()` after repository calls
+- Register media service in module providers
+
+## Examples
+
+### Service Usage
+```typescript
+@Injectable()
+export class FeatureService {
+  constructor(
+    private readonly featureRepository: FeatureRepository,
+    private readonly featureMediaService: FeatureMediaService,
+  ) {}
+
+  async paginate(query: IFeaturePaginationQuery): Promise<IPagination<IFeature>> {
+    const pagination = await this.featureRepository.paginate(query);
+    pagination.items = await this.featureMediaService.resolveMedia(pagination.items);
+    return pagination;
+  }
+
+  async update(id: string, data: FeatureUpdateRequest): Promise<IFeature> {
+    const feature = await this.find({ id });
+    await this.featureMediaService.validateMedia(feature.id, data);
+    return await this.featureRepository.update(id, data);
+  }
+}
+```

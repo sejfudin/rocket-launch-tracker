@@ -1,0 +1,23 @@
+model QueueJob {
+  // internal job id
+  id String @id
+
+  processor String @db.Text
+  queue     String? @db.Text
+  options   Json?  @db.JsonB
+
+  payload   Json?  @db.JsonB
+
+  status    String @db.Text
+  result    Json?  @db.JsonB
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  startAfter  DateTime?
+  startedAt   DateTime?
+  doneAt      DateTime?
+
+  @@index([processor])
+  @@index([status])
+  @@index([createdAt])
+}

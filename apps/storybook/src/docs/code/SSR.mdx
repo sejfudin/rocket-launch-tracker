@@ -1,0 +1,102 @@
+# SSR
+
+This project also supports SSR if needed. The hydration for TanStack Query is already set-up and will work out of the box.
+You have to change `RENDERING` value to `ssr` in `.config/*.template.yml` if you want to enable SSR.
+
+
+## Prefetching queries
+
+If you want to prefetch a query on the server, you can use `getServerSideProps` (or `getStaticProps`).
+
+First add a helper function to prefetch the query in the related namespace. As you might notice, the options for prefetchQuery are very similar to those of useQuery, but don't worry about duplicating that piece of code. A small trade off for better looking code.
+
+### Query
+
+```ts
+import { QueryClient } from "@tanstack/react-query";
+
+import { RocketsApi } from "./rockets.api";
+
+export namespace RocketsQueries {
+  export const keys = {
+    all: ["rockets"] as const,
+    count: () => [...keys.all, "count"] as const,
+  };
+
+  export const prefetchCount = (queryClient: QueryClient) => {
+    return queryClient.prefetchQuery({
+      queryKey: keys.count(),
+      queryFn: () => RocketsApi.getCount(),
+    });
+  };
+}
+```
+
+### Infinite query
+
+```ts
+import { QueryClient } from "@tanstack/react-query";
+
+import { RocketsApi } from "./rockets.api";
+
+export namespace RocketsQueries {
+  export const keys = {
+    all: ["rockets"] as const,
+    list: () => [...keys.all, "list"] as const,
+  };
+
+  export const prefetchRocketList = (queryClient: QueryClient) => {
+    return queryClient.prefetchInfiniteQuery({
+      initialPageParam: 1,
+      queryKey: keys.list(),
+      queryFn: (ctx) => RocketsApi.list(ctx.pageParam),
+    });
+  };
+}
+```
+
+## getServerSideProps
+
+Then in the page file add a `getServerSideProps` where you can call that helper function and pass the dehydratedState.
+
+```ts
+import { QueryClient, dehydrate } from "@tanstack/react-query";
+
+import { RocketsQueries } from "@/openapi/rockets/rockets.queries";
+
+export async function getServerSideProps() {
+  const queryClient = new QueryClient();
+
+  await RocketsQueries.prefetchRocketList(queryClient);
+
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+    },
+  };
+}
+```
+
+If you need to prefetch multiple queries, you can use the utility function `prefetchMultipleQueries`.
+
+```ts
+import { QueryClient, dehydrate } from "@tanstack/react-query";
+
+import { RocketsQueries } from "@/openapi/rockets/rockets.queries";
+import { QueriesUtils } from "@/util/queries.utils";
+
+export async function getServerSideProps() {
+  const queryClient = new QueryClient();
+
+  await QueriesUtils.prefetchMultipleQueries(queryClient, [
+    RocketsQueries.prefetchCount,
+    RocketsQueries.prefetchRocketList,
+  ]);
+
+  return {
+    props: {
+      dehydratedState: dehydrate(queryClient),
+    },
+  };
+}
+```

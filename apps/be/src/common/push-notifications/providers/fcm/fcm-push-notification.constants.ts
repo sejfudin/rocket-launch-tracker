@@ -1,0 +1,1 @@
+export const FCM_PUSH_NOTIFICATION_PROVIDER_NAME = 'fcm';

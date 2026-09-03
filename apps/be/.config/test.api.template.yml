@@ -1,0 +1,38 @@
+core:
+  stage: test
+  webBaseUrl: "http://localhost:8000"
+  apiBaseUrl: "http://localhost:4000"
+
+http:
+  validateResponse: throw
+
+logger:
+  output: console
+  level: verbose
+
+prisma:
+  url: postgresql://admin:admin@localhost:5433/orion-api-test
+  autoConnect: false
+  log: [ "query", "info", "warn", "error" ]
+
+user:
+  auth:
+    secret: "random-user-secret"
+
+email:
+  mode: enabled
+  logLevel: none
+  defaultFrom: info@example.com
+  defaultProvider: "no-op"
+
+media:
+  prisma:
+    secret: "random-secret"
+
+push-notifications:
+  mode: enabled
+  logLevel: none
+
+admin:
+  auth:
+    secret: "random-admin-secret"

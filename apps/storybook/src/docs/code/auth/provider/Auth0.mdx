@@ -1,0 +1,40 @@
+# Auth0
+
+## Usage
+
+Provide all environment variables with the prefix `VITE_PUBLIC_AUTH_AUTH0`. Set provider in `apps/fe/src/pages/_app.tsx`.
+
+### Import:
+
+```
+import { Auth0Provider, type IAuth0Provider } from "@povio/ui";
+```
+
+### Provider:
+
+```
+{
+    provider: AuthConfig.Provider<IAuth0Provider>,
+    props: {
+        authProvider: Auth0Provider,
+        authProviderProps: AppConfig.auth.auth0,
+        restClient: AppRestClient,
+        homeRoute: RouteConfig.home,
+        loadingState: <LoadingState />,
+        useGetUser: UserQueries.useGet,
+        queryKeyGetUser: UserQueries.keys.get(),
+    },
+},
+```
+
+## Description
+
+Inside `packages/auth/src/auth/providers/auth0` you'll find the implementation of the Auth0 auth provider.
+
+Auth0 only works with redirect (or popup) logins, so we only react to the empty login/register request.
+
+The provider uses its own context, that is why we need two components to make the provider work - one to configure the auth0 provider, and then one to pull the data from it and convert it to our internal `AuthContext`.
+
+To set up the provider on the backend, we recommend you watch [the following video](https://www.youtube.com/watch?v=EriSpFcArTg).
+
+On the frontend, you will need to enter the environment variables with the prefix `VITE_PUBLIC_AUTH_AUTH0` - consult `.config/${stage}.template.yml`. The information about how to get this information is in the video linked above.

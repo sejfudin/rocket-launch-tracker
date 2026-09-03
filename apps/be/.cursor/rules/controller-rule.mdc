@@ -1,0 +1,132 @@
+---
+description: Rules for HTTP controllers and REST endpoints
+globs:
+  - "**/*.controller.ts"
+alwaysApply: false
+---
+
+# Controllers
+
+This file applies to all controller files (`*.controller.ts`).
+
+## Basic Structure
+
+```typescript
+@ApiTags('Feature Name')
+@Controller('route-prefix')
+export class FeatureController {
+  constructor(private readonly featureService: FeatureService) {}
+}
+```
+
+## Required Imports
+
+```typescript
+import { Controller, Get, Post, Put, Delete, Body, Query, Param, ParseUUIDPipe } from '@nestjs/common';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { UserAclCheck } from '~modules/users/auth';
+import { PaginationDto, ApiPaginationResponse } from '~common/http/pagination';
+```
+
+## Common Patterns
+
+### Pagination Endpoint
+```typescript
+@UserAclCheck('feature:read')
+@ApiPaginationResponse(FeatureResponse)
+@Get()
+async paginate(
+  @Query() query: FeaturePaginationQueryDto,
+): Promise<PaginationDto<FeatureResponse>> {
+  const result = await this.featureService.paginate(query);
+  return PaginationDto.fromDomain(result);
+}
+```
+
+### Get by ID
+```typescript
+@UserAclCheck('feature:read')
+@Get(':id')
+async find(
+  @Param('id', ParseUUIDPipe) id: string,
+): Promise<FeatureResponse> {
+  return RocketResponse.fromDomain(await this.rocketService.find({ id }));
+}
+```
+
+### Create Endpoint
+```typescript
+@UserAclCheck('feature:create')
+@Post()
+async create(
+  @Body() data: CreateFeatureRequest,
+): Promise<FeatureResponse> {
+  return RocketResponse.fromDomain(await this.rocketService.create(data));
+}
+```
+
+### Update Endpoint
+```typescript
+@UserAclCheck('feature:update')
+@Put(':id')
+async update(
+  @Param('id', ParseUUIDPipe) id: string,
+  @Body() data: UpdateFeatureRequest,
+): Promise<FeatureResponse> {
+  return RocketResponse.fromDomain(await this.rocketService.update(id, data));
+}
+```
+
+### Delete Endpoint
+```typescript
+@UserAclCheck('feature:delete')
+@Delete(':id')
+async delete(
+  @Param('id', ParseUUIDPipe) id: string,
+): Promise<StatusResponseDto> {
+  await this.featureService.delete(id);
+  return StatusResponseDto.fromDomain({ code: 'deleted', message: 'Feature deleted' });
+}
+```
+
+## Implementation Rules
+
+1. **Required Decorators**
+   - `@ApiOperation()` with clear summary (when needed)
+   - `@ApiTags()` on controller class
+   - `@ApiPaginationResponse()` for paginated endpoints
+
+2. **Authentication and Authorization**
+   - Use `@UserAclCheck('resource:action')` to protect endpoints with ACL permissions
+   - Format: `@UserAclCheck('feature:read')`, `@UserAclCheck('feature:create')`, etc.
+   - For user-owned resources (favorites, user-specific data), use specific permissions like `edit-own-favorite`, `read-own-favorite` instead of generic `favorite`
+   - Always filter by userId in controller when dealing with user-owned resources - don't rely on service to enforce ownership
+   - Pass user context to service methods where needed, but only pass the least amount required
+   - Use `@AuthnIdentity()` decorator to get current user identity when needed
+
+3. **Response Transformations**
+   - Always use `ResponseModel.fromDomain()` for single responses
+   - Use `PaginationDto.fromDomain()` for paginated results (returns PaginationDto directly)
+   - Request models are used directly (no toDomain needed)
+
+4. **HTTP Methods**
+   - `@Get()` - Read operations
+   - `@Post()` - Create operations
+   - `@Put()` - Update operations (use Put, not Patch)
+   - `@Delete()` - Delete operations
+
+5. **Path Parameters**
+   - Use `@Param('id', Pipe)` for to validate parameters. Examples: ParseIntPipe, ParseUUIDPipe, ParseEmailPipe, ParseEnumPipe, ParseDatePipe, ParseFloatPipe, ParseFilePipe
+
+6. **Admin Controllers**
+   - For admin modules, see `admin-rule.mdc` for:
+     - Using `@AdminController()` decorator instead of `@Controller()`
+     - Strict REST pattern requirements
+     - Request/response models with ID fields
+     - Using base module services when possible
+
+7. **Media Handling**
+   - When handling media in request/response models (pictures, attachments), see `media-rule.mdc` for:
+     - Using `IMediaAttachRequest` in request models
+     - Using `IMediaFetchInstructions` in domain/response models
+     - Media validation and resolution is handled in services

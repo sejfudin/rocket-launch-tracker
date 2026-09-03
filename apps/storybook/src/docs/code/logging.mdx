@@ -1,0 +1,9 @@
+# Logging
+
+A `logger` object is used to log messages. This is a wrapper around the underlying logger, so we can easily switch it out or modify it if needed.
+
+It provides a consistent logging style, which is useful for debugging and searching. In addition, we can specify log level based on the environment by setting the log level environment variable in `.config/${stage}.template.yml`.
+
+Usage of `console` is restricted in favor of the `logger`. You can still use `console` for debugging purposes, but make sure to remove it before making a PR (you should get a PR rejection if that happens).
+
+Also, don't be afraid to add more logging statements to the production code. These may help you debug in production.

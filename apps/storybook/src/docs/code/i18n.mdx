@@ -1,0 +1,89 @@
+# Internationalization
+
+We use react-i18next for internationalization. The configuration and all languages are in `config/i18n.ts`. The translation keys are type-safe.
+
+## Guidelines
+
+- Make sure to properly nest translations keys so we don't have all keys on the root level of the JSON. For example, `auth.login.title` is better than `authLoginTitle`.
+- In early project days you might want to use [i18n translate](https://translate.i18next.com/) to Google translate translations.
+
+### Overriding UI package translations
+
+The `@povio/ui` package ships with its own translations. To override them in an app, add a partial `ui-translation.json` file for the locale (same structure as the `translation.json` in `@povio/ui` package) and merge it into the UI namespace.
+
+```json
+// apps/fe/src/config/locales/en/ui-translation.json
+{
+  "ui": {
+    "fileUpload": {
+      "emptyText": "Upload file"
+    }
+  }
+}
+```
+
+```ts
+// apps/fe/src/config/i18n.ts
+import { resources as uiDefaultResources, ns as uiNs } from "@povio/ui";
+import deepMerge from "deepmerge";
+
+import uiTranslationEN from "./locales/en/ui-translation.json";
+
+const uiResources = deepMerge(uiDefaultResources, { en: { [uiNs]: uiTranslationEN } });
+export const resources = deepMerge(defaultResources, uiResources);
+```
+
+### Translated constants
+
+In some cases you may want to define constants which use translations outside of React components for better code readability. This can cause a bug where in the case of the user's language changing during runtime, the constants won't get updated.
+
+Instead, we recommend changing the constant into a function which accepts the translation function as a parameter and calling it inside the component. You can also use the `useTranslationMemo` hook from `@povio/ui`, which wraps the function call inside a `useMemo` and automatically passes the t parameter into the given function. With this method the constant gets updated, but only when the user's language changes.
+
+We also recommend not exporting i18n in its configuration file. This enforces usage of the `useTranslation` hook to ensure proper updates.
+
+```tsx
+// Bug: tabs WON'T get updated if language changes
+import i18n from "@config/i18n";
+
+const tabs = [
+  {
+    text: i18n.t("page.tabs.users"),
+    value: TabsEnum.Users,
+  },
+  {
+    text: i18n.t("page.tabs.admins"),
+    value: TabsEnum.Admins,
+  },
+];
+
+export function PageComponent() {
+  return <Tabs tabs={tabs} />;
+}
+```
+
+```tsx
+// Correct: tabs WILL get updated if language changes
+import { useTranslationMemo } from "@povio/ui";
+import type { TFunction } from "i18next";
+
+const getTabs = (t: TFunction) => [
+  {
+    text: t("page.tabs.users"),
+    value: TabsEnum.Users,
+  },
+  {
+    text: t("page.tabs.admins"),
+    value: TabsEnum.Admins,
+  },
+];
+
+export function PageComponent() {
+  const tabs = useTranslationMemo(getTabs);
+
+  return <Tabs tabs={tabs} />;
+}
+```
+
+## i18n-ally plugin
+
+You can use a recommended plugin for VSCode called i18n-ally that will display the actual text instead of the translation key inside the "t" function usage. You can also directly go from the usage to the translation by pressing F12.

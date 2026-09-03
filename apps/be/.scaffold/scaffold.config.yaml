@@ -1,0 +1,52 @@
+project:
+  name: orion-be
+  title: Orion API
+  description: Povio Orion Nest.js Framework
+
+~common/logger:
+  # basic, pino, sentry, highlight
+  provider: basic
+
+dot-config:
+  bootstrap: true
+
+ecs-deploy-cli:
+  bootstrap: false
+  mode: disabled
+  #stages:
+  #  - monorepo-dev
+
+~database/prisma:
+  mode: enabled
+  autoMigrate: true
+  databaseName: orion-api
+
+~common/http/openapi:
+  # disabled, static, runtime
+  mode: combined
+  # served on /docs-json
+  path: docs
+
+~common/email:
+  mode: enabled
+  # sendgrid, aws-ses
+  provider: aws-ses
+
+~common/authn:
+  mode: enabled
+  providers:
+    - local
+    # - auth0
+    # - google
+
+~common/queues:
+  mode: enabled
+  # pg-boss, hotwire
+  provider: prisma
+
+~common/media/providers/prisma:
+  mode: enabled
+
+~common/media/providers/aws-s3:
+  mode: enabled
+  localstack: false

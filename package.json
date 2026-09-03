@@ -1,0 +1,46 @@
+{
+  "name": "povio-turborepo",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "bootstrap": "turbo run bootstrap",
+    "setup": "turbo run generate && zx scripts/execute.mjs local-setup && yarn workspaces foreach -Ai run setup",
+    "stop": "yarn workspaces foreach -Ai run stop",
+    "build": "turbo run build",
+    "clean": "rimraf .turbo && turbo run clean",
+    "start": "turbo run start",
+    "dev": "turbo run dev",
+    "dev:be": "turbo run dev --filter=be",
+    "dev:fe": "turbo run dev --filter=fe... --filter=storybook...",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "lint:check": "turbo run lint:check",
+    "format": "biome check --write .",
+    "format:check": "biome check .",
+    "script": "zx scripts/execute.mjs --",
+    "check": "turbo run check:ci",
+    "generate": "turbo run generate",
+    "test": "turbo run test",
+    "be": "yarn --cwd apps/be --",
+    "fe": "yarn --cwd apps/fe --",
+    "prisma": "PRISMA_HIDE_UPDATE_MESSAGE=1 CHECKPOINT_DISABLE=1 yarn --cwd apps/be prisma --",
+    "db": "PRISMA_HIDE_UPDATE_MESSAGE=1 CHECKPOINT_DISABLE=1 yarn --cwd apps/be prisma --",
+    "openapi:gen": "turbo run openapi:gen"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.11",
+    "oxlint": "1.36.0",
+    "oxlint-tsgolint": "0.10.1",
+    "rimraf": "^6.1.2",
+    "turbo": "2.7.3"
+  },
+  "dependencies": {
+    "zx": "^8.8.5"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "yarn@4.10.3"
+}

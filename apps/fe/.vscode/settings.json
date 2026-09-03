@@ -1,0 +1,18 @@
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "always"
+  },
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "tailwindCSS.experimental.classRegex": [
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"],
+    ["clsx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"],
+    ["class:\\s*?[\"'`]([^\"'`]*).*?,"],
+    ["className:\\s*?[\"'`]([^\"'`]*).*?,"]
+  ],
+  "tailwindCSS.classAttributes": ["class", "className", "ngClass", "class:list", ".*ClassName"],
+  "i18n-ally.localesPaths": ["src/config/locales"],
+  "i18n-ally.keystyle": "nested"
+}

@@ -1,0 +1,34 @@
+# Setup
+
+Learn how to setup and run the project.
+
+## Setup
+
+If you are using VSCode, we suggest you install recommended extensions (inside `.vscode/extensions.json`). The IDE should prompt you to install them when opening the project.
+
+First, check `.config/${stage}.template.yml` to make sure that the configuration is correct. Then, run the following commands:
+
+```bash
+# Use the correct Node.js version
+nvm use
+
+# Install dependencies
+yarn
+```
+
+## Running
+
+```bash
+# Run local server
+yarn dev
+```
+
+If you'd like to run the frontend in another environment, you can use the command `dev:<stage>`. For example:
+
+```bash
+yarn dev:prd # run development mode in prd environment
+```
+
+## Debugging
+
+First, run the development server (above). Then, inside VSCode, open the debug tab and run the `Debug` configuration (Launch Chrome against localhost).

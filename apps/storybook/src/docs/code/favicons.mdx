@@ -1,0 +1,56 @@
+# Favicons
+
+## Automatically generating favicons
+
+To ensure your application displays optimal favicon image on different devices, you can use a live service, e.g. [Favicon Generator](https://realfavicongenerator.net/), to generate a set of differently sized images and other files (e.g. [`manifest.json`](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json)) which will make this task a breeze.
+
+[Favicon Generator](https://realfavicongenerator.net/) allows you to change various settings while generating the favicons which will impact the number of files it generates. Make sure all the settings fit your (or client's) needs, but in most cases default settings are quite sufficient.
+
+After the files are generated, place them in the `public` folder and make sure all the paths in the generated files are correct for your project setup. Finally, take the generated code and place it in the `<head>` section of your application.
+
+An example of the generated code looks like this:
+
+```html
+<link
+  rel="apple-touch-icon"
+  sizes="180x180"
+  href="/apple-touch-icon.png"
+/>
+<link
+  rel="icon"
+  type="image/png"
+  sizes="32x32"
+  href="/favicon-32x32.png"
+/>
+<link
+  rel="icon"
+  type="image/png"
+  sizes="16x16"
+  href="/favicon-16x16.png"
+/>
+<link
+  rel="manifest"
+  href="/site.webmanifest"
+/>
+<link
+  rel="mask-icon"
+  href="/safari-pinned-tab.svg"
+  color="#5bbad5"
+/>
+<meta
+  name="msapplication-TileColor"
+  content="#da532c"
+/>
+<meta
+  name="theme-color"
+  content="#ffffff"
+/>
+```
+
+## Useful links
+
+To read further about favicons in general and how to set them up with Next.js, you can visit these links:
+
+- [Next.js documentation](https://nextjs.org/docs/app/api-reference/file-conventions/metadata/app-icons)
+- [Implementing Favicons in Next.js Applications](https://caisy.io/blog/nextjs-favicon-implementation)
+- [New favicon package – Less is more](https://realfavicongenerator.net/blog/new-favicon-package-less-is-more/)

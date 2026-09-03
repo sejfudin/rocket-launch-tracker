@@ -1,0 +1,102 @@
+---
+description: Rules for email templates and sending emails
+globs:
+  - "**/*email*.ts"
+  - "**/*email-templates.ts"
+alwaysApply: false
+---
+
+# Email Templates and Sending
+
+## Complete Structure
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { Expose } from 'class-transformer';
+import { IsString } from 'class-validator';
+import { EmailCompilerType, IEmailData, IEmailTemplate, RegisterEmailTemplate } from '~common/email';
+
+// Template Data Class
+export class FeatureEmailTemplateData {
+  @Expose()
+  @IsString()
+  url!: string;
+
+  @Expose()
+  @IsString()
+  expiresIn!: string;
+}
+
+// Template Definition
+export const FeatureEmailTemplate: IEmailTemplate = {
+  name: 'feature-email-template',
+  engine: EmailCompilerType.HTML,
+  subject: 'Your subject here',
+  html: `
+    <p>Click <a href="{{url}}">here</a> to proceed.</p>
+    <p>This link will expire {{expiresIn}}</p>
+  `,
+  text: 'Click here to proceed: {{url}}. This link will expire {{expiresIn}}',
+};
+
+// Template Provider Class
+@Injectable()
+export class FeatureEmailTemplates {
+  @RegisterEmailTemplate({
+    validate: FeatureEmailTemplateData,
+    template: FeatureEmailTemplate,
+  })
+  async sendFeatureEmail(data: IEmailData<FeatureEmailTemplateData>): Promise<IEmailData> {
+    return data as unknown as IEmailData;
+  }
+}
+```
+
+## Implementation Rules
+
+### File Organization
+- File: `{feature}.email-templates.ts` or `{feature}-{action}.email-templates.ts`
+- Contains: Template data class, template definition, and provider class
+
+### Template Data Class
+- Use `@Expose()` and validation decorators (`@IsString()`, `@IsNumber()`, etc.)
+- Properties: `readonly` with `!` for required, `?` for optional
+- Property names must match template variables (`{{variableName}}`)
+
+### Template Definition
+- **name**: Unique identifier (kebab-case)
+- **engine**: `EmailCompilerType.HTML` or `EmailCompilerType.MJML`
+- **subject**: Email subject (supports `{{variable}}`)
+- **html**: HTML content with `{{variable}}` placeholders
+- **text**: Plain text fallback (supports `{{variable}}`)
+
+### Template Provider
+- Must be `@Injectable()` class
+- Method decorated with `@RegisterEmailTemplate()`
+- Receives `IEmailData<TemplateData>`, returns `IEmailData`
+- Can preprocess data before sending
+- Register in module providers
+
+### Sending Emails
+
+```typescript
+import { EmailService } from '~common/email';
+
+await this.emailService.sendTemplate(
+  { to: 'user@example.com' },
+  'feature-email-template', // Template name
+  {
+    url: 'https://example.com/reset',
+    expiresIn: 'in 30 minutes',
+  },
+);
+```
+
+### Module Registration
+
+```typescript
+@Module({
+  imports: [EmailModule.forFeature([/* plugins */])],
+  providers: [FeatureEmailTemplates],
+})
+```

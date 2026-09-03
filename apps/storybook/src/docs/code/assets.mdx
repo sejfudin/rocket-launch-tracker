@@ -1,0 +1,30 @@
+# Assets
+
+## SVG icons
+
+The SVG icons are stored in the `assets/icons` folder. In there, they are further split into subfolders so that we don't end up with a lot of icons on the root level of the folder.
+
+The icons are actually React components. This way we can apply styles (size, color, hover style, ...) to them using Tailwind.
+
+Refer to [this video](https://www.youtube.com/watch?v=MbUyHQRq2go) for a great explanation on how to use Tailwind to style SVGs in this manner.
+
+### Adding new icons
+
+To add a new icon, add a new SVG file (usually exported from Figma) into the `svg/icons` folder under the root of this project. Name it `<component-name>.svg`. Place it in an appropriate subfolder. Then, run the following command:
+
+```bash
+# optimize all svg files and generate React components
+yarn svg
+```
+
+### SVG color caveat
+
+If a svg icon has a fill color, it will be replaced with the `currentColor` value if it's black or white. By default, other colors will not get this replacement. If you want to replace other colors as well, you can do so by going to `svg/.svgrrc.js` and adding the color to the `replaceAttrValues` array. It is not suggested to replace all colors, especially for multi-color icons.
+
+## Non-vector images
+
+The images are stored in the `assets/images` folder. The folder structure should be split further under this folder, just like with icons.
+
+### Image optimization
+
+Next.js allows images to be [optimized automatically](https://nextjs.org/docs/pages/building-your-application/optimizing/images). Whether or not the image optimization will be used depends on the `RENDERING` variable in config - if it's set to `spa`, then the images will not be optimized (as they can't be, they will be statically served), otherwise they will be.

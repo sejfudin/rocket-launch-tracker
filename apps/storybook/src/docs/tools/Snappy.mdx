@@ -1,0 +1,109 @@
+# Snappy Instructions
+
+Snappy is a tool for comparing Figma designs and webpage designs. You can overlay the snap from Figma and even compare pixels.
+
+[Windows version](#windows)
+
+## MacOS
+
+### Prerequisites
+
+Install Snappy from the [AppStore](https://apps.apple.com/si/app/snappy-by-povio/id6502442568?mt=12)
+
+### App Setup
+<div className="[&>ol]:list-decimal">
+1. Open the app
+2. Allow system level permissions
+3. Complete the onboarding process
+4. App will now be open and running but it doesn't have an UI per say, so you can access it by clicking on the app icon the upper toolbar
+
+![Snappy Actions](./assets/snappy/01-actions.jpg)
+
+5. We highly recommend going to the Settings and setting a shortcut for capturing a new Snap and for hiding/displaying Snaps, ours are set up like this:
+
+![Snappy Settings](./assets/snappy/02-settings.jpg)
+
+</div>
+
+### Instructions
+
+Watch [this video](https://www.youtube.com/watch?v=LscVz2APOfo).
+
+<div className="[&>ol]:list-decimal">
+1. Open Figma and find the design you want to test
+2. Make sure Figma is at 100% scaling!
+   - easy shortcut for this in Figma is “Cmd + 0”
+3. Capture a new Snap in Figma, using the shortcut you set up earlier
+   - capturing works in a familiar way, like a screenshot app, you just need to drag around the area you want to capture
+4. After the Snap is captured you can move it around, set its opacity, hide/display it, or remove it. You can also have multiple Snaps active at the same time.
+5. Navigate to the website or web app you're trying to test and find the design you've captured with your Snap
+6. Make sure your browser is at 100% scaling!
+7. Overlay the Snap over the webpage, use your mouse, the following shortcuts, or use Snap to place functionality:
+   - “Cmd + Arrow Keys” = move the Snap by a pixel
+   - “Cmd + Shift + Up/Down Arrow Keys” = increase or decrease the Snap opacity
+   - “Cmd + P” or right click and click "Snap to place"
+8. If the Snap overlay and the design on the webpage underneath match exactly, then it's pixel perfect!
+</div>
+
+### X-Ray Mode
+
+Once you have an active Snap, you can use the shortcut “Cmd + X” to activate X-Ray Mode. Use it in combination with other features,
+to spot differences between the content and the Snap even faster. It will highlight all differences with a neon green color.
+The more green you see, the bigger the mismatch between the content and the Snap is. If you see no green at all, your content is pixel perfect!
+
+![X-Ray](./assets/snappy/03-xray.jpg)
+
+This is an example of X-Ray Mode being used on the Povio homepage. We can see there is quite a lot of green and mismatches between the content and the Snap taken from Figma.
+But if you send this screenshot to a teammate, it's not very clear what is going on. This is where our next feature comes in clutch!
+
+### Copy X-Ray Mode View
+
+With your X-Ray Mode Snap still being active and selected, click “Cmd + C” or right click on the Snap and click Copy. Then paste it in an app of your choosing, or maybe attach it to a bug report. A collage of 3 images is generated.
+
+**Left**: The actual content on your screen, which you are testing.
+**Middle**: The Snap taken from Figma (or whatever app you are using as the source of truth for testing).
+**Right**: The X-Ray Mode view, highlighting all mismatches between the content and the Snap.
+
+![X-Ray Collage](./assets/snappy/04-xray-copy.jpg)
+
+### Library
+
+Snappy has a Library of all past Snaps. Currently there is no shortcut to open it, but you can navigate to it by clicking on the app icon in the upper toolbar and clicking on Library.
+
+![Library](./assets/snappy/05-library.jpg)
+
+The Library allows you to view all past Snaps and:
+- Delete them one by one or in bulk
+- View a preview of a Snap
+- Bring a Snap back and make it active
+
+
+## Windows
+
+Windows version of Snappy isn't quite as feature complete as MacOS, but it does support basic functionality.
+
+### Prerequisites
+
+Install Snappy from the [Windows Store](https://apps.microsoft.com/detail/9nn6dktrslj7?hl=en-GB&gl=SI)
+
+### Instructions
+
+<div className="[&>ol]:list-decimal">
+1. Open Figma and find the design you want to test
+2. Make sure Figma is at 100% scaling!
+   - easy shortcut for this in Figma is “Ctrl + 0”
+3. Capture a new Snap in Figma by clicking on the app in System tray
+   - capturing works in a familiar way, like a screenshot app, you just need to drag around the area you want to capture
+4. After the Snap is captured you can move it around, set its opacity, hide/display it, or remove it. You can also have multiple Snaps active at the same time.
+5. Navigate to the website or web app you're trying to test and find the design you've captured with your Snap
+6. Make sure your browser is at 100% scaling!
+7. Overlay the Snap over the webpage, use your mouse or these shortcuts:
+   - “Ctrl + Arrow Keys” = move the Snap by a pixel
+8. If the Snap overlay and the design on the webpage underneath match exactly, then it's pixel perfect!
+</div>
+
+### X-Ray Mode
+
+Once you have an active Snap, you can right click on the snap and activate X-Ray Mode. Use it in combination with other features,
+to spot differences between the content and the Snap even faster. It will highlight all differences with a neon green color.
+The more green you see, the bigger the mismatch between the content and the Snap is. If you see no green at all, your content is pixel perfect!

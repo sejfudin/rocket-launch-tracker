@@ -1,0 +1,406 @@
+---
+description: Rules for repository interfaces and Prisma repository implementations
+globs:
+  - "**/*.repository.ts"
+  - "**/persistors/**/*.ts"
+alwaysApply: false
+---
+
+# Repository Pattern
+
+This file applies to repository interface files (`*.repository.ts`) and Prisma repository implementations (`persistors/**/*.ts`).
+
+## Repository Interface
+
+### Basic Structure
+
+Repository interfaces are abstract classes at the feature root:
+
+```typescript
+export abstract class FeatureRepository {
+  // Standard CRUD operations
+  abstract create(data: IFeatureCreate): Promise<IFeature>;
+  abstract find(where: { id: string }): Promise<IFeature | null>;
+  abstract update(id: string, data: IFeatureUpdate): Promise<IFeature>;
+  abstract delete(id: string): Promise<void>;
+
+  // Pagination
+  abstract paginate(query: IFeaturePaginationQuery): Promise<IPagination<IFeature>>;
+}
+```
+
+### User-Owned Resources Example
+
+For resources that belong to users, the CRID methods should include userId:
+
+```typescript
+export abstract class FavoriteRepository {
+  abstract update(where: { id: string; userId: string }): Promise<void>;
+}
+```
+
+### Implementation Rules
+
+1. **Method Signatures**
+   - Use abstract class, not interface
+   - All methods return Promise
+   - Return null for not found
+   - Use domain interfaces (IFeature)
+
+2. **Type Safety**
+   - Define clear parameter types
+   - Avoid any where possible
+
+3. **Naming Conventions**
+   - find - single item by where clause (e.g., `find({ id })`)
+   - paginate - list with filters
+   - create/update/delete - mutations
+
+4. **User-Owned Resources**
+   - For resources owned by users, CRID methods MUST include userId in the where clause
+   - Example: `abstract update(where: { id: string; userId: string }): Promise<IModel>;`
+   - This ensures users can only edit their own resources at the repository level
+
+5. **Separation**
+   - each model should be within its own `[item].repository.ts` and associated prisma repository file.
+   - all models can share a `[name].prisma` file
+
+## Prisma Repository Implementation
+
+### Basic Structure
+
+```typescript
+@Injectable()
+export class FeaturePrismaRepository implements FeatureRepository {
+  constructor(private readonly prismaService: PrismaService) {}
+
+  public static toDomain(data: PrismaFeatureType): IFeature {
+    return {
+      id: data.id,
+      name: data.name,
+      // Optional parameters
+      price: data.price || undefined,
+      // Convert numbers from Decimal
+      amount: Number(data.amount),
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+    };
+  }
+}
+```
+
+### Common Operations
+
+#### Pagination with Filters
+```typescript
+async paginate(query: IFeaturePaginationQuery): Promise<IPagination<IFeature>> {
+  const where: Prisma.FeatureWhereInput = {};
+
+  for (const [key, value] of query.filter ? Object.entries(query.filter) : []) {
+    if (!value) {
+      continue;
+    }
+    switch (key) {
+      case 'ids':
+        where.id = { in: value };
+        break;
+      case 'name':
+      case 'model':
+        where[key] = value;
+        break;
+      case 'search':
+        where.OR = [
+          { name: { contains: value, mode: 'insensitive' } },
+          { model: { contains: value, mode: 'insensitive' } },
+        ];
+        break;
+    }
+  }
+
+
+  const orderBy = query.order?.map((order) => ({
+    [order.property]: order.direction,
+  }));
+
+  const items = await this.prismaService.client.feature.findMany({
+    where,
+    orderBy,
+    ...paginationToPrismaQuery(query) as Prisma.FeatureFindManyArgs,
+  });
+
+  const totalItems = await this.prismaService.client.feature.count({ where });
+
+  return {
+    items: items.map(FeaturePrismaRepository.toDomain),
+    ...prismaResultToPagination(query, { items, totalItems }),
+  };
+}
+```
+
+#### Create Operation
+```typescript
+async create(data: IFeatureCreate): Promise<IFeature> {
+  const created = await this.prismaService.client.feature.create({
+    data: {
+      id: data.id,
+      name: data.name,
+      // Map all required fields from IFeatureCreate
+    },
+    include: {
+      // Include relations if needed
+    },
+  });
+
+  return FeaturePrismaRepository.toDomain(created);
+}
+```
+
+#### Find Operation
+```typescript
+async find(where: { id: string }): Promise<IFeature | null> {
+  const entity = await this.prismaService.client.feature.findUnique({
+    where: { id: where.id },
+    include: {
+      // Include relations if needed
+    },
+  });
+
+  return entity ? FeaturePrismaRepository.toDomain(entity) : null;
+}
+```
+
+## Population Pattern
+
+The population pattern allows optional loading of related data through a consistent API. This pattern is used throughout the codebase for flexible data fetching.
+
+### Defining Populate Options
+
+In the repository interface file (`*.repository.ts`), define a `PopulateOptions` interface:
+
+```typescript
+export interface FeaturePopulateOptions {
+  brand?: boolean;
+  availabilities?: boolean | { countryId?: string };
+  media?: boolean;
+}
+```
+
+- Simple relations use `boolean` (e.g., `brand?: boolean`)
+- Relations that need filtering use `boolean | { filterOptions }` (e.g., `availabilities?: boolean | { countryId?: string }`)
+- Media is always a separate query, so it uses `boolean`
+
+### Repository Interface with Population
+
+Add the `options` parameter to `find` and `paginate` methods:
+
+```typescript
+export abstract class FeatureRepository {
+  abstract find(
+    where: { id: string },
+    options?: { populate: FeaturePopulateOptions },
+    tx?: Transaction,
+  ): Promise<IFeature | undefined>;
+
+  abstract paginate(
+    query: IFeaturePaginationQuery,
+    options?: { populate: FeaturePopulateOptions },
+    tx?: Transaction,
+  ): Promise<IPagination<IFeature>>;
+}
+```
+
+### Prisma Repository Implementation
+
+#### Type Definitions
+
+Define a `WithRelations` type for type safety:
+
+```typescript
+type FeatureWithRelations = Prisma.FeatureGetPayload<{
+  include: { brand: true; availabilities: true };
+}>;
+```
+
+Update the `toDomain` method signature to accept both base and populated entities:
+
+```typescript
+public static toDomain(
+  entity: (Feature | FeatureWithRelations) & { media?: Omit<Media, 'blob'>[] }
+): IFeature {
+  return {
+    id: entity.id,
+    name: entity.name,
+    // Use type guards to check if relations are populated
+    brand: 'brand' in entity ? BrandPrismaRepository.toIBrand(entity.brand) : undefined,
+    availabilities:
+      'availabilities' in entity
+        ? entity.availabilities.map((a) => AvailabilityPrismaRepository.toIAvailability(a))
+        : undefined,
+    media: 'media' in entity && entity.media
+      ? entity.media.map((m) => PrismaMediaPersistor.toIMedia(m))
+      : undefined,
+  };
+}
+```
+
+#### Find with Population
+
+```typescript
+async find(
+  where: { id: string },
+  options?: { populate: FeaturePopulateOptions },
+  tx?: Prisma.TransactionClient,
+): Promise<IFeature | undefined> {
+  const client = tx || this.prismaService.client;
+  const entity = await client.feature.findUnique({
+    where: { id: where.id, deletedAt: null },
+    include: {
+      brand: options?.populate?.brand,
+      availabilities:
+        options?.populate?.availabilities === true
+          ? true
+          : typeof options?.populate?.availabilities === 'object'
+            ? { where: { countryId: options?.populate?.availabilities?.countryId } }
+            : undefined,
+    },
+  });
+
+  if (!entity) {
+    return undefined;
+  }
+
+  // Media is fetched separately since it's stored in a separate table
+  if (options?.populate?.media && entity) {
+    return FeaturePrismaRepository.toDomain({
+      ...entity,
+      media: await client.media.findMany({
+        where: { module: 'feature', resourceId: entity.id },
+      }),
+    });
+  }
+
+  return FeaturePrismaRepository.toDomain(entity);
+}
+```
+
+#### Paginate with Population
+
+```typescript
+async paginate(
+  query: IFeaturePaginationQuery,
+  options?: { populate: FeaturePopulateOptions },
+  tx?: Prisma.TransactionClient,
+): Promise<IPagination<IFeature>> {
+  const client = tx || this.prismaService.client;
+
+  const where: Prisma.FeatureWhereInput = { deletedAt: null };
+  // ... build where clause from query filters ...
+
+  const items = await client.feature.findMany({
+    where,
+    ...(paginationToPrismaQuery(query) as Prisma.FeatureFindManyArgs),
+    include: {
+      brand: options?.populate?.brand,
+      availabilities:
+        options?.populate?.availabilities === true
+          ? true
+          : typeof options?.populate?.availabilities === 'object'
+            ? { where: { countryId: options?.populate?.availabilities?.countryId } }
+            : undefined,
+    },
+  });
+
+  // Manually fetch and join media if requested (for pagination, batch fetch)
+  let mediaMap: Map<string, Omit<Media, 'blob'>[]> | undefined;
+  if (options?.populate?.media && items.length > 0) {
+    const featureIds = items.map((item) => item.id);
+    const mediaItems = await client.media.findMany({
+      where: {
+        module: 'feature',
+        resourceId: { in: featureIds },
+      }
+    });
+
+    // Group media by resourceId
+    mediaMap = new Map<string, Omit<Media, 'blob'>[]>();
+    for (const media of mediaItems) {
+      if (media.resourceId) {
+        const existing = mediaMap.get(media.resourceId) || [];
+        existing.push(media);
+        mediaMap.set(media.resourceId, existing);
+      }
+    }
+  }
+
+  const totalItems = await client.feature.count({ where });
+
+  return {
+    items: items.map((entity) => {
+      return FeaturePrismaRepository.toDomain({
+        ...entity,
+        media: mediaMap?.get(entity.id) || undefined,
+      });
+    }),
+    ...prismaResultToPagination(query, { items, totalItems }),
+  };
+}
+```
+
+### Population Pattern Rules
+
+1. **PopulateOptions Interface**
+   - Define in the repository interface file
+   - Use `boolean` for simple relations
+   - Use `boolean | { filterOptions }` for relations that need filtering
+   - Always use `boolean` for media
+
+2. **Type Safety**
+   - Create `WithRelations` type using `Prisma.GetPayload<{ include: ... }>`
+   - Update `toDomain` to accept `(BaseType | WithRelations) & { media?: ... }`
+   - Use type guards (`'relation' in entity`) to check if relations are populated
+
+3. **Prisma Include Pattern**
+   - Use conditional includes: `relation: options?.populate?.relation`
+   - For filtered relations, check if it's `true` or an object with filters
+   - Set to `undefined` if not populated (Prisma will ignore it)
+
+4. **Media Handling**
+   - Media is always fetched separately (it's in a separate `media` table)
+   - For `find`: fetch media after getting the entity
+   - For `paginate`: batch fetch all media, then group by `resourceId` using a `Map`
+
+5. **Transaction Support**
+   - Accept optional `tx?: Prisma.TransactionClient` parameter
+   - Use `const client = tx || this.prismaService.client;` pattern
+   - Pass `tx` through to all database operations
+
+6. **toDomain Method**
+   - Use type guards to safely check for populated relations
+   - Only transform relations if they exist in the entity
+   - Return `undefined` for optional populated fields if not present
+
+### Implementation Rules
+
+1. **Domain Transformation**
+   - Always use static toDomain method
+   - Convert Decimal to Number
+   - Handle null values
+   - Map all fields explicitly
+   - Use Prisma types for type safety (Prisma.FeatureGetPayload)
+
+2. **Query Building**
+   - Build where clause conditionally
+   - Use proper Prisma types for queries
+   - Handle optional filters safely
+   - Use Prisma's relation queries
+
+3. **Pagination**
+   - Use utility functions for pagination
+   - Include totalItems count
+   - Map results to domain
+   - Handle sorting properly
+
+4. **Error Handling**
+   - Let service handle not found
+   - Return null for missing items
+   - Use type checking for results

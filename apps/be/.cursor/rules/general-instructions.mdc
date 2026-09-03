@@ -1,0 +1,104 @@
+---
+description: General coding standards and collaboration guidelines
+globs:
+alwaysApply: true
+---
+
+# General Coding Standards
+
+## Collaboration
+
+- **Planning**: For non-trivial requests, present an implementation plan as bullet points and wait for approval before proceeding
+- **Incremental Changes**: Make small, incremental code changes and validate at key points
+- **Clarification**: Ask targeted questions when uncertain; flag potential issues proactively
+- **Communication**: Explain technical decisions concisely; provide brief status updates
+
+## Code Quality Principles
+
+- **Clean Code**: Write self-documenting code with meaningful names
+- **SOLID**: Follow Single Responsibility, Open-Closed, Liskov Substitution, Interface Segregation, Dependency Inversion
+- **Simplicity**: Prioritize readability; avoid complex language features and clever solutions
+- **Consistency**: Follow established codebase conventions
+
+## TypeScript & Types
+
+- Always declare types for variables, function parameters, and return values
+- Avoid `any` or `unknown`; create necessary types instead - use JSONValue when generic types are needed
+- Use `readonly` for immutable data
+- Use `as const` for literal constants
+- Encapsulate data in composite types instead of abusing primitives
+
+## Naming Conventions
+
+- **Classes**: PascalCase (`UserService`)
+- **Variables/Functions/Methods**: camelCase (`getUserById`)
+- **Files/Directories**: kebab-case (`user.service.ts`)
+- **Environment Variables**: UPPERCASE (`DATABASE_URL`)
+- **Booleans**: Use verb prefixes** (`isLoading`, `hasError`, `canDelete`)
+
+### Function Naming
+
+- Start with a verb: `saveUser`, `validateInput`, `calculateTotal`
+- Boolean returns: `isValid`, `hasPermission`, `canEdit`
+- No return value: `executePayment`, `sendNotification`
+
+### Abbreviations
+
+- Use complete words (avoid abbreviations)
+- **Exceptions**: Standard (API, URL) and well-known (`i`, `j` for loops; `err`, `ctx`, `req`, `res`, `next`)
+
+## Functions
+
+- **Single Purpose**: One responsibility per function
+- **Size Limit**: Less than 20 instructions
+- **Naming**: Verb + noun (e.g., `calculateTotal`, `validateEmail`)
+- **Parameters**: 
+  - Use RO-RO pattern (object for multiple parameters, object for return values)
+  - Use default parameter values instead of null/undefined checks
+  - Declare types for inputs and outputs
+- **Implementation**:
+  - Use arrow functions for simple functions (< 3 instructions)
+  - Use named functions for complex logic
+  - Avoid nesting: early returns, extract to utilities, use higher-order functions (map/filter/reduce)
+  - Maintain single level of abstraction
+- **No blank lines within function body**
+
+## Classes & Interfaces
+
+- **Size Limits**: 
+  - Less than 200 instructions per class
+  - Less than 10 public methods
+  - Less than 10 properties
+- **Single Responsibility**: One purpose per class
+- **Composition**: Prefer composition over inheritance
+- **Contracts**: Declare interfaces to define contracts
+- **Validation**: Use classes with internal validation; avoid validations in functions
+
+## Files & Exports
+
+- **One export per file**
+- **Documentation**: Use JSDoc when needed for examples and explanations
+- **Language**: Use English for all code and documentation
+
+## Constants & Values
+
+- Avoid magic numbers; define named constants
+- Use meaningful constant names
+
+## Error Handling
+
+- Use exceptions for unexpected errors
+- Catch exceptions only to:
+  - Fix expected problems
+  - Add context
+  - Otherwise, use global handler
+
+## Testing
+
+- **Unit Tests**: Write for each public function
+- **Test Doubles**: Use for dependencies (except inexpensive third-party deps)
+- **Test Structure**: 
+  - Arrange-Act-Assert convention
+  - Given-When-Then for acceptance tests
+- **Naming**: Use clear conventions (`inputX`, `mockX`, `actualX`, `expectedX`)
+- **Coverage**: Write acceptance tests for each module

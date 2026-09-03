@@ -1,0 +1,141 @@
+## Configuration for STAGE=monorepo-dev
+##  - monorepo-dev.api.template.yml is commited to git and uses ${} functions
+##  - monorepo-dev.api.resolved.yml is generated on "yarn bootstrap --stage orion-api-dev"
+##  - monorepo-dev.api.override.yml can be used for local overrides
+
+core:
+  stage: ${func:stage}
+  release: ${env:HEROKU_SLUG_COMMIT}
+  buildAt: ${env:HEROKU_RELEASE_CREATED_AT}
+  apiBaseUrl: "https://orion.povio.dev"
+  webBaseUrl: "https://orion.povio.dev"
+  service: orion-api
+
+http:
+  log: true
+  port: ${env:PORT}
+  host: 0.0.0.0
+  globalPrefix: api
+  validateResponse: warn
+  cors:
+    origin: true
+    maxAge: 3600
+  openapi:
+    title: Orion API
+    description: Povio Orion Nest.js Framework
+    serve:
+      main:
+        path: docs
+        exclude: Admin
+      admin:
+        path: admin/docs
+        include: Admin
+
+
+
+logger:
+  output: json
+  level: log
+  contexts:
+    Bootstrap: warn
+    HttpException: warn
+    ExceptionHandler: debug
+    RoutesResolver: warn
+    RouterExplorer: warn
+    NestApplication: warn
+
+prisma:
+  url: ${env:DATABASE_URL}
+  log:
+    - info
+    - warn
+    - error
+  autoMigrate: true
+
+email:
+  mode: enabled
+  defaultFrom: ${env:EMAIL_DEFAULT_FROM}
+  defaultProvider: "aws-ses"
+  logLevel: debug
+  logDetail: content
+  awsSes:
+    enabled: true
+    accessKeyId: ${env:EMAIL_AWS_SES_ACCESS_KEY}
+    secretAccessKey: ${env:EMAIL_AWS_SES_SECRET_ACCESS_KEY}
+    region: us-east-1
+
+media:
+  defaultProvider: "aws-s3"
+  prisma:
+    enabled: false
+    secret: ${env:MEDIA_PRISMA_SECRET}
+  awsS3:
+    enabled: true
+    bucket: pss-orion-dev
+    region: us-east-1
+    accessKeyId: ${env:EMAIL_AWS_SES_ACCESS_KEY}
+    secretAccessKey: ${env:EMAIL_AWS_SES_SECRET_ACCESS_KEY}
+    prefix: uploads/
+    publicUrl: ${env:MEDIA_PUBLIC_URL}
+    signFetch: s3
+
+push-notifications:
+  mode: enabled
+  logLevel: debug
+  logDetail: content
+  fcm:
+    enabled: true
+    projectId: "povio-orion"
+    privateKey: ${env:FCM_PRIVATE_KEY}
+    clientEmail: ${env:FCM_CLIENT_EMAIL}
+
+neon:
+  projectId: ${env:NEON_PROJECT_ID}
+  parentId: ${env:NEON_PARENT_ID}
+  databaseName: ${env:NEON_DATABASE_NAME}
+  roleName: ${env:NEON_ROLE_NAME}
+
+admin:
+  createSecret: ${env:ADMIN_CREATE_SECRET}
+  auth:
+    redirectUrl: "https://orion.povio.dev/admin/auth/callback"
+    secret: ${env:ADMIN_AUTHN_JWT_SECRET}
+    refreshToken: true
+
+    accessTokenExpiration: 3600
+    refreshTokenExpiration: 2592000
+
+user:
+  auth:
+    redirectUrl: "https://orion.povio.dev/auth/callback"
+    secret: ${env:USER_AUTHN_JWT_SECRET}
+    refreshToken: true
+
+    accessTokenExpiration: 3600
+    refreshTokenExpiration: 2592000
+
+    google:
+      enabled: true
+      clientID: ${env:USER_GOOGLE_CLIENT_ID}
+      clientSecret: ${env:USER_GOOGLE_CLIENT_SECRET}
+
+    apple:
+      enabled: false
+
+static:
+  enabled: true
+  paths:
+    - rootPath: ./../fe/dist
+      serveRoot: /
+      fallbackIndex: index.html
+      exclude:
+        - /api
+        - /admin
+    - rootPath: ./../admin/dist
+      serveRoot: /admin
+      fallbackIndex: index.html
+      exclude:
+        - /admin/api
+        - /admin/docs
+    - rootPath: ./../storybook/storybook-static
+      serveRoot: /admin/docs

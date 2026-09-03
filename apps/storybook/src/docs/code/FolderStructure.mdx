@@ -1,0 +1,43 @@
+# Folder structure
+
+This project follows the folder structure in which most of the code that is related is grouped together (colocation). For example, we don't separate api calls, models and queries out into their own folders; instead we define a domain (say `auth`) and store all the models, queries and api calls (for `auth`) in that domains' folder.
+
+This doc explains the high-level folder structure of the project.
+
+## The structure
+
+The structure below is shortened for brevity and shows the most important folders.
+
+```
+├── .vscode # vscode settings for easier workflow
+├── docs # documentation
+├── src
+│   ├── assets
+│   │   ├── icons # svg icons
+│   │   ├── images # images (non-vector)
+│   ├── components
+│   │   ├── auth # example domain; auth components
+│   │   ├── shared # shared components across domains
+│   │   │   ├── layout # navbar, page wrapper, ...
+│   │   ├── ui # low-level UI components
+│   ├── config # global config, like env, routes, i18n, ...
+│   ├── openapi # data layer auto generated from OpenAPI don't edit; see corresponding docs
+│   ├── hooks # common reusable React hooks
+│   ├── pages # components for routes
+│   ├── providers # context
+│   ├── styles # we use Tailwind to style, but this file contains some global styles; see corresponding docs
+│   ├── types # d.ts files, do not put models in here
+│   ├── util # various utilities
+├── scripts # scripts (mostly for deployment)
+├── svg # svg icons and transformation code; see dedicated docs for icons
+├── __tests__ # unit tests
+├── .config
+│   ├── ${stage}.template.yaml # configuration
+│   └── ${stage}.spa.yaml # deployment configuration
+```
+
+Refer to documentation for each folder / module for more information.
+
+## Template instructions
+
+Remove this section after reading through the file. Make sure to document any changes in the folder structure.

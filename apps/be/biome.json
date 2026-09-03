@@ -1,0 +1,44 @@
+{
+  "root": false,
+  "extends": "//",
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single"
+    }
+  },
+  "files": {
+    "includes": ["**", "!resources"]
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "groups": [
+              [":URL:", ":NODE:"],
+              ":BLANK_LINE:",
+              ":PACKAGE:",
+              ":BLANK_LINE:",
+              "~vendors/**",
+              ":BLANK_LINE:",
+              "~common/**",
+              ":BLANK_LINE:",
+              "~database/**",
+              ":BLANK_LINE:",
+              "~*.module",
+              ":BLANK_LINE:",
+              "~modules/**",
+              ":BLANK_LINE:",
+              ":PATH:"
+            ],
+            "identifierOrder": "lexicographic"
+          }
+        }
+      }
+    }
+  },
+  "linter": {
+    "enabled": false
+  }
+}

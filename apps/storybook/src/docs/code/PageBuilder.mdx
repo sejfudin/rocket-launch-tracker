@@ -1,0 +1,852 @@
+# Page Builder
+
+## Overview
+
+The `PageBuilder` system is a high-level abstraction for building complete admin pages with CRUD operations, table views, filters, and modals - all with minimal code.
+
+**Why use it:**
+- ✅ Complete CRUD pages with less code
+- ✅ Automatic integration of filters, tables, and forms
+- ✅ Built-in permission handling
+- ✅ Uses [dynamicInputs](./?path=/docs/ui-components-inputs-inputs-dynamicinputs--docs) and [dynamicColumns](./?path=/docs/ui-components-table-dynamiccolumns--docs) automatically
+- ✅ Consistent admin UI across all pages
+
+**When to use it:**
+- Building admin pages with standard CRUD operations
+- You have OpenAPI-generated configs for your API
+- You want consistent admin page patterns
+
+**Note: This is only available in the admin app and should not be used elsewhere.**
+
+## Examples in admin
+
+See how `PageBuilder` is used in production on admin:
+
+- [Users](https://github.com/povio/monorepo-template/blob/develop/apps/admin/src/components/users/UsersPage.tsx) - simple example using default layout
+- [File Management](https://github.com/povio/monorepo-template/blob/develop/apps/admin/src/components/file-management/FileManagementPage.tsx) - uses view modal, grid view & custom actions
+- [Email Management](https://github.com/povio/monorepo-template/blob/develop/apps/admin/src/components/email/pages/EmailManagementPage.tsx) - uses tabs
+
+## Two Ways to Use PageBuilder
+
+### Method 1: Custom Layout (Recommended)
+
+Use individual components from `usePageBuilder` hook in your own layout. This is the most common approach:
+
+```typescript
+export function UsersPage() {
+  const config = useTranslationMemo(getConfig);
+  const { title, Breadcrumbs, TableFilters, TableControls, Table, AddButton, CreateModal } = 
+    usePageBuilder(config);
+  
+  return (
+    <div className="my-custom-layout">
+      <Breadcrumbs />
+      <h1>{title}</h1>
+      <div className="flex justify-between">
+        <TableControls />
+        <AddButton />
+      </div>
+      {TableFilters}
+      <Table tableType="infinite" />
+      <CreateModal />
+    </div>
+  );
+}
+```
+
+### Method 2: Default Layout Component
+
+Use the `PageBuilder` component for a quick default layout (rarely used):
+
+```typescript
+export function UsersPage() {
+  const config = useTranslationMemo(getConfig);
+  const pageBuilder = usePageBuilder(config);
+  
+  return <PageBuilder {...pageBuilder} />;
+}
+```
+
+**In practice**, most pages use Method 1 to have full control over layout and positioning of elements.
+
+> **💡 Important:** OpenAPI-generated configs show all fields by default (set to `true`). You'll typically **hide unwanted fields** by setting them to `false`, especially in filters.
+
+## Quick Start
+
+Here's a minimal example using the recommended approach:
+
+```typescript
+import { useTranslationMemo } from "@povio/ui";
+import { dynamicPage, usePageBuilder } from "@/components/shared/page-builder";
+import { UserAdminConfigs } from "@/openapi/userAdmin/userAdmin.configs";
+
+const getConfig = (t: TFunction) => 
+  dynamicPage(UserAdminConfigs.userConfig, {
+    meta: {
+      title: t(($) => $.users.head.title),
+    },
+    filters: {
+      inputs: {
+        search: false,      // Hide search from filter bar
+        ids: false,         // Hide IDs filter
+        createdAt: true,    // Keep date filter
+      },
+      namespace: "users.filters",
+    },
+  });
+
+export function UsersPage() {
+  const config = useTranslationMemo(getConfig);
+  const { Breadcrumbs, TableFilters, TableControls, Table, AddButton, CreateModal } = 
+    usePageBuilder(config);
+  
+  return (
+    <div className="px-5 py-4 space-y-4">
+      <Breadcrumbs />
+      <div className="flex justify-between">
+        <h1>Users</h1>
+        <AddButton />
+      </div>
+      {TableControls}
+      {TableFilters}
+      <Table tableType="infinite" />
+      <CreateModal />
+    </div>
+  );
+}
+```
+
+This creates a complete page with:
+- Table with pagination and sorting
+- Filters bar with date picker
+- Create/Update/Delete modals
+- Permission-based UI
+- Full state management
+- Complete layout control
+
+## How It Works
+
+### 1. OpenAPI Configs (Generated)
+
+Your API endpoints are configured in `*.configs.ts` files (auto-generated from OpenAPI):
+
+```typescript
+// Generated file: userAdmin.configs.ts
+export const UserAdminConfigs = {
+  userConfig: {
+    readAll: {
+      acl: () => ["read", "User"],
+      schema: UserAdminReadAllDtoSchema,
+      paginated: UserAdminQueries.useGetUsersPaginated,
+      infinite: UserAdminQueries.useGetUsersInfinite,
+      filters: {
+        schema: UserPaginationFilterDtoSchema,
+        filterDefs: dynamicInputs({
+          schema: UserPaginationFilterDtoSchema,
+          options: {
+            inputs: {
+              // All fields set to true by default
+              search: true,
+              status: true,
+              role: true,
+              createdAt: true,
+              // ... all other schema fields
+            }
+          }
+        }),
+      },
+      columns: dynamicColumns({
+        schema: UserAdminReadAllDtoSchema,
+        options: {
+          columns: {
+            // All fields set to true by default
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            // ... all other schema fields
+          }
+        }
+      }),
+    },
+    read: {
+      acl: () => ["read", "User"],
+      schema: UserAdminReadDtoSchema,
+      query: UserAdminQueries.useGetUser,
+    },
+    create: {
+      acl: () => ["create", "User"],
+      schema: UserAdminCreateDtoSchema,
+      mutation: UserAdminMutations.useCreateUser,
+      inputDefs: dynamicInputs({
+        schema: UserAdminCreateDtoSchema,
+        options: {
+          inputs: {
+            // All fields set to true by default
+            name: true,
+            email: true,
+            password: true,
+            // ... all other schema fields
+          }
+        }
+      }),
+    },
+    update: {
+      acl: () => ["update", "User"],
+      schema: UserAdminUpdateDtoSchema,
+      mutation: UserAdminMutations.useUpdateUser,
+      inputDefs: dynamicInputs({
+        schema: UserAdminUpdateDtoSchema,
+        options: {
+          inputs: {
+            // All fields set to true by default
+            name: true,
+            email: true,
+            // ... all other schema fields
+          }
+        }
+      }),
+    },
+    delete: {
+      acl: () => ["delete", "User"],
+      mutation: UserAdminMutations.useDeleteUser,
+    },
+  },
+};
+```
+
+**Important:** By default, all schema fields are set to `true` and will be displayed with their default input types. This is intentional to show all available fields initially.
+
+### 2. dynamicPage (Your Customizations)
+
+Use `dynamicPage` to override the generated defaults. Since all fields are shown by default, you'll typically want to **hide certain fields** (especially in filters) by setting them to `false`:
+
+```typescript
+const getConfig = (t: TFunction) => 
+  dynamicPage(UserAdminConfigs.userConfig, {
+    // Page metadata
+    meta: {
+      title: t(($) => $.users.title),
+      breadcrumbs: getBreadcrumbs(t),
+      addButton: { label: t(($) => $.users.addUser) },
+      createModal: {
+        title: t(($) => $.users.createUser),
+        onSuccessText: t(($) => $.users.createSuccess),
+      },
+    },
+    
+    // Filter configuration (uses dynamicInputs)
+    // Hide fields you don't want in the filter bar
+    filters: {
+      inputs: {
+        search: false,        // Hide search field
+        ids: false,           // Hide IDs filter
+        model: false,         // Hide model filter
+        createdAt: true,      // Keep date filter
+        status: true,         // Keep status filter
+      },
+      namespace: "users.filters",
+    },
+    
+    // Table configuration (uses dynamicColumns)
+    // Only show relevant columns
+    tableColumns: {
+      columns: {
+        id: false,            // Hide ID column
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+      },
+      order: ["name", "email", "role", "createdAt"],
+      sortable: ["name", "createdAt"],
+    },
+    
+    // Create form configuration (uses dynamicInputs)
+    // Customize input types
+    create: {
+      inputDefs: {
+        inputs: {
+          password: { type: "passwordInput" },  // Override to password input
+          role: { type: "segment" },            // Override to segment control
+        },
+        namespace: "users.form",
+      },
+    },
+  });
+```
+
+**Key points:**
+- All fields are `true` by default in the generated config
+- Set fields to `false` to hide them (common for filters)
+- Override with objects to customize input types or column rendering
+- `dynamicPage` merges your overrides with the generated defaults
+
+### 3. usePageBuilder Hook
+
+Generates all the components and state management:
+
+```typescript
+const pageBuilder = usePageBuilder(config);
+
+// Returns:
+// {
+//   title,
+//   Breadcrumbs,        // Component
+//   TableFilters,       // Component
+//   TableControls,      // Component (search, view toggle, etc)
+//   Table,              // Component with data fetching
+//   AddButton,          // Opens create modal
+//   CreateModal,        // Create form modal
+//   UpdateModal,        // Update form modal
+//   ViewModal,          // View details modal
+//   permissions,        // { readAll, read, create, update, delete }
+//   modals,            // Modal state management
+//   pagination,        // Pagination state
+//   sorting,           // Sorting state
+// }
+```
+
+### 4. Render Your Page
+
+**Most commonly** - Use the components directly in your layout:
+
+```typescript
+export function UsersPage() {
+  const config = useTranslationMemo(getConfig);
+  const { Breadcrumbs, TableFilters, TableControls, Table, AddButton, CreateModal } = 
+    usePageBuilder(config);
+  
+  return (
+    <div className="px-5 py-4">
+      <Breadcrumbs />
+      <div className="flex justify-between">
+        <h1>Users</h1>
+        <AddButton />
+      </div>
+      {TableFilters}
+      {TableControls}
+      <Table tableType="infinite" />
+      <CreateModal />
+    </div>
+  );
+}
+```
+
+**Rarely used** - Use the `PageBuilder` component with default layout:
+
+```typescript
+export function UsersPage() {
+  const config = useTranslationMemo(getConfig);
+  const pageBuilder = usePageBuilder(config);
+  return <PageBuilder {...pageBuilder} />;
+}
+```
+
+## Common Patterns
+
+### Hiding Unwanted Fields
+
+Since all fields are shown by default, you'll often want to hide certain fields:
+
+```typescript
+dynamicPage(config, {
+  filters: {
+    inputs: {
+      // Common pattern: hide search, ids, and other technical fields
+      search: false,
+      ids: false,
+      model: false,
+      // Only show user-facing filters
+      status: true,
+      createdAt: true,
+    },
+  },
+  tableColumns: {
+    columns: {
+      // Hide technical columns
+      id: false,
+      internalStatus: false,
+      // Show user-facing columns
+      name: true,
+      email: true,
+      role: true,
+    },
+  },
+  create: {
+    inputDefs: {
+      inputs: {
+        // Hide auto-generated fields
+        id: false,
+        createdAt: false,
+        updatedAt: false,
+        // Show editable fields
+        name: true,
+        email: true,
+      },
+    },
+  },
+});
+```
+
+### Custom Table Columns
+
+```typescript
+dynamicPage(config, {
+  tableColumns: {
+    columns: {
+      name: true,
+      email: true,
+      status: {
+        header: "Status",
+        cell: ({ data }) => <StatusBadge status={data.status} />,
+      },
+    },
+    customColumns: {
+      actions: {
+        header: "Actions",
+        cell: ({ data }) => <CustomActions item={data} />,
+      },
+    },
+    order: ["name", "email", "status", "actions"],
+  },
+});
+```
+
+### Custom Form Inputs
+
+```typescript
+dynamicPage(config, {
+  create: {
+    inputDefs: {
+      inputs: {
+        password: { type: "passwordInput" },
+        role: { type: "segment" },
+      },
+      namespace: "users.form",
+    },
+    renderInputs: (inputs) => (
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          {inputs.firstName}
+          {inputs.lastName}
+        </div>
+        {inputs.email}
+        {inputs.password}
+        {inputs.role}
+      </div>
+    ),
+  },
+});
+```
+
+### Bulk Actions
+
+```typescript
+// Create bulk actions component
+function UsersBulkActions({ table }: { table: Table<User> }) {
+  const selectedRows = table.getSelectedRowModel().rows;
+  const selectedUsers = selectedRows.map(row => row.original);
+  
+  return (
+    <div className="flex gap-2">
+      <Button onPress={() => bulkDelete(selectedUsers)}>
+        Delete {selectedUsers.length} users
+      </Button>
+      <Button onPress={() => bulkExport(selectedUsers)}>
+        Export
+      </Button>
+    </div>
+  );
+}
+
+// Use in config
+dynamicPage(config, {
+  bulkActionsComponent: UsersBulkActions,
+  tableOptions: {
+    addSelectionColumn: true, // Adds checkboxes
+  },
+});
+```
+
+### Custom View Modal
+
+```typescript
+function UserViewModal({ data, onClose }: { data: User; onClose: () => void }) {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-4">
+        <Avatar src={data.avatar} />
+        <div>
+          <h2>{data.name}</h2>
+          <p>{data.email}</p>
+        </div>
+      </div>
+      <Button onPress={onClose}>Close</Button>
+    </div>
+  );
+}
+
+dynamicPage(config, {
+  viewComponent: UserViewModal,
+});
+```
+
+### Grid View
+
+Grid view can be added in two ways:
+- Defining a custom card component and passing it to dynamicPage
+- Enabling grid view and using the generic card component
+
+Custom card component:
+
+```typescript
+function FileCard({ data, onClick }: PageBuilderCardProps<File>) {
+  return (
+    <div className="rounded border p-4">
+      <img src={data.thumbnail} alt={data.name} />
+      <p>{data.name}</p>
+    </div>
+  );
+}
+
+dynamicPage(config, {
+  grid: {
+    cardComponent: FileCard,
+  },
+});
+```
+
+Generic card component:
+
+```typescript
+dynamicPage(config, {
+  grid: {
+    enabled: true,
+    mappedFields: {
+      label: "fileName", // Example: if read data does not have a label field -> display "fileName" as the main label on the card
+      // ... Other overrides if needed 
+    },
+  },
+});
+```
+
+The generic card component by default tries to access and display the following fields of the received data:
+- image -> "image" or "img"
+- label -> "label" or "name"
+- description -> "description"
+- createdAt -> "created_at" or "createdAt"
+- updatedAt -> "updated_at" or "updatedAt"
+- createdBy -> "created_by" or "createdBy"
+- updatedBy -> "updated_by" or "updatedBy"
+- archived -> "archived"
+
+### Multiple Tabs
+
+For pages with multiple tables (like Email Management):
+
+**Key benefit:** `PageBuilderTabs` lets you define the layout once for all tabs. Without it, you'd need to duplicate the same layout code for each tab separately.
+
+```typescript
+export function EmailManagementPage() {
+  const logsConfig = useTranslationMemo(getEmailLogsConfig);
+  const templatesConfig = useTranslationMemo(getEmailTemplatesConfig);
+  
+  const logsPageBuilder = usePageBuilder(logsConfig);
+  const templatesPageBuilder = usePageBuilder(templatesConfig);
+  
+  const tabs: PageBuilderTab[] = [
+    {
+      value: "logs",
+      text: "Logs",
+      pageBuilder: logsPageBuilder,
+    },
+    {
+      value: "templates",
+      text: "Templates",
+      pageBuilder: templatesPageBuilder,
+    },
+  ];
+  
+  return (
+    <PageBuilderTabs tabs={tabs}>
+      {({ activeTab, Tabs, TableFilters, TableControls, Table }) => (
+        <div className="space-y-4">
+          <h1>Email Management</h1>
+          <Tabs />
+          <TableFilters />
+          <TableControls />
+          <Table tableType="infinite" />
+        </div>
+      )}
+    </PageBuilderTabs>
+  );
+}
+```
+
+## Complete Examples
+
+### Simple Admin Page (Custom Layout)
+
+```typescript
+import { useTranslationMemo } from "@povio/ui";
+import type { TFunction } from "i18next";
+import { Typography } from "@povio/ui";
+import { dynamicPage, usePageBuilder } from "@/components/shared/page-builder";
+import { UserAdminConfigs } from "@/openapi/userAdmin/userAdmin.configs";
+import { PageTabBar } from "@/components/shared/layout/PageTabBar";
+
+const getBreadcrumbs = (t: TFunction) => [
+  { label: t(($) => $.dashboard.title), path: "/", active: false },
+  { label: t(($) => $.users.title), path: "/users", active: true },
+];
+
+const getConfig = (t: TFunction) =>
+  dynamicPage(UserAdminConfigs.userConfig, {
+    meta: {
+      title: t(($) => $.users.title),
+      breadcrumbs: getBreadcrumbs(t),
+      addButton: {
+        label: t(($) => $.users.addUser),
+      },
+      createModal: {
+        title: t(($) => $.users.createUser),
+        onSuccessText: t(($) => $.users.createSuccess),
+      },
+      updateModal: {
+        title: t(($) => $.users.updateUser),
+        onSuccessText: t(($) => $.users.updateSuccess),
+      },
+      deleteConfirmationModal: {
+        heading: (data) => t(($) => $.users.deletePrompt, { name: data.name }),
+        description: t(($) => $.users.deleteDescription),
+        confirmLabel: t(($) => $.users.delete),
+        onSuccessText: (data) => t(($) => $.users.deleteSuccess, { name: data.name }),
+      },
+    },
+    filters: {
+      inputs: {
+        search: false,
+        createdAt: true,
+        status: true,
+      },
+      namespace: "users.filters",
+    },
+    tableColumns: {
+      columns: {
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+      },
+      order: ["name", "email", "role", "createdAt"],
+      sortable: ["name", "createdAt"],
+    },
+    create: {
+      inputDefs: {
+        inputs: {
+          password: { type: "passwordInput" },
+        },
+        namespace: "users.form",
+      },
+    },
+    update: {
+      inputDefs: {
+        namespace: "users.form",
+      },
+    },
+  });
+
+export function UsersPage() {
+  const { t } = useTranslation();
+  const config = useTranslationMemo(getConfig);
+  const { 
+    title, 
+    Breadcrumbs, 
+    TableFilters, 
+    TableControls, 
+    Table, 
+    AddButton, 
+    CreateModal, 
+    UpdateModal, 
+    ViewModal 
+  } = usePageBuilder(config);
+  
+  return (
+    <div className="flex h-full flex-col gap-3 px-5 py-4">
+      <Breadcrumbs />
+      
+      <div className="flex items-center justify-between">
+        <Typography variant="default" size="title-4" as="h4">
+          {title}
+        </Typography>
+        <AddButton width="hug" size="xs" />
+      </div>
+      
+      <PageTabBar>{TableControls}</PageTabBar>
+      
+      {TableFilters}
+      
+      <Table tableType="infinite" />
+      
+      <CreateModal />
+      <UpdateModal />
+      <ViewModal />
+    </div>
+  );
+}
+```
+
+### Custom Layout with Actions
+
+```typescript
+export function FileManagementPage() {
+  const config = useTranslationMemo(getFileManagementConfig);
+  const { title, Breadcrumbs, TableFilters, TableControls, Table, CreateModal, ViewModal } = 
+    usePageBuilder(config);
+  
+  return (
+    <div className="flex h-full flex-col gap-3 px-5 py-4">
+      <Breadcrumbs />
+      
+      <div className="flex items-center justify-between">
+        <Typography variant="default" size="title-4" as="h4">
+          {title}
+        </Typography>
+        
+        <Button 
+          variant="contained" 
+          size="xs" 
+          icon={SettingsIcon}
+          link={{ href: "/settings/file-management" }}
+        >
+          Settings
+        </Button>
+      </div>
+      
+      <PageTabBar>{TableControls}</PageTabBar>
+      
+      {TableFilters}
+      
+      <Table 
+        tableType="infinite"
+        emptyState={<EmptyFilesState />}
+      />
+      
+      <CreateModal />
+      <ViewModal />
+    </div>
+  );
+}
+```
+
+## API Reference
+
+### dynamicPage(config, overrides)
+
+```typescript
+function dynamicPage<TReadAllSchema, TReadSchema, TFilterSchema, TCreateSchema, TUpdateSchema>(
+  config: PageBuilderConfig,
+  overrides?: {
+    meta?: Partial<PageBuilderConfigMeta>;
+    filters?: DynamicInputsOptions<TFilterSchema>;
+    tableColumns?: DynamicColumnsOptions<TReadAllSchema>;
+    tableOptions?: PageBuilderTableOptions;
+    bulkActionsComponent?: FC<BulkActionsProps>;
+    viewComponent?: FC<ViewComponentProps>;
+    grid?: PageBuilderGridOptions<TReadAllSchema>;
+    create?: {
+      inputDefs?: DynamicInputsOptions<TCreateSchema>;
+      renderInputs?: (inputs: Record<string, ReactNode>) => ReactNode;
+    };
+    update?: {
+      inputDefs?: DynamicInputsOptions<TUpdateSchema>;
+      renderInputs?: (inputs: Record<string, ReactNode>) => ReactNode;
+    };
+  }
+): PageBuilderConfig
+```
+
+### usePageBuilder(config)
+
+Returns components and state management:
+
+```typescript
+interface UsePageBuilderReturn {
+  // Components
+  title: string;
+  Breadcrumbs: FC;
+  TableFilters: ReactNode;
+  TableControls: ReactNode;
+  Table: FC<TableProps>;
+  AddButton: FC;
+  CreateModal: FC;
+  UpdateModal: FC;
+  ViewModal: FC;
+  
+  // State
+  permissions: {
+    readAll: boolean;
+    read: boolean;
+    create: boolean;
+    update: boolean;
+    delete: boolean;
+  };
+  modals: {
+    isViewOpen: boolean;
+    isCreateOpen: boolean;
+    isUpdateOpen: boolean;
+    // ... setters
+  };
+  pagination: PaginationState;
+  sorting: SortingState;
+  selectedItemId: string | null;
+}
+```
+
+## Key Benefits
+
+**Compared to building pages manually:**
+
+```typescript
+// ❌ Manual approach - 200+ lines of boilerplate
+// - Define table columns manually
+// - Setup filter state and components
+// - Create modal forms with state
+// - Wire up mutations and queries
+// - Handle permissions checks
+// - Manage pagination/sorting state
+// - Connect everything together
+// - Handle loading/error states
+
+// ✅ With PageBuilder hook - Pick what you need
+const config = dynamicPage(ApiConfig, {
+  meta: { title: "Users" },
+  filters: { inputs: { createdAt: true } },
+  tableColumns: { columns: { name: true, email: true } },
+});
+
+const { TableFilters, TableControls, Table, AddButton, CreateModal } = usePageBuilder(config);
+
+// Use components in your layout with full control
+return (
+  <div>
+    <TableControls />
+    <AddButton />
+    {TableFilters}
+    <Table tableType="infinite" />
+    <CreateModal />
+  </div>
+);
+```
+
+**Advantages:**
+1. ✅ Consistent UI patterns across admin
+2. ✅ Automatic permission handling
+3. ✅ Built-in state management (filters, pagination, sorting)
+4. ✅ Type-safe throughout
+5. ✅ Uses [dynamicInputs](./?path=/docs/ui-components-inputs-inputs-dynamicinputs--docs) and [dynamicColumns](./?path=/docs/ui-components-table-dynamiccolumns--docs) automatically
+6. ✅ Only use the components you need
+7. ✅ Less boilerplate code
+
+

@@ -1,0 +1,22 @@
+# Tests
+
+In general, it is not recommended to write UI tests unless the project is very stable. Most projects change the design frequently, and this would require us to constantly update the tests. Instead, you could try using snapshot tests (this is still a TODO).
+
+On the other hand, writing tests for logical components makes more sense. For this, you should use mock service worker to mock the API calls, which will allow you to perform tests end to end.
+
+## Template instructions
+
+Remove this section after reading through the file. Remove default tests if you aren't using s3 - but we do recommend that you keep some kind of a test for a reference in the directory.
+
+### API mocks
+
+We want this template to be self-contained. Thus we mock the API calls using [MSW](https://mswjs.io/) - no backend is called; instead the mock service worker responds with correct payloads. The frontend app is clueless about this, because the mocking happens at a network level.
+
+Do not confuse this with using MSW to do unit tests - those are two separate use-cases for the same library.
+
+In regards to mock API calls, in most projects, you should remove them right from the start, since you want to call the real API. However, if you are working on a project where the API is not ready yet, you can use this to mock the API calls.
+
+To remove mocks, you need to:
+
+- Remove the call to use api mocks in `_app.tsx `
+- Remove `mocks` folder

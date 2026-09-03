@@ -1,0 +1,116 @@
+---
+description: Rules for service classes implementing business logic
+globs:
+  - "**/*.service.ts"
+alwaysApply: false
+---
+
+# Services
+
+This file applies to all service files (`*.service.ts`).
+
+## Basic Structure
+
+```typescript
+@Injectable()
+export class FeatureService {
+  constructor(
+    private readonly featureRepository: FeatureRepository,
+    private readonly logger: LoggerService,
+  ) {}
+}
+```
+
+## Error Handling
+
+Use exceptions from `~common/exceptions`:
+
+```typescript
+import { NotFoundException, BadRequestException, ConflictException } from '~common/exceptions';
+
+// Throw exceptions with messages directly
+throw new NotFoundException('Feature not found');
+throw new BadRequestException('Invalid input');
+throw new ConflictException('Duplicate entry');
+```
+
+## Common Operations
+
+### Pagination
+
+Use the IFeaturePaginationQuery defined in models. Do not use IPaginationQuery directly.
+
+```typescript
+async paginate(query: IFeaturePaginationQuery): Promise<IPagination<IFeature>> {
+  return await this.brandRepository.paginate(query);
+}
+```
+
+### Create Operation
+```typescript
+async create(data: CreateFeatureRequest): Promise<IFeature> {
+  return await this.rocketRepository.create({ ...data, id: makeUUID() });
+}
+```
+
+### Update Operation
+```typescript
+async update(id: string, data: UpdateFeatureRequest): Promise<IFeature> {
+  // Find existing (service may handle validation)
+  const existing = await this.featureRepository.find({ id });
+  if (!existing) {
+    throw new NotFoundException('Feature not found');
+  }
+
+  // Persist changes
+  return await this.featureRepository.update(id, data);
+}
+```
+
+### CRUD Operation for User-Owned Resources
+```typescript
+// For user-owned resources, CRUD method must match repository signature
+async update(where: { id: string; userId: string }): Promise<IModel> {
+  return await this.favoriteRepository.update(where);
+}
+```
+
+### Get By ID
+```typescript
+async find(where: { id: string }): Promise<IFeature> {
+  const feature = await this.featureRepository.find(where);
+  if (!feature) {
+    throw new NotFoundException('Feature not found');
+  }
+  return feature;
+}
+```
+
+### Media Handling
+When working with media files (pictures, attachments, etc.), see `media-rule.mdc` for:
+- Creating a media service (`{feature}.media.service.ts`)
+- Validating and associating media in `update()` methods
+- Resolving media fetch instructions in `paginate()` and `find()` methods
+
+### Queue Jobs
+When enqueueing background jobs, see `queue-rule.mdc` for:
+- Using `QueueService.enqueue()` to dispatch jobs
+- Creating job data DTOs for validation
+- Job processing is handled in queue processor classes (`{feature}.queue-processor.ts`)
+
+## Implementation Rules
+
+1. **Error Handling**
+   - Use exceptions from `~common/exceptions` (NotFoundException, BadRequestException, ConflictException)
+   - Keep error messages user-friendly
+   - Throw exceptions with descriptive messages
+
+2. **Method Organization**
+   - Public methods for API operations
+   - Private methods for complex business logic
+   - Keep methods focused and small
+
+3. **User-Owned Resources**
+   - CRUD methods for user-owned resources must match repository signature
+   - Always accept userId parameter to ensure users can only delete their own resources
+   - Service signature should match repository signature exactly

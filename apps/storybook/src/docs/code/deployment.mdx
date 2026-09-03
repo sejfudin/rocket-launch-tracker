@@ -1,0 +1,21 @@
+# Deployment
+
+## SPA
+
+Deployment of the SPA version is done using [spa-deploy-cli](https://github.com/poviolabs/spa-deploy-cli). Check [configuration.md](./configuration.md) for more information.
+
+In general, you should not be using `yarn build` directly to build the project. Consult the Github workflows (next chapter) for the correct way to build the project if you want to build it manually.
+
+### Github CI
+
+Inside the `.github` folder there are workflows for deploying each stage. Each stage deploy first makes the code check, and then deploys to S3 / Cloudfront.
+
+## SSR
+
+There is a `Dockerfile` in the root of the project that can be used to build the SSR version. Run `yarn build:docker` to build it. Run `./scripts/docker/test-run-docker-image.sh` to test the image locally.
+
+## Instructions
+
+- The deployment scripts inside `.github/workflows` are skipped (`if: false`). To enable the deployment, remove this line and insert secrets into Github.
+- If you are using different CI than `.github`, remove the folder and configure your own CI. Consider making a PR to this repo with your findings.
+- If you aren't using Docker, remove the `Dockerfile` and the `scripts/docker` folder.

@@ -1,0 +1,570 @@
+# Form Component
+
+## Overview
+
+The `Form` component is a powerful wrapper around React Hook Form that automatically generates type-safe form fields from Zod schemas with intelligent input type detection.
+
+**Why use it:**
+- ✅ Automatic input type detection from Zod schemas
+- ✅ Type-safe field components with autocomplete
+- ✅ No manual formControl wiring required
+- ✅ Compile-time validation of input type overrides
+- ✅ Seamless integration with React Hook Form
+
+**When to use it:**
+- You have a Zod schema defining your form data
+- You want type-safe form handling with minimal boilerplate
+- You need automatic input type selection
+
+## Examples in admin
+
+See how `Form` is used in production on admin:
+
+- [Form example](https://github.com/povio/monorepo-template/blob/develop/apps/admin/src/components/notifications/templates/NotificationTemplateConfigurePage.tsx) - Note: you can mix manual input components and the Form's components in case an input doesn't interact with the form hook or is not supported
+
+## Key Benefits vs Manual Approach
+
+**Without Form component:**
+```tsx
+<form onSubmit={form.handleSubmit(onSubmit)}>
+  <TextInput
+    formControl={{ control: form.control, name: "name" }}
+    label="Name"
+  />
+  <TextInput
+    formControl={{ control: form.control, name: "email" }}
+    label="Email"
+  />
+  {/* Repetitive formControl wiring, no type safety for field names */}
+</form>
+```
+
+**With Form component:**
+```tsx
+<Form form={form} schema={schema} onSubmit={onSubmit}>
+  {({ Name, Email }) => (
+    <>
+      <Name label="Name" />
+      <Email label="Email" />
+      {/* Automatic formControl wiring, full type safety, autocomplete */}
+    </>
+  )}
+</Form>
+```
+
+**Advantages:**
+1. ✅ No manual formControl wiring
+2. ✅ Type-safe field names with autocomplete
+3. ✅ Automatic input type detection
+4. ✅ Type-safe input type overrides
+5. ✅ Less boilerplate code
+6. ✅ Better developer experience
+
+## Quick Start
+
+Here's the simplest way to create a type-safe form:
+
+```tsx
+import { Form, Button, useForm } from "@povio/ui";
+import { z } from "zod";
+
+const UserSchema = z.object({
+  name: z.string(),
+  email: z.string().email(),
+  role: z.enum(["user", "admin"]),
+});
+
+function UserForm() {
+  const form = useForm({ zodSchema: UserSchema });
+
+  return (
+    <Form
+      form={form}
+      schema={UserSchema}
+      onSubmit={(data) => console.log(data)} // data is fully typed!
+    >
+      {({ Name, Email, Role }) => (
+        <div className="flex flex-col gap-4">
+          <Name label="Full Name" />
+          <Email label="Email Address" />
+          <Role
+            label="Role"
+            items={[
+              { id: "user", label: "User" },
+              { id: "admin", label: "Admin" },
+            ]}
+          />
+          <Button type="submit">Submit</Button>
+        </div>
+      )}
+    </Form>
+  );
+}
+```
+
+**What's happening:**
+- Schema defines the form structure
+- Field components are automatically generated and typed
+- `formControl` is injected automatically (no manual wiring)
+- Submit handler receives fully typed data
+
+## Automatic Input Type Detection
+
+The Form component maps Zod types to appropriate input components:
+
+```
+| Zod Type          | Default Input Type | Example
+|-------------------|--------------------|-----------------------------------------
+| `z.string()`      | `textInput`        | Text fields, names, descriptions
+| `z.email()`       | `textInput`        | Email addresses
+| `z.uuid()`        | `textInput`        | IDs (can override to select/autocomplete)
+| `z.number()`      | `numberInput`      | Ages, quantities, prices
+| `z.enum()`        | `select`           | Roles, statuses, categories
+| `z.boolean()`     | `toggle`           | Feature flags, preferences
+| `z.array()`       | `select`           | Multi-select (with `selectionMode: "multiple"`)
+| `z.date()`        | `datePicker`       | Single dates
+| `z.iso.datetime()`| `datePicker`       | ISO datetime strings
+| DateRange         | `dateRangePicker`  | Date ranges
+| TextEditor        | `textEditor`       | Rich text content
+```
+
+**Example:**
+
+```tsx
+const schema = z.object({
+  name: z.string(),                // → TextInput
+  email: z.email(),                // → TextInput
+  age: z.number(),                 // → NumberInput
+  role: z.enum(["user", "admin"]), // → Select
+  isActive: z.boolean(),           // → Toggle
+  startDate: z.iso.datetime(),     // → DatePicker
+  tags: z.array(z.string()),       // → Select (multiple)
+});
+```
+
+## Type-Safe Input Overrides
+
+You can override the default input type using the `inputType` prop. TypeScript ensures only compatible types are allowed:
+
+```tsx
+<Form form={form} schema={schema} onSubmit={handleSubmit}>
+  {({ Name, Bio, Age, Role }) => (
+    <>
+      {/* ✅ Valid - textArea is allowed for string fields */}
+      <Bio inputType="textArea" label="Biography" />
+      
+      {/* ✅ Valid - segment is allowed for enum fields */}
+      <Role inputType="segment" label="Role" items={roleItems} />
+      
+      {/* ✅ Valid - slider is allowed for number fields */}
+      <Age inputType="slider" label="Age" minValue={0} maxValue={120} />
+      
+      {/* ❌ TypeScript Error - dateTimePicker not allowed for string */}
+      <Name inputType="dateTimePicker" label="Name" />
+    </>
+  )}
+</Form>
+```
+
+**Allowed overrides per type:**
+
+```
+| Schema Type       | Allowed Input Types
+|-------------------|----------------------------------------------------------------------
+| `z.string()`      | `textInput`, `passwordInput`, `textArea`, `select`, `autocomplete`, `queryAutocomplete`, `segment`
+| `z.email()`       | `textInput`
+| `z.uuid()`        | `textInput`, `select`, `autocomplete`, `queryAutocomplete`, `segment`
+| `z.number()`      | `numberInput`, `slider`, `select`, `autocomplete`, `queryAutocomplete`, `segment`
+| `z.enum()`        | `select`, `autocomplete`, `segment`
+| `z.boolean()`     | `toggle`, `checkbox`
+| `z.array()`       | `select`, `autocomplete`, `queryAutocomplete`, `segment`
+| `z.date()`        | `datePicker`, `dateTimePicker`, `timePicker`
+| `z.iso.datetime()`| `datePicker`, `dateTimePicker`, `timePicker`
+| DateRange         | `dateRangePicker`
+| TextEditor        | `textEditor`
+```
+
+## Form Setup
+
+### Basic Setup
+
+```tsx
+import { Form, useForm } from "@povio/ui";
+import { z } from "zod";
+
+const schema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+});
+
+function MyForm() {
+  const form = useForm({
+    zodSchema: schema,
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  return (
+    <Form
+      form={form}
+      schema={schema}
+      onSubmit={(data) => {
+        // data is typed as { email: string; password: string }
+        console.log(data);
+      }}
+    >
+      {({ Email, Password }) => (
+        <div className="space-y-4">
+          <Email label="Email" />
+          <Password inputType="passwordInput" label="Password" />
+          <Button type="submit">Sign In</Button>
+        </div>
+      )}
+    </Form>
+  );
+}
+```
+
+### With Default Values
+
+```tsx
+const form = useForm({
+  zodSchema: schema,
+  defaultValues: {
+    role: "user",
+    notifications: false,
+    country: "us",
+  },
+});
+```
+
+### With Error Handling
+
+```tsx
+<Form
+  form={form}
+  schema={schema}
+  onSubmit={async (data) => {
+    await api.createUser(data);
+  }}
+  onError={(error) => {
+    // Handle validation errors
+    toast.error(error.message);
+  }}
+>
+  {/* fields */}
+</Form>
+```
+
+### With Custom Styling
+
+```tsx
+<Form
+  form={form}
+  schema={schema}
+  onSubmit={handleSubmit}
+  className="mx-auto max-w-2xl space-y-6"
+>
+  {/* fields */}
+</Form>
+```
+
+## Layout Patterns
+
+The Form component is flexible and works with any layout:
+
+### Grid Layout
+
+```tsx
+<Form form={form} schema={schema} onSubmit={handleSubmit}>
+  {({ FirstName, LastName, Email, Phone }) => (
+    <>
+      <div className="grid grid-cols-2 gap-4">
+        <FirstName label="First Name" />
+        <LastName label="Last Name" />
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <Email label="Email" />
+        <Phone label="Phone" />
+      </div>
+    </>
+  )}
+</Form>
+```
+
+### Flex with Variable Widths
+
+```tsx
+<div className="flex gap-4">
+  <div className="w-1/3">
+    <Age label="Age" />
+  </div>
+  <div className="flex-1">
+    <Role label="Role" items={roles} />
+  </div>
+</div>
+```
+
+### Sections with Grouping
+
+```tsx
+<Form form={form} schema={schema} onSubmit={handleSubmit}>
+  {({ Name, Email, Bio, Role, Notifications }) => (
+    <div className="space-y-8">
+      {/* Personal Info Section */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Personal Information</h3>
+        <Name label="Full Name" />
+        <Email label="Email Address" />
+        <Bio inputType="textArea" label="Bio" />
+      </div>
+
+      {/* Settings Section */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Account Settings</h3>
+        <Role label="Role" items={roleItems} />
+        <Notifications label="Enable Notifications" />
+      </div>
+
+      <Button type="submit">Save Changes</Button>
+    </div>
+  )}
+</Form>
+```
+
+### Right-Aligned Elements
+
+```tsx
+<div className="flex justify-end">
+  <AcceptTerms label="I accept the terms and conditions" />
+</div>
+```
+
+## Complete Examples
+
+### User Registration Form
+
+```tsx
+const RegistrationSchema = z.object({
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  email: z.string().email(),
+  password: z.string().min(8),
+  confirmPassword: z.string(),
+  dateOfBirth: z.iso.datetime(),
+  country: z.enum(["us", "uk", "ca", "au"]),
+  acceptTerms: z.boolean(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+function RegistrationForm() {
+  const form = useForm({
+    zodSchema: RegistrationSchema,
+    defaultValues: {
+      acceptTerms: false,
+    },
+  });
+
+  return (
+    <Form
+      form={form}
+      schema={RegistrationSchema}
+      onSubmit={async (data) => {
+        await api.register(data);
+        toast.success("Account created!");
+      }}
+      onError={(error) => toast.error(error.message)}
+      className="mx-auto max-w-xl"
+    >
+      {({
+        FirstName,
+        LastName,
+        Email,
+        Password,
+        ConfirmPassword,
+        DateOfBirth,
+        Country,
+        AcceptTerms,
+      }) => (
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold">Create Account</h2>
+
+          <div className="grid grid-cols-2 gap-4">
+            <FirstName label="First Name" />
+            <LastName label="Last Name" />
+          </div>
+
+          <Email label="Email Address" placeholder="you@example.com" />
+
+          <Password
+            inputType="passwordInput"
+            label="Password"
+            placeholder="Min 8 characters"
+          />
+
+          <ConfirmPassword
+            inputType="passwordInput"
+            label="Confirm Password"
+          />
+
+          <DateOfBirth label="Date of Birth" />
+
+          <Country
+            label="Country"
+            items={[
+              { id: "us", label: "United States" },
+              { id: "uk", label: "United Kingdom" },
+              { id: "ca", label: "Canada" },
+              { id: "au", label: "Australia" },
+            ]}
+          />
+
+          <AcceptTerms
+            inputType="checkbox"
+            label="I accept the Terms and Conditions"
+          />
+
+          <Button type="submit" className="w-full">
+            Create Account
+          </Button>
+        </div>
+      )}
+    </Form>
+  );
+}
+```
+
+### Profile Settings Form
+
+```tsx
+const ProfileSchema = z.object({
+  username: z.string().min(3),
+  bio: z.string().max(500),
+  website: z.string().url().optional(),
+  role: z.enum(["developer", "designer", "manager"]),
+  skills: z.array(z.enum(["react", "typescript", "nodejs", "python"])),
+  experience: z.number().min(0).max(50),
+  isPublic: z.boolean(),
+});
+
+function ProfileSettingsForm({ user }: { user: User }) {
+  const form = useForm({
+    zodSchema: ProfileSchema,
+    defaultValues: {
+      username: user.username,
+      bio: user.bio,
+      website: user.website,
+      role: user.role,
+      skills: user.skills,
+      experience: user.experience,
+      isPublic: user.isPublic,
+    },
+  });
+
+  return (
+    <Form
+      form={form}
+      schema={ProfileSchema}
+      onSubmit={async (data) => {
+        await api.updateProfile(user.id, data);
+        toast.success("Profile updated!");
+      }}
+      className="space-y-6"
+    >
+      {({ Username, Bio, Website, Role, Skills, Experience, IsPublic }) => (
+        <>
+          <Username label="Username" placeholder="Choose a unique username" />
+
+          <Bio
+            inputType="textArea"
+            label="Bio"
+            placeholder="Tell us about yourself..."
+            rows={4}
+          />
+
+          <Website label="Website" placeholder="https://example.com" />
+
+          <Role
+            inputType="segment"
+            label="Role"
+            items={[
+              { id: "developer", label: "Developer" },
+              { id: "designer", label: "Designer" },
+              { id: "manager", label: "Manager" },
+            ]}
+          />
+
+          <Skills
+            label="Skills"
+            items={[
+              { id: "react", label: "React" },
+              { id: "typescript", label: "TypeScript" },
+              { id: "nodejs", label: "Node.js" },
+              { id: "python", label: "Python" },
+            ]}
+          />
+
+          <Experience
+            inputType="slider"
+            label="Years of Experience"
+            minValue={0}
+            maxValue={50}
+          />
+
+          <IsPublic label="Make profile public" />
+
+          <div className="flex gap-2">
+            <Button type="submit">Save Changes</Button>
+            <Button variant="subtle" onPress={() => form.reset()}>
+              Cancel
+            </Button>
+          </div>
+        </>
+      )}
+    </Form>
+  );
+}
+```
+
+## API Reference
+
+### Form Props
+
+```
+| Prop        | Type                               | Description
+|-------------|------------------------------------|-----------------------------------------------
+| `form`      | `UseFormReturn<T>`                 | Form instance from `useForm` hook (required)
+| `schema`    | `z.ZodObject<any>`                 | Zod schema defining form structure (required)
+| `onSubmit`  | `(data: T) => void \| Promise`     | Submit handler with typed data (required)
+| `onError`   | `(error: any) => void`             | Optional error handler for validation errors
+| `className` | `string`                           | Optional CSS class for form element
+| `children`  | `(fields: Fields<T>) => ReactNode` | Render function receiving typed field components
+```
+
+### Field Component Props
+
+Each generated field component accepts:
+
+```
+| Prop          | Type      | Description
+|---------------|-----------|----------------------------------------------------------
+| `label`       | `string`  | Field label (required)
+| `placeholder` | `string`  | Optional placeholder text
+| `inputType`   | `string`  | Optional type override (type-safe, see allowed overrides)
+| `...props`    | `object`  | Additional props passed to the input component
+```
+
+### useForm Options
+
+```
+| Option          | Type             | Description
+|-----------------|------------------|---------------------------------------------
+| `zodSchema`     | `z.ZodObject`    | Zod schema for validation (required)
+| `defaultValues` | `Partial<T>`     | Initial form values
+| `mode`          | `string`         | Validation mode (default: "onChange")
+| `reValidateMode`| `string`         | Re-validation mode (default: "onChange")
+```

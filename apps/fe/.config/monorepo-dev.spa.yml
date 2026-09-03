@@ -1,0 +1,4 @@
+configs:
+  values:
+    - name: "@"
+      templateModule: spa.template

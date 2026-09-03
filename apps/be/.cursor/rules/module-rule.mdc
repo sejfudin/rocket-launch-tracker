@@ -1,0 +1,67 @@
+---
+description: Rules for NestJS module definitions
+globs:
+  - "**/*.module.ts"
+alwaysApply: false
+---
+
+# NestJS Modules
+
+This file applies to all module files (`*.module.ts`).
+
+## Basic Structure
+
+```typescript
+import { Module } from '@nestjs/common';
+
+import { FeaturePrismaRepository } from './persistors/prisma';
+import { FeatureController } from './feature.controller';
+import { FeatureRepository } from './feature.repository';
+import { FeatureService } from './feature.service';
+
+@Module({
+  imports: [
+    // Import other modules as needed
+  ],
+  controllers: [FeatureController],
+  providers: [
+    Feature,
+    { provide: FeatureRepository, useClass: FeaturePrismaRepository },
+  ],
+  exports: [FeatureRepository],
+})
+export class FeatureModule {}
+```
+
+## Implementation Rules
+
+1. **Module Definition**
+   - Import necessary modules in `imports` array
+   - Register controllers in `controllers` array
+   - Register services and providers in `providers` array
+   - Export repository interfaces for use in other modules
+   - Use dependency injection tokens: `{ provide: RepositoryInterface, useClass: RepositoryImplementation }`
+
+2. **Providers**
+   - Services should be registered as providers
+   - Repository interfaces should be bound to their implementations
+   - Use class providers for concrete implementations
+   - Export interfaces that other modules might need
+
+3. **Exports**
+   - Export repository interfaces if used by other modules
+   - Export services if they should be available to other modules
+   - Keep exports minimal - only what's needed
+
+4. **Imports**
+   - Import shared/common modules (MediaModule, PushNotificationModule, etc.)
+   - Import other feature modules if needed
+
+5. **Module Registration Pattern (forRoot vs forFeature)**
+   - Common modules that support plugins should provide both `forRoot()` and `forFeature()` static methods
+   - `forRoot()`: Sets up the base module configuration (should be defined using `deferComposableModule`)
+   - `forFeature(plugins)`: Wraps `forRoot()` and applies plugins (should use `applyModulePlugins`)
+   - **Usage Rules:**
+     - Root modules (directly in `src/` folder like `app.module.ts`, `common.module.ts`, `admin.module.ts`) should use `forRoot()`
+     - Feature modules (under `src/modules/`) must use `forFeature()` instead of `forRoot()`
+     - **Exception:** Test files where modules are created in place (e.g., `createRestTestingModule`, `createAppTestingModule`) should use `forRoot()` if the module is not already loaded in AppTestingModule.

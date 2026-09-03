@@ -1,0 +1,195 @@
+---
+description: Rules for scaffolding files and code generation
+globs:
+  - "**/.scaffold*.ts"
+  - "**/.scaffold/**/*.ts"
+  - ".scaffold/**/*.{yaml,yml}"
+alwaysApply: false
+---
+
+# Scaffolding
+
+Scaffolding files are used to generate source code, enable plugins, and scaffold modules. They use declarative requests and ts-morph for code transformations.
+
+## Important Restrictions
+
+⚠️ **Scaffold files should ONLY be read or edited with specific instructions from the programmer**
+⚠️ **Scaffolding can ONLY be run by the programmer** (`yarn scaffold apply`)
+
+## Structure
+
+### Configuration
+- **Config file**: `.scaffold/scaffold.config.yaml` (committed to git)
+- **State**: Read from config file by `scaffolding apply` command
+- **Idempotent**: Running `scaffolding apply` multiple times produces the same result
+
+### File Organization
+
+```
+.scaffold/                    # Project-wide reusable instructions
+├── scaffold.config.yaml      # Main configuration file
+├── ...                       # Project-wide scaffold definitions
+
+src/modules/[feature]/
+└── .scaffold.ts              # Module-specific instructions
+
+src/common/[common]/
+└── .scaffold.ts              # Plugin/common-specific instructions
+```
+
+## Basic Structure
+
+```typescript
+import { createScaffolding, TsMorphModule } from '@povio/scaffold';
+import { SourceFile } from '@povio/scaffold/plugins/ts-morph';
+import { z } from '@povio/scaffold/plugins/zod';
+
+const ActivateParams = z.object({
+  // Schema for request parameters
+});
+
+export default createScaffolding({
+  name: 'scaffold-name',
+
+  configSchema: z.object({
+    // Configuration schema (optional)
+  }),
+
+  init: async ({ modules, config }, { addExecutor, addRequest }) => {
+    await addExecutor({
+      match: 'scaffold-name:action',
+      description: 'Description of what this executor does',
+      init: async (task, { addMessage }) => {
+        // Initialization logic
+        // Use ts-morph for code transformations
+        // Set task.status: 'queued', 'conforming', 'disabled', or 'errored'
+      },
+      exec: async () => {
+        // Execution logic (optional)
+      },
+    });
+  },
+});
+```
+
+## Implementation Rules
+
+### File Naming
+- **Project-wide**: `.scaffold/.{name}.scaffold.ts` (in root `.scaffold/` folder)
+- **Module/Plugin**: `.scaffold.ts` (next to the code it affects)
+- **Config**: `.scaffold/scaffold.config.yaml`
+
+### Principles
+1. **Bound to code** - Scaffolds live next to the code they change
+2. **Declarative** - Requests describe desired state
+3. **Idempotent** - Running multiple times produces same result
+4. **Composable** - Scaffolds build on top of each other
+5. **Clean merges** - Scaffolds in single folder, easy to delete
+6. **No dependencies** - Removing one scaffold doesn't break others
+7. **Not required** - Code can run without scaffolds (but discouraged)
+
+### ts-morph Usage
+
+```typescript
+await (modules['ts-morph'] as TsMorphModule).withTsMorph(async ({ project }) => {
+  const sourceFile = project.getSourceFile(filePath);
+  // Transform source file
+  // Add imports, modify classes, etc.
+});
+```
+
+### Making Scaffolds Available
+
+```typescript
+// In project-wide scaffold
+export default createScaffolding({
+  name: 'project-scaffold',
+  init: async ({ modules }, { addExecutor }) => {
+    // Make executors available to other scaffolds
+  },
+});
+```
+
+### Using Other Scaffolds
+
+```typescript
+// Scaffolds can reference other scaffolds
+await addRequest({
+  match: 'other-scaffold:action',
+  value: { /* parameters */ },
+  description: 'Description',
+});
+```
+
+## Configuration
+
+Configuration in `.scaffold/scaffold.config.yaml`:
+
+```yaml
+project:
+  name: be
+  title: Project Title
+
+scaffold-name:
+  mode: enabled
+  option1: value1
+  option2: value2
+
+other-scaffold:
+  mode: disabled
+```
+
+## Commands
+
+```bash
+# Apply scaffolding (idempotent)
+yarn scaffold apply
+
+# Scaffold files should only be edited by programmer
+# AI should only read/edit with explicit instructions
+```
+
+## Examples
+
+### Module Scaffold
+
+```typescript
+// src/modules/feature/.scaffold.ts
+import { createScaffolding, TsMorphModule } from '@povio/scaffold';
+
+export default createScaffolding({
+  name: 'feature-module',
+  init: async ({ modules }, { addExecutor }) => {
+    await addExecutor({
+      match: 'feature:activate',
+      description: 'Activate feature module',
+      init: async (task) => {
+        // Module-specific activation logic
+        task.status = 'queued';
+      },
+    });
+  },
+});
+```
+
+### Plugin Scaffold
+
+```typescript
+// src/common/plugin/.scaffold.ts
+import { createScaffolding } from '@povio/scaffold';
+import { z } from '@povio/scaffold/plugins/zod';
+
+export default createScaffolding({
+  name: '~common/plugin',
+  configSchema: z.object({
+    mode: z.enum(['enabled', 'disabled']).default('disabled'),
+    provider: z.string().optional(),
+  }),
+  init: async ({ config, modules }, { addExecutor }) => {
+    if (config.mode !== 'enabled') {
+      return; // Skip if disabled
+    }
+    // Plugin activation logic
+  },
+});
+```

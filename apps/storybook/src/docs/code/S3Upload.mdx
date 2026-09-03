@@ -1,0 +1,39 @@
+# S3 upload
+
+This template includes logic for uploading files to S3. The functionality is compatible with Povio backend templates, but it can also easily be adapted to custom backends.
+
+## What it can do
+
+The template supports uploading custom files onto S3 via a presigned url using POST or PUT.
+
+## How it works
+
+The `data/media` folder contains all the functionality for uploading files to S3. If you arent familiar with the data folder, consult [this doc](./data-fetching-flow.md).
+
+The `data/media` folder contains files:
+
+- `media.api.ts` - here we have all API calls needed for uploading. We have a call to get a presigned url and two calls (post and put) for upload to S3. Notice how we use two different API clients - presigned URL request use our internal backend client, while the put / post requests use the AWS S3 one.
+- `media.queries.ts` - these are TanStack query queries, mapped directly from api.
+- `media.models.ts` - schemas for requests and responses of the api calls.
+
+Next, we have a hook `useFileUpload`. This hook performs the entire logic of uploading. The input to the hook is the `use` parameter, which is an internal identifier of what the file being uploaded will serve as. This was introduced due to the backend api interface.
+
+The hook uses the `media.queries` to upload the file and manage the state of the file upload.
+
+## Usage
+
+To use this functionality, use the hook `useFileUpload`, and then interpret its return values:
+
+- `uploadFile` - use this to start the file upload. Pass in the file object, which you can obtain from a `type="file"` input.
+- `cancelUpload` - use this to cancel ongoing upload. The upload will error out if you do this.
+- `uploadState` - shows current state and the data that comes with each state. Inside the file, you can see the declaration of the state type. You will notice that each state has its own data. For example, when upload is in progress, there will also be a progress in percent reported. If the upload errors out, the error will be specified. And so forth.
+
+So, the typical flow will be as such:
+
+- User selects a file
+- Call `uploadFile` with the file object
+- Change UI based on the `uploadState` - for example, show a progress bar if the state is `uploading` and show an error message if the state is `error`.
+- Cancel the upload if the user wants to by calling `cancelUpload`
+- If the upload is successful, read the URL of the file from the accompanying data object in `uploadState`
+
+You can find a reference implementation in `FileUpload.tsx`.

@@ -1,0 +1,45 @@
+model Rocket {
+  id        String  @id @default(uuid()) @db.Uuid
+  name      String  @unique
+  modelId   String? @map("model_id") @db.Uuid
+  pictureId String? @unique @db.Uuid
+
+  // Assignment fields
+  height         Decimal?  @db.Decimal(10, 2) // Height in meters
+  weight         Decimal?  @db.Decimal(10, 2) // Weight in kg
+  launchDatetime DateTime? @map("launch_datetime") // Scheduled launch date/time
+  rocketType     String?   @map("rocket_type") // 'commercial' or 'space_exploration'
+  passengers     Json?     // Array of passenger names (for commercial rockets)
+  crew           Json?     // Array of crew member names (for space exploration, exactly 3)
+
+  model      RocketModel? @relation(fields: [modelId], references: [id])
+  timelapses RocketTimelapse[]
+
+  status    String  @default("unknown")
+  ownerId   String? @db.Uuid
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RocketModel {
+  id           String    @id @default(uuid()) @db.Uuid
+  name         String    @unique
+  organization String?
+  rockets      Rocket[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RocketTimelapse {
+  id String @id @default(uuid()) @db.Uuid
+
+  pictureId String @unique @db.Uuid
+
+  rocketId String @db.Uuid
+  rocket   Rocket @relation(fields: [rocketId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

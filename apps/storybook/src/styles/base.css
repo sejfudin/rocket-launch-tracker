@@ -1,0 +1,76 @@
+@plugin "tailwindcss-react-aria-components";
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@theme static {
+  --color-*: initial;
+  --color-inherit: inherit;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --radius-*: initial;
+  --radius-none: 0rem;
+  --container-*: initial;
+  --container-none: none;
+  --container-modal: 32.5rem;
+  --container-toast: 45rem;
+  --spacing-*: initial;
+  --spacing-0: 0rem;
+  --shadow-*: initial;
+  --shadow-none: none;
+  --text-*: initial;
+  --text-inherit: inherit;
+  --text-inherit--line-height: inherit;
+  --text-inherit--letter-spacing: inherit;
+  --breakpoint-*: initial;
+  --breakpoint-sm: 23.75rem;
+  --breakpoint-md: 37.5rem;
+  --breakpoint-lg: 80rem;
+  --breakpoint-xl: 105rem;
+  --rotate-*: initial;
+  --rotate-0: 0deg;
+  --rotate-45: 45deg;
+  --rotate-90: 90deg;
+  --rotate-180: 180deg;
+  --rotate-270: 270deg;
+  --rotate-360: 360deg;
+  --animate-drawer-enter-right: drawer-slide-right 0.3s;
+  --animate-drawer-exit-right: drawer-slide-right 0.3s reverse;
+  --animate-drawer-enter-left: drawer-slide-left 0.3s;
+  --animate-drawer-exit-left: drawer-slide-left 0.3s reverse;
+  --animate-loader-spin: loader-spin 1s linear infinite;
+
+  @keyframes drawer-slide-right {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  @keyframes drawer-slide-left {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  @keyframes loader-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+}
+
+.flex-fill {
+  flex: 1 0 0;
+}

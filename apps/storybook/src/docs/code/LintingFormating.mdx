@@ -1,0 +1,17 @@
+# Linting and formatting
+
+It is recommended that you set up your IDE so that it reports linting errors and formats the code on save. This will prevent you from having to fix these issues when committing the code - there's a CI check in the repo that checks all the files for code style validity when creating a PR on the Github.
+
+If using VSCode, install the recommended extensions (`.vscode/extensions.json`).
+
+## Formatting
+
+We are using Biome.
+
+## Linting
+
+We are using OXLint.
+
+## Why no pre-commit hook?
+
+It's a common practice to introduce a pre-commit hook (using something like Husky) to check for code validity before a commit is made. This is a valid practice, but we believe it is too intrusive and often discourages people to commit regularly. So instead we only check the code on the server, once the PR is ready - this is when it matters that the code looks good.

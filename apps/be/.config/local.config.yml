@@ -1,0 +1,21 @@
+configs:
+  - name: bootstrap
+    destination: ./.config/local.api.resolved.yml
+    values:
+      - name: "@"
+        templateModule: api.template
+        resolve: only
+
+  - name: resolved
+    values:
+      - name: "@"
+        templateModule: api.template
+        skipResolved: true
+
+      - name: "@"
+        templateModule: api.resolved
+        ignoreEmpty: true
+
+      - name: "@"
+        templateModule: api.override
+        ignoreEmpty: true

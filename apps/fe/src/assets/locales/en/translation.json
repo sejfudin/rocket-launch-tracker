@@ -1,0 +1,360 @@
+{
+  "appName": "App name",
+  "appDescription": "App description",
+  "shared": {
+    "languages": {
+      "slovenian": "Slovenian",
+      "english": "English"
+    },
+    "errorState": {
+      "retryBtn": "Retry"
+    },
+    "notFound": {
+      "head": {
+        "title": "Page not found",
+        "description": "The page you are looking for doesn't exist."
+      },
+      "heading": "Page not found",
+      "subheading": "The page you are looking for doesn't exist.",
+      "homeBtn": "Go to home"
+    },
+    "errorFallback": {
+      "heading": "Something went wrong",
+      "subheading": "Error: {{error}}",
+      "retryBtn": "Try again"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "clearAll": "Clear all",
+      "save": "Save"
+    },
+    "tables": {
+      "selectAll": "Select all",
+      "selectRow": "Select row",
+      "showFilters": "Show filters",
+      "hideFilters": "Hide filters",
+      "search": "Search",
+      "searchPlaceholder": "Search...",
+      "noMoreItems": "No more {{resourceName}} to load",
+      "showingItems": "Showing {{itemsCount}} of {{totalItems}} {{resourceName}}"
+    }
+  },
+  "auth": {
+    "shared": {
+      "name": {
+        "label": "Name",
+        "required": "Name is required",
+        "placeholder": "Enter your name"
+      },
+      "errors": {
+        "unknownError": "An unknown error occurred. Please try again later.",
+        "unknownErrorWithCode": "An unknown error occurred. Error code: {{code}}",
+        "invalidCredentials": "Invalid credentials",
+        "userAlreadyExists": "User already exists",
+        "identityNotFound": "Email address not found! Please check your email address and try again."
+      },
+      "email": {
+        "label": "Email Address",
+        "invalid": "Please enter a valid email address",
+        "required": "Email address is required",
+        "placeholder": "Enter your email"
+      },
+      "password": {
+        "label": "Password",
+        "weak": "Password is too weak",
+        "required": "Password is required",
+        "placeholder": "Enter your password"
+      },
+      "socials": {
+        "google": "Continue with Google",
+        "facebook": "Continue with Facebook",
+        "amazon": "Continue with Amazon",
+        "apple": "Continue with Apple",
+        "magic": "Continue with Magic Link"
+      },
+      "separator": {
+        "or": "OR"
+      }
+    },
+    "register": {
+      "head": {
+        "title": "Register",
+        "description": "Create a new account"
+      },
+      "title": "Sign up",
+      "description": "Enter your credentials to access your account",
+      "submitBtn": "Sign up",
+      "successToast": "You've successfully created an account!",
+      "passwordRequirements": {
+        "header": "Password must contain:",
+        "minLength": "At least 8 characters",
+        "oneDigit": "One digit",
+        "oneUpperCase": "One upper case letter"
+      },
+      "alreadyHaveAccount": "Already have an account?",
+      "logInWithEmail": "Log in with email"
+    },
+
+    "login": {
+      "head": {
+        "title": "Login",
+        "description": "Login to your account"
+      },
+      "title": "Welcome back",
+      "heading": "Log in",
+      "description": "Enter your credentials to access your account",
+      "submitBtn": "Log in",
+      "invalidCredentials": "Invalid credentials",
+      "confirmAccount": "Click here to confirm your account",
+      "successToast": "You've successfully logged in!",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up"
+    },
+    "magicLink": {
+      "success": {
+        "title": "Check your inbox",
+        "description": "A link with login instructions was sent to {{email}}.",
+        "continueToLogin": "Continue to login"
+      },
+      "head": {
+        "title": "Sign in with Magic Link",
+        "description": "Enter your email address and we'll send you a secure link to access your dashboard"
+      },
+      "title": "Check your Inbox",
+      "description": "If your email exists, you will receive a magic link to your email!",
+      "submitBtn": "Send Magic Link",
+      "hint": "We'll email you a magic link for a password-free sign in",
+      "signInWithPassword": "Sign in with Password"
+    },
+    "forgotPassword": {
+      "head": {
+        "title": "Forgot password",
+        "description": "Forgot your password?"
+      },
+      "link": "Forgot your password?",
+      "title": "Forgot password",
+      "description": "Please enter your email to reset your password.",
+      "successToast": "We've sent you a code to reset your password.",
+      "submitBtn": "Send confirmation link",
+      "success": {
+        "title": "Check your inbox",
+        "description": "A confirmation link with instructions on how to reset your password has been sent to {{email}}.",
+        "continueToLogin": "Continue to login"
+      }
+    },
+    "resetPassword": {
+      "head": {
+        "title": "Reset password",
+        "description": "Reset your password"
+      },
+      "title": "Set new password",
+      "description": "Please set a new password to complete the process.",
+      "noEmailLink": "I didn't receive an email",
+      "code": {
+        "label": "Code"
+      },
+      "newPassword": {
+        "label": "New Password",
+        "placeholder": "Enter your new password"
+      },
+      "passwordRequirements": {
+        "header": "Password must contain:",
+        "minLength": "At least 8 characters",
+        "oneDigit": "One digit",
+        "oneUpperCase": "One upper case letter"
+      },
+      "submitBtn": "Set new password",
+      "successToast": "You've successfully reset your password!"
+    },
+    "confirm": {
+      "head": {
+        "title": "Confirm account",
+        "description": "Confirm your account"
+      },
+      "title": "We've sent you a code. Please input it below.",
+      "success": "Your account has been verified. You can now log in.",
+      "resend": {
+        "btn": "Resend code",
+        "success": "We've resent you the code.",
+        "error": "Error resending the code, please try again."
+      },
+      "code": {
+        "label": "Code"
+      },
+      "submitBtn": "Confirm"
+    },
+    "errors": {
+      "magic-link-disabled": "Magic link authentication is not enabled.",
+      "code-invalid": "Invalid code.",
+      "code-expired": "Code is expired.",
+      "callback-invalid": "Invalid authentication callback."
+    }
+  },
+  "navbar": {
+    "links": {
+      "home": "Home",
+      "rockets": "Rockets",
+      "devices": "Devices"
+    },
+    "auth": {
+      "login": "Login",
+      "logout": "Log out",
+      "register": "New Account",
+      "loginToManageRocket": "Log in to manage rocket"
+    },
+    "toggleTheme": {
+      "btn": "Toggle theme",
+      "light": "Light Mode",
+      "dark": "Dark Mode",
+      "auto": "Auto ({{mode}}) Mode"
+    },
+    "languageSwitcher": {
+      "open": "Open language switcher",
+      "title": "Change language",
+      "label": "Select a language"
+    },
+    "themeSwitcher": {
+      "label": "Toggle theme",
+      "autoLight": "Auto (Light) mode",
+      "autoDark": "Auto (Dark) mode",
+      "light": "Light mode",
+      "dark": "Dark mode"
+    }
+  },
+  "profile": {
+    "head": {
+      "title": "Profile",
+      "description": "Your profile"
+    },
+    "fullName": "Full Name",
+    "logoutBtn": "Logout"
+  },
+  "footer": {
+    "links": {
+      "home": "Home",
+      "legalInformation": "Legal Information",
+      "dataProtectionNotice": "Data Protection Notice"
+    },
+    "copyright": "© {{year}}, Company ltd. All rights reserved."
+  },
+  "home": {
+    "hero": {
+      "title": "Explore Our Rockets",
+      "description": "View Recently added Rockets, Login to manage Rockets in comprehensive rocket database"
+    },
+    "footer": {
+      "loginBtn": "Log in to manage rockets",
+      "title": "Ready to Manage Your Rockets?",
+      "viewRockets": "View Rockets",
+      "description": "Log in to access the full dashboard with Rocket management, device tokens, and scheduling capabilities"
+    },
+    "content": {
+      "error": {
+        "heading": "Something went wrong",
+        "message": "Failed to load rockets. Please try again later."
+      },
+      "title": "Recently added Rockets",
+      "description": "Complete overview of all rocket missions and launches",
+      "loading": "Loading rockets...",
+      "noRockets": "No rockets found.",
+      "showing": "Showing 1-{{showingCount}} of {{totalRockets}} rockets",
+      "seeAll": "See all Rockets"
+    },
+    "rocketCard": {
+      "contactEmail": "Contact Email",
+      "defaultEmail": "test.user@email.com"
+    }
+  },
+  "devices": {
+    "title": "Device Tokens",
+    "newDeviceBtn": "Add Push Notification Device",
+    "table": {
+      "name": "Device Name",
+      "token": "Token",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "errors": {
+      "loadFail": "Failed to load devices. Please try again later.",
+      "noResults": "No devices found",
+      "noResultsInfo": "Try adjusting your search or filters to find what you're looking for."
+    },
+    "form": {
+      "name": "Device Name",
+      "namePlaceholder": "Enter your device name",
+      "token": "Push Notificaton Token",
+      "tokenPlaceholder": "Enter Push Notification Token",
+      "createSuccess": "Device successfully added",
+      "addDevice": "Add Device"
+    },
+    "filters": {
+      "createdAt": {
+        "label": "Created"
+      }
+    },
+    "actions": {
+      "deleteDevice": "Delete Notification Device"
+    },
+    "breadcrumb": "Add push-notification device",
+    "deleteTitle": "Do you want to delete this Device Token? ",
+    "deleteDescription": "Deleting this item will permanently remove it from your data. If you proceed, all associated information will be lost. Are you sure you want to continue?",
+    "deleteSuccess": "Device Token {{device}} was deleted successfully."
+  },
+  "rockets": {
+    "title": "Your Rockets",
+    "newRocketBtn": "Add new rocket",
+    "addNewRocket": "Add New Rocket",
+    "editRocket": "Edit Rocket",
+    "table": {
+      "name": "Name",
+      "model": "Model",
+      "picture": "Picture",
+      "viewImage": "View Image",
+      "timeLapsePictures": "Time Lapse Pictures",
+      "viewTimeLapse": "View Time Lapse",
+      "builtAt": "Built At"
+    },
+    "deleteTitle": "Do you want to delete this Rocket?",
+    "deleteSuccess": "Successfully deleted rocket",
+    "deleteDescription": "Deleting this item will permanently remove it from your data. If you proceed, all associated information will be lost. Are you sure you want to continue?",
+    "actions": {
+      "heading": "Actions",
+      "launchNow": "Launch now",
+      "scheduleLaunch": "Schedule launch",
+      "deleteRocket": "Delete rocket",
+      "editRocketDetails": "Edit rocket details"
+    },
+    "modal": {
+      "launchRocket": "Launch Rocket",
+      "alertText": "This action will initiate the rocket launch sequence. Please ensure all pre-launch checks have been completed.",
+      "launchType": "Launch Type",
+      "launchDetails": "Launch Details",
+      "launchDate": "Date & time picker",
+      "launchNow": "Launch Now",
+      "scheduleLaunch": "Schedule Launch",
+      "rocketDetails": "Rocket Details",
+      "rocketId": "Rocket ID",
+      "rocketLaunchSuccess": "Rocket Launhced Successfully",
+      "rocketScheduled": "Rocket scheduled for launch at {{date}}"
+    },
+    "errors": {
+      "loadFail": "Failed to load rockets. Please try again later.",
+      "noResults": "No rockets found",
+      "noResultsInfo": "Try adjusting your search or filters to find what you're looking for."
+    },
+    "form": {
+      "createSuccess": "Rocket successfully created",
+      "editSuccess": "Rocket saved successfully",
+      "rocketName": "Rocket Name",
+      "rocketModel": "Rocket Model",
+      "rocketNamePlaceholder": "Enter Rocket Name",
+      "rocketModelPlaceholder": "Enter Rocket Model",
+      "rocketPictures": "Rocket Pictures",
+      "rocketTimelapse": "Rocket Time Lapse Pictures",
+      "dragAndDropText": "Drag and drop images here, or click to browse",
+      "dragAndDropTextTimeline": "Drag and drop image sequence here, or click to browse",
+      "uploadText": "Supported formats: PDF, JPG, PNG (max 20MB)",
+      "browseText": "Browse Files"
+    }
+  }
+}

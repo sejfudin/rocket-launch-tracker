@@ -1,0 +1,36 @@
+# Custom JWT
+
+## Usage
+
+Set provider in `apps/fe/src/pages/_app.tsx`.
+
+### Import:
+
+```
+import { CustomJWTProvider, type ICustomJWTProvider } from "@povio/ui";
+```
+
+### Provider:
+
+```
+{
+    provider: AuthConfig.Provider<ICustomJWTProvider>,
+    props: {
+        authProvider: CustomJWTProvider,
+        authProviderProps: AppConfig.auth.customJWT,
+        restClient: AppRestClient,
+        homeRoute: RouteConfig.home,
+        loadingState: <LoadingState />,
+        useGetUser: UserQueries.useGet,
+        queryKeyGetUser: UserQueries.keys.get(),
+    },
+},
+```
+
+## Description
+
+Inside `packages/auth/src/auth/providers/custom-jwt` you'll find the implementation of the Custom JWT auth provider.
+
+Custom JWT supports two login methods: email/password and magic link. Magic link login can be enabled by setting the `VITE_PUBLIC_AUTH_CUSTOM_JWT_ENABLE_MAGIC_LINK` environment variable to `"true"`.
+
+The provider manually stores two JWTs (access and refresh tokens) in local storage. On load, it reads from local storage to determine whether the user is logged in.

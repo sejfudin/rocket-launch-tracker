@@ -1,0 +1,16 @@
+configs:
+  - name: bootstrap
+    destination: ./.config/monorepo-dev.api.resolved.yml
+    values:
+      - name: "@"
+        templateModule: api.template
+
+  - name: resolved
+    values:
+      - name: "@"
+        templateModule: api.resolved
+        ignoreEmpty: true
+
+      - name: "@"
+        templateModule: api.override
+        ignoreEmpty: true

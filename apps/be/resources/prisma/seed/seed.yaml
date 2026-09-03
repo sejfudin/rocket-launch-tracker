@@ -1,0 +1,67 @@
+- type: AdminUser
+  data:
+    id: "f6a1e0ba-ff74-4261-a871-3b131954a19d"
+    email: admin@example.com
+    name: Admin User
+    password: admin-password
+    roles:
+      - general-manager
+
+- type: User
+  data:
+    id: "a3c175ed-01bc-46c4-915c-62f8624139f4"
+    email: user@example.com
+    name: Test User
+    password: user-password
+    roles:
+      - client
+
+- type: User
+  data:
+    email: manager@example.com
+    name: Manager User
+    password: manager-password
+    roles:
+      - manager
+
+- type: RocketModel
+  data:
+    name: Colonial Viper
+    organization: Twelve Colonies of Kobol
+
+- type: Rocket
+  data:
+    name: Viper Mk II
+    status: ready
+  relations:
+    owner: User(email=user@example.com)
+    model: RocketModel(name=Colonial Viper)
+
+- type: Activity
+  data:
+    module: push-notification
+    type: push-notification
+    payload:
+      title: "Test Push Notification"
+      body: "This is a test push notification"
+      event: sent
+      level: log
+      provider: aws-fcm
+
+- type: Activity
+  data:
+    module: email
+    type: email
+    payload:
+      to: ["test@example.com"]
+      cc: ["cc@example.com"]
+      bcc: ["bcc@example.com"]
+      subject: "Test Email"
+      body: "This is a test email"
+      event: sent
+      level: log
+      provider: aws-ses
+      template: test-email
+      templateValues:
+        name: "Test User"
+        message: "This is a test email"

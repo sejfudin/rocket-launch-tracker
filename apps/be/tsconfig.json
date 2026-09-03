@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "sourceMap": true,
+    "outDir": "./dist",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": false,
+    "resolveJsonModule": true,
+    "alwaysStrict": true,
+    "paths": {
+      "~*": ["./src/*"],
+      "~test/*": ["./test/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/.*.scaffold.ts",
+    "**/.scaffold.ts",
+    "**/.scaffold/*",
+    "packages",
+    "src/common/logger/pino",
+    "src/common/logger/otel",
+    "src/common/logger/sentry",
+    "src/common/email/providers/sendgrid",
+    "src/common/queues/providers/pg-boss",
+    "src/common/queues/providers/aws-sqs"
+  ]
+}

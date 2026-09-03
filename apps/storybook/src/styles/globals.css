@@ -1,0 +1,29 @@
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/geist";
+
+@import "tailwindcss";
+@import "./base.css";
+@import "./theme.css";
+@import "@povio/ui/text-editor/styles";
+
+@source "../../../../node_modules/@povio/ui/dist";
+
+/* width */
+::-webkit-scrollbar {
+  @apply w-1-5 h-1-5;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  @apply bg-elevation-fill-default-1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  @apply bg-elevation-outline-default-2 rounded-full;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-elevation-outline-default-2;
+}

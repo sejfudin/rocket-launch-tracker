@@ -1,0 +1,1889 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api": {
+      "get": {
+        "operationId": "HttpHealthController_getStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpHealthDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Healthcheck"
+        ]
+      }
+    },
+    "/api/user/auth/magic-link": {
+      "get": {
+        "operationId": "UserAuthMagicLinkController_generate",
+        "parameters": [
+          {
+            "name": "email",
+            "required": true,
+            "in": "query",
+            "description": "Email address of the user requesting the nonce",
+            "schema": {
+              "format": "email",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Request a new magic link",
+        "tags": [
+          "User Auth"
+        ]
+      }
+    },
+    "/api/user/auth/magic-link/callback": {
+      "get": {
+        "operationId": "UserAuthMagicLinkController_consume",
+        "parameters": [
+          {
+            "name": "code",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Magic link callback",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthnTokenResponse"
+                }
+              }
+            }
+          },
+          "302": {
+            "description": "Magic link redirect"
+          }
+        },
+        "summary": "Magic link callback\n when a user clicks the link in an email\n or the frontend makes a request",
+        "tags": [
+          "User Auth"
+        ]
+      }
+    },
+    "/api/user/auth/refresh": {
+      "post": {
+        "operationId": "UserAuthJwtController_accessToken",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthnTokenRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthnTokenResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get a new access token",
+        "tags": [
+          "User Auth"
+        ]
+      }
+    },
+    "/api/user/auth/forgot-password": {
+      "post": {
+        "operationId": "UserAuthForgotPasswordController_request",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserAuthEmailGenerateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Initiate the forgot password process",
+        "tags": [
+          "User Auth"
+        ]
+      }
+    },
+    "/api/user/auth/forgot-password/callback": {
+      "post": {
+        "operationId": "UserAuthForgotPasswordController_consume",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserAuthForgotPasswordConsumeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Change the user's password using the emailed code",
+        "tags": [
+          "User Auth"
+        ]
+      }
+    },
+    "/api/user/auth/register": {
+      "post": {
+        "operationId": "UserAuthLocalPasswordController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserAuthPasswordRegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthnTokenResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Register a new local user with email/password\n and return auth tokens",
+        "tags": [
+          "User Auth"
+        ]
+      }
+    },
+    "/api/user/auth/login": {
+      "post": {
+        "operationId": "UserAuthLocalPasswordController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserAuthPasswordLoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthnTokenResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Login with username and password",
+        "tags": [
+          "User Auth"
+        ]
+      }
+    },
+    "/api/user/auth/password": {
+      "post": {
+        "operationId": "UserAuthLocalPasswordController_password",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserAuthPasswordChangeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Change the password",
+        "tags": [
+          "User Auth"
+        ]
+      }
+    },
+    "/api/user/auth/google": {
+      "get": {
+        "operationId": "UserAuthGoogleController_auth",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "summary": "Redirect to Google for authentication",
+        "tags": [
+          "User Auth"
+        ]
+      }
+    },
+    "/api/user/auth/google/callback": {
+      "get": {
+        "operationId": "UserAuthGoogleController_login",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthnTokenResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Handle Google authentication callback and return tokens",
+        "tags": [
+          "User Auth"
+        ]
+      }
+    },
+    "/api/user/auth/apple": {
+      "get": {
+        "operationId": "UserAuthAppleController_auth",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "summary": "Redirect to Apple for authentication",
+        "tags": [
+          "User Auth"
+        ]
+      }
+    },
+    "/api/user/auth/apple/callback": {
+      "get": {
+        "operationId": "UserAuthAppleController_login",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthnTokenResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Handle Apple authentication callback and return tokens",
+        "tags": [
+          "User Auth"
+        ]
+      }
+    },
+    "/api/user/me": {
+      "get": {
+        "operationId": "UserMeController_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserMeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Get the requesting user",
+        "tags": [
+          "User"
+        ]
+      },
+      "put": {
+        "operationId": "UserMeController_update",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserMeUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserMeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Update the requesting user",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/user/push-tokens": {
+      "post": {
+        "operationId": "UserPushNotificationController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PushNotificationTokenCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Register/update a new device for push notifications",
+        "tags": [
+          "Push Notifications"
+        ]
+      },
+      "get": {
+        "operationId": "UserPushNotificationController_paginate",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Order by fields (comma separated with +/- prefix): id, provider, expiresAt, createdAt",
+            "x-enumNames": [
+              "id",
+              "provider",
+              "expiresAt",
+              "createdAt"
+            ],
+            "schema": {
+              "example": "id",
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "description": "Filter",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "$ref": "#/components/schemas/PushNotificationTokenFiltersDto"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "description": "Items per response",
+            "schema": {
+              "minimum": 1,
+              "maximum": 20,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-indexed page number to begin from",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "ID of item to start after",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginationDto"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/PushNotificationTokenResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Paginate push notification tokens",
+        "tags": [
+          "Push Notifications"
+        ]
+      }
+    },
+    "/api/user/push-tokens/{id}": {
+      "delete": {
+        "operationId": "UserPushNotificationController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "tags": [
+          "Push Notifications"
+        ]
+      }
+    },
+    "/api/files/presigned-url": {
+      "post": {
+        "operationId": "MediaLibraryController_uploadRequest",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaUploadRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaUploadInstructionsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Request upload instructions for a new media file",
+        "tags": [
+          "Media"
+        ]
+      }
+    },
+    "/api/rockets": {
+      "get": {
+        "operationId": "RocketController_paginatePublic",
+        "parameters": [
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "description": "Order by fields (comma separated with +/- prefix): id, name, model, createdAt",
+            "x-enumNames": [
+              "id",
+              "name",
+              "model",
+              "createdAt"
+            ],
+            "schema": {
+              "example": "id",
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "required": false,
+            "in": "query",
+            "style": "deepObject",
+            "explode": true,
+            "schema": {
+              "$ref": "#/components/schemas/RocketPaginationFilterDto"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "description": "Items per response",
+            "schema": {
+              "minimum": 1,
+              "maximum": 20,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "1-indexed page number to begin from",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "ID of item to start after",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/PaginationDto"
+                    },
+                    {
+                      "properties": {
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/RocketResponse"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "summary": "Public endpoint to list rockets",
+        "tags": [
+          "Rocket"
+        ]
+      },
+      "post": {
+        "operationId": "RocketController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RocketCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RocketResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Create a rocket",
+        "tags": [
+          "Rocket"
+        ],
+        "x-acl": [
+          {
+            "subject": "rocket",
+            "action": "create"
+          }
+        ]
+      }
+    },
+    "/api/rockets/next-launch": {
+      "get": {
+        "operationId": "RocketController_getNextLaunch",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RocketNextLaunchResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Public endpoint to get the next rocket launch",
+        "tags": [
+          "Rocket"
+        ]
+      }
+    },
+    "/api/rockets/models": {
+      "get": {
+        "operationId": "RocketManageController_listModels",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RocketModelResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Public endpoint to list rocket models",
+        "tags": [
+          "Rocket"
+        ]
+      }
+    },
+    "/api/rockets/{id}": {
+      "get": {
+        "operationId": "RocketController_find",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RocketResponse"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get rocket by id (public endpoint)",
+        "tags": [
+          "Rocket"
+        ]
+      },
+      "put": {
+        "operationId": "RocketController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ownerId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RocketUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RocketResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Update a rocket",
+        "tags": [
+          "Rocket"
+        ],
+        "x-acl": [
+          {
+            "subject": "rocket",
+            "action": "update",
+            "conditions": {
+              "ownerId": "$query.ownerId"
+            }
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "RocketController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ownerId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Delete a rocket",
+        "tags": [
+          "Rocket"
+        ],
+        "x-acl": [
+          {
+            "subject": "rocket",
+            "action": "delete",
+            "conditions": {
+              "ownerId": "$query.ownerId"
+            }
+          }
+        ]
+      }
+    },
+    "/api/rockets/{id}/launch": {
+      "post": {
+        "operationId": "RocketController_launch",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ownerId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RocketLaunchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        },
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "summary": "Launch a rocket",
+        "tags": [
+          "Rocket"
+        ],
+        "x-acl": [
+          {
+            "subject": "rocket",
+            "action": "launch",
+            "conditions": {
+              "ownerId": "$query.ownerId"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "API Docs",
+    "description": "Documentation",
+    "version": "0.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [
+    {
+      "url": "http://localhost:4000"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "Authorization": {
+        "scheme": "Bearer",
+        "bearerFormat": "Bearer",
+        "name": "Authorization",
+        "type": "http",
+        "in": "Header"
+      }
+    },
+    "schemas": {
+      "RocketLaunchRequest": {
+        "type": "object",
+        "properties": {
+          "launchAfter": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Launch After"
+          }
+        }
+      },
+      "RocketUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "modelId": {
+            "type": "string",
+            "description": "Model ID (legacy field, optional)",
+            "format": "uuid",
+            "x-field": {
+              "type": "reference-input",
+              "reference": "RocketManageController_listModels",
+              "optionValue": "id",
+              "optionText": "name"
+            }
+          },
+          "rocketType": {
+            "description": "Rocket type: 'commercial' or 'space_exploration'",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RocketType"
+              }
+            ]
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "height": {
+            "type": "number",
+            "description": "Height in meters",
+            "minimum": 0
+          },
+          "weight": {
+            "type": "number",
+            "description": "Weight in kg",
+            "minimum": 0
+          },
+          "launchDatetime": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Scheduled launch date/time"
+          },
+          "passengers": {
+            "description": "Passengers (for commercial rockets)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "crew": {
+            "description": "Crew members (for space exploration rockets, exactly 3)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "picture": {
+            "description": "Picture",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MediaAttachRequest"
+              }
+            ]
+          },
+          "timelapses": {
+            "description": "Time-lapse images",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaAttachRequest"
+            }
+          }
+        }
+      },
+      "MediaAttachRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Media Id",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "RocketType": {
+        "type": "string",
+        "enum": [
+          "commercial",
+          "space_exploration"
+        ],
+        "description": "Rocket type"
+      },
+      "RocketModelResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "organization": {
+            "type": "string",
+            "description": "Organization"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "RocketNextLaunchResponse": {
+        "type": "object",
+        "properties": {
+          "hasNextLaunch": {
+            "type": "boolean",
+            "description": "Whether there is a next launch scheduled"
+          },
+          "nextLaunch": {
+            "description": "Next rocket launch details",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RocketResponse"
+              }
+            ]
+          }
+        },
+        "required": [
+          "hasNextLaunch"
+        ]
+      },
+      "RocketResponse": {
+        "type": "object",
+        "properties": {
+          "rocketType": {
+            "description": "Rocket type",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RocketType"
+              }
+            ]
+          },
+          "status": {
+            "description": "Status",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RocketStatusType"
+              }
+            ]
+          },
+          "id": {
+            "type": "string",
+            "description": "ID",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "modelId": {
+            "type": "string",
+            "description": "Model ID (legacy field)",
+            "format": "uuid"
+          },
+          "model": {
+            "type": "string",
+            "description": "Model name (legacy field)"
+          },
+          "height": {
+            "type": "number",
+            "description": "Height in meters"
+          },
+          "weight": {
+            "type": "number",
+            "description": "Weight in kg"
+          },
+          "launchDatetime": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Scheduled launch date/time"
+          },
+          "passengers": {
+            "description": "Passengers (for commercial rockets)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "crew": {
+            "description": "Crew members (for space exploration rockets)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "picture": {
+            "description": "Picture",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MediaFetchInstructionsResponse"
+              }
+            ]
+          },
+          "timelapses": {
+            "description": "Time-lapse images",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaFetchInstructionsResponse"
+            }
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Created date"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Updated date"
+          }
+        },
+        "required": [
+          "status",
+          "id",
+          "name",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "MediaFetchInstructionsResponse": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Url to media"
+          },
+          "id": {
+            "type": "string",
+            "description": "Media Id"
+          }
+        }
+      },
+      "RocketStatusType": {
+        "type": "string",
+        "enum": [
+          "unknown",
+          "ready",
+          "launching",
+          "exploded",
+          "in-flight"
+        ],
+        "description": "Status"
+      },
+      "RocketCreateRequest": {
+        "type": "object",
+        "properties": {
+          "rocketType": {
+            "description": "Rocket type: 'commercial' or 'space_exploration'",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RocketType"
+              }
+            ]
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "modelId": {
+            "type": "string",
+            "description": "Model ID (legacy field, optional)",
+            "format": "uuid"
+          },
+          "height": {
+            "type": "number",
+            "description": "Height in meters",
+            "minimum": 0
+          },
+          "weight": {
+            "type": "number",
+            "description": "Weight in kg",
+            "minimum": 0
+          },
+          "launchDatetime": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Scheduled launch date/time"
+          },
+          "passengers": {
+            "description": "Passengers (for commercial rockets)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "crew": {
+            "description": "Crew members (for space exploration rockets, exactly 3)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "picture": {
+            "description": "Picture",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MediaAttachRequest"
+              }
+            ]
+          },
+          "timelapses": {
+            "description": "Time-lapse images",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaAttachRequest"
+            }
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "RocketPaginationFilterDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "description": "Stage",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RocketStatusType"
+              }
+            ]
+          },
+          "createdAt": {
+            "description": "Creation date range filter",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DateRangeDto"
+              }
+            ]
+          },
+          "ownerId": {
+            "type": "string",
+            "description": "Owner ID",
+            "format": "uuid"
+          },
+          "ids": {
+            "description": "Ids",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "model": {
+            "type": "string",
+            "description": "Model"
+          },
+          "search": {
+            "type": "string",
+            "description": "Free search"
+          }
+        }
+      },
+      "DateRangeDto": {
+        "type": "object",
+        "properties": {
+          "start": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "end": {
+            "format": "date-time",
+            "type": "string"
+          }
+        }
+      },
+      "MediaUploadInstructionsResponse": {
+        "type": "object",
+        "properties": {
+          "fields": {
+            "description": "Additional form fields to include in the POST upload request. Each item is a [key, value] pair.",
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 2
+            },
+            "example": [
+              [
+                "Content-Type",
+                "image/png"
+              ]
+            ]
+          },
+          "method": {
+            "type": "string",
+            "description": "Method to upload with - PUT, POST, or custom instructions"
+          },
+          "url": {
+            "type": "string",
+            "description": "Url to upload to"
+          },
+          "id": {
+            "type": "string",
+            "description": "Media ID"
+          }
+        }
+      },
+      "MediaUploadRequest": {
+        "type": "object",
+        "properties": {
+          "resourceName": {
+            "type": "string",
+            "description": "Resource name supported by the system"
+          },
+          "fileName": {
+            "type": "string",
+            "description": "Original filename",
+            "example": "profile.png"
+          },
+          "fileSize": {
+            "type": "number",
+            "description": "Original file size in bytes",
+            "example": 1024,
+            "minimum": 1
+          },
+          "mimeType": {
+            "type": "string",
+            "description": "File mime type",
+            "example": "image/png"
+          },
+          "method": {
+            "type": "string",
+            "description": "Upload method",
+            "example": "put"
+          }
+        },
+        "required": [
+          "fileName",
+          "fileSize"
+        ]
+      },
+      "PushNotificationTokenResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Id"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title",
+            "example": "My Device"
+          },
+          "token": {
+            "type": "string",
+            "description": "Token",
+            "example": "My Device"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Created At"
+          },
+          "provider": {
+            "type": "string",
+            "description": "Provider",
+            "example": "fcm"
+          }
+        },
+        "required": [
+          "createdAt",
+          "provider"
+        ]
+      },
+      "PaginationDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "description": "Items",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "page": {
+            "type": "number",
+            "description": "1-indexed page number to begin from"
+          },
+          "cursor": {
+            "type": "string",
+            "description": "ID of item to start after"
+          },
+          "nextCursor": {
+            "type": "string",
+            "description": "Cursor for next set of items"
+          },
+          "limit": {
+            "type": "number",
+            "description": "Items per response"
+          },
+          "totalItems": {
+            "type": "number",
+            "description": "Total available items"
+          }
+        },
+        "required": [
+          "items",
+          "limit",
+          "totalItems"
+        ]
+      },
+      "PushNotificationTokenFiltersDto": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "description": "Creation date range filter",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DateRangeDto"
+              }
+            ]
+          },
+          "provider": {
+            "type": "string",
+            "description": "Provider"
+          },
+          "search": {
+            "type": "string"
+          }
+        }
+      },
+      "PushNotificationTokenCreateRequest": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Token"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title",
+            "example": "My Device"
+          },
+          "replace": {
+            "type": "boolean",
+            "description": "Replace existing tokens assigned to other resources",
+            "example": false
+          }
+        },
+        "required": [
+          "token",
+          "replace"
+        ]
+      },
+      "UserMeUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email",
+            "format": "email"
+          }
+        }
+      },
+      "UserMeResponse": {
+        "type": "object",
+        "properties": {
+          "roles": {
+            "description": "User Roles",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserRole"
+            }
+          },
+          "aclRules": {
+            "description": "User ACL",
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object"
+                  },
+                  {
+                    "type": "array"
+                  },
+                  {
+                    "type": "boolean"
+                  }
+                ]
+              }
+            }
+          },
+          "id": {
+            "type": "string",
+            "description": "User ID",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email",
+            "format": "email"
+          }
+        },
+        "required": [
+          "roles",
+          "id"
+        ]
+      },
+      "UserRole": {
+        "type": "string",
+        "enum": [
+          "manager",
+          "client"
+        ],
+        "description": "User Roles"
+      },
+      "UserAuthPasswordChangeRequest": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string",
+            "description": "Set new password",
+            "minLength": 12
+          }
+        },
+        "required": [
+          "password"
+        ]
+      },
+      "UserAuthPasswordLoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "UserAuthPasswordRegisterRequest": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string",
+            "description": "Set password",
+            "minLength": 12
+          },
+          "name": {
+            "type": "string",
+            "description": "Name"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email",
+            "format": "email"
+          }
+        },
+        "required": [
+          "password",
+          "name",
+          "email"
+        ]
+      },
+      "UserAuthForgotPasswordConsumeRequest": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Code received by the user for password reset"
+          },
+          "password": {
+            "type": "string",
+            "description": "Set new password",
+            "minLength": 12
+          }
+        },
+        "required": [
+          "code",
+          "password"
+        ]
+      },
+      "UserAuthEmailGenerateRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email address of the user requesting the nonce",
+            "format": "email"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "AuthnTokenRequest": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "Refresh Token\n - use to get a new access token when the current one expires"
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "AuthnTokenResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "Access Token\n - use to authenticate requests with `Authorization: Bearer ${token}`\n - read { exp: number } from the token to determine when it expires"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Refresh Token\n - use to get a new access token when the current one expires"
+          }
+        },
+        "required": [
+          "accessToken"
+        ]
+      },
+      "StatusResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status\n@default ok"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message"
+          },
+          "code": {
+            "type": "string",
+            "description": "Alphanumeric code of the message type"
+          }
+        },
+        "required": [
+          "status",
+          "message",
+          "code"
+        ]
+      },
+      "HttpHealthDto": {
+        "type": "object",
+        "properties": {
+          "uptime": {
+            "type": "string"
+          },
+          "stage": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "release": {
+            "type": "string"
+          },
+          "buildTime": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "extends": ["//"],
+  "tags": ["app"],
+  "tasks": {
+    "build": {
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["storybook-static"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

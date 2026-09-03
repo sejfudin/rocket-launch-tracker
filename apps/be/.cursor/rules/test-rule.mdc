@@ -1,0 +1,240 @@
+---
+description: Rules for test fixtures and E2E tests
+globs:
+  - "**/tests/**/*.ts"
+  - "**/*.e2e.ts"
+  - "**/*.fixture.ts"
+alwaysApply: false
+---
+
+# Testing
+
+This file applies to all test files: fixtures (`*.fixture.ts`), E2E tests (`*.e2e.ts`), and files in `tests/` directory.
+
+## Test Fixtures
+
+### Basic Structure
+
+Each fixture should go in its own `tests/[entity].fixture.ts` file. A Fixture is a class that extends `Fixture<T>`.
+
+```typescript
+import { resolveFixture, PrismaFixture } from '~database/prisma/fixtures';
+import { makeUUID } from '~common/utils/short-uuid';
+
+import { Feature, PrismaClient, User } from '~database/prisma/client';
+
+import { UserFixture } from '~modules/users/user/tests/user.fixture';
+import { DeviceFixture } from '~modules/device/tests/device.fixture';
+import { PlotFixture } from '~modules/plot/tests/plot.fixture';
+
+export class FeatureFixture extends PrismaFixture<Feature> {
+  entity!: Feature;
+
+  public user?: UserFixture;
+  public device?: DeviceFixture;
+  public plots?: PlotFixture[]
+
+  public static async fromPartial(
+    prismaClient: PrismaClient,
+    data?: Partial<Feature>,
+    relations?: {
+      user?: UserFixture | Partial<User>;
+    },
+  ) {
+    const fixture = new FeatureFixture();
+    const now = new Date();
+
+    // Resolve related fixtures from relations if IDs not provided in data
+    if (!data?.userId && relations?.user) {
+      fixture.user = await resolveFixture(prismaClient, UserFixture, relations.user);
+    }
+
+    // If a related entity is required, and no fixture or if was provided, make one
+    if (!data.deviceId) {
+      fixture.device = await resolveFixture(prismaClient, DeviceFixture, relations?.user);
+    }
+
+    // Handle array relations
+    if (relations?.plots) {
+      fixture.plots = await Promise.all(
+        relations.plots.map(async (plot) => await resolveFixture(prismaClient, PlotFixture, plot)),
+      );
+    }
+
+
+    const id = data?.id ?? makeUUID();
+
+    fixture.entity = await prismaClient.feature.create({
+      data: {
+        id,
+        // Required fields with defaults
+        name: data?.name ?? 'Default Name',
+        // Relations: prefer data ID, fallback to resolved fixture
+        userId: data?.userId ?? fixture.user?.entity.id,
+        deviceId: data?.deviceId ?? fixture.device?.entity.id
+        // Timestamps
+        createdAt: data?.createdAt ?? now,
+        updatedAt: data?.updatedAt ?? now,
+        deletedAt: data?.deletedAt ?? null,
+      },
+    });
+
+    return fixture;
+  }
+}
+```
+
+### Implementation Rules
+
+1. **Fixture Base Class**
+   - All fixtures must extend `PrismaFixture<T>` where T is the Prisma entity type
+   - Import `Fixture` from `~common/types`
+
+2. **Database Operations**
+   - Always use `create` (never `upsert`)
+   - Use `prismaClient.[model].create({ data: { ... } })`
+
+3. **Relations**
+   - Store related fixtures as public properties on the fixture instance
+   - Use `resolveFixture(prismaClient, FixtureClass, valueOrFixture)` helper
+   - Relations accepts either fixture instance or partial entity data
+   - Only resolve from relations if ID not already provided in `data`
+
+4. **Default Values**
+   - Provide sensible defaults for all fields
+   - Use current date for timestamps: `const now = new Date()`
+   - Generate UUIDs for IDs: `data?.id ?? makeUUID()`
+   - Allow override via data parameter
+   - Use null for optional fields when not provided
+
+## E2E Tests
+
+### Basic Structure
+
+```typescript
+describe('Feature E2E', () => {
+  let app: INestApplication;
+  let prismaService: PrismaService;
+  let userFixture: UserFixture;
+
+  beforeAll(async () => {
+    // Setup test module
+    app = await createAppTestingModule({
+      imports: [FeatureModule],
+    });
+    prismaService = app.get(PrismaService);
+
+    // Setup test data
+    userFixture = await UserFixture.fromPartial(prismaService.client);
+  });
+})
+```
+
+### Test Case Patterns
+
+1. **Get Entity**
+```typescript
+it('gets feature by id', async ({ expect }) => {
+  const feature = await FeatureFixture.fromPartial(prismaService.client, undefined, {
+    user: userFixture,
+  });
+
+  const { body } = await request(app.getHttpServer())
+    .get(`/features/${feature.entity.id}`)
+    .set('Authorization', userFixture.authorizationHeader)
+    .expect(HttpStatus.OK);
+
+  expect(body).toEqual(
+    expect.objectContaining({
+      id: feature.entity.id,
+      name: feature.entity.name,
+      createdAt: expect.any(String),
+    }),
+  );
+});
+```
+
+2. **Create Entity with Relations**
+```typescript
+it('creates feature with user', async ({ expect }) => {
+  const feature = await FeatureFixture.fromPartial(prismaService.client, {
+    name: 'Test Feature',
+  }, {
+    user: userFixture,
+  });
+
+  expect(feature.entity.userId).toBe(userFixture.entity.id);
+  expect(feature.user).toBeDefined();
+});
+```
+
+3. **Pagination with Filters**
+```typescript
+it('filters features by date range and type', async ({ expect }) => {
+  // Create matching test data
+  const matchingFeature = await FeatureFixture.fromPartial(prismaService.client, {
+    type: 'STANDARD',
+    validFrom: new Date('2024-03-01'),
+    status: 'ACTIVE',
+  });
+
+  // Create non-matching test data
+  await FeatureFixture.fromPartial(prismaService.client, {
+    type: 'SPECIAL',
+    validFrom: new Date('2024-03-10'),
+    status: 'INACTIVE',
+  });
+
+  const { body } = await request(app.getHttpServer())
+    .get(
+      `/features?filter[type]=STANDARD&filter[validFrom]=${encodeURIComponent('2024-03-01')}&filter[status]=ACTIVE`,
+    )
+    .set('Authorization', userFixture.authorizationHeader)
+    .expect(HttpStatus.OK);
+
+  // Verify pagination structure
+  expect(body).toEqual(
+    expect.objectContaining({
+      items: expect.any(Array),
+      totalItems: 1,
+      page: 1,
+      limit: expect.any(Number),
+    })
+  );
+
+  // Verify filtered results
+  expect(body.items[0]).toEqual(
+    expect.objectContaining({
+      id: matchingFeature.entity.id,
+      type: matchingFeature.entity.type,
+      validFrom: matchingFeature.entity.validFrom.toISOString().split('T')[0],
+      status: matchingFeature.entity.status,
+    }),
+  );
+});
+```
+
+### Implementation Rules
+
+1. **Test Structure**
+   - Clear test description
+   - Setup test data first
+   - Make single request
+   - Simple assertions
+
+2. **Test Data**
+   - Create matching and non-matching data
+   - Use meaningful test values
+   - Clean up data between tests
+
+3. **Response Validation**
+   - Check pagination metadata
+   - Use expect.objectContaining for partial matches
+   - Use expect.any() for dynamic values
+   - Verify item count matches filters
+
+4. **Request Setup**
+   - Use proper authorization headers from user fixture
+   - URL encode filter parameters
+   - Check correct HTTP status
+   - Include all required query parameters

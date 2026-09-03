@@ -1,0 +1,735 @@
+# Dynamic Columns Helper
+
+## Overview
+
+The `dynamicColumns` helper generates type-safe table column definitions from Zod schemas, eliminating boilerplate and providing automatic formatting based on field types.
+
+**Why use it:**
+- ✅ Automatic type inference from Zod schemas
+- ✅ Built-in formatting for dates, numbers, enums, booleans
+- ✅ Type-safe column definitions
+- ✅ Support for nested fields via dot notation
+- ✅ Flexible customization options
+
+**When to use it:**
+- You have a Zod schema defining your data structure
+- You want to quickly generate table columns with sensible defaults
+- You need type-safe column access and automatic formatting
+
+## Examples in admin
+
+See how `dynamicColumns` is used in production on admin:
+
+- [Admin Users Table](https://github.com/povio/monorepo-template/blob/develop/apps/admin/src/components/tables/AdminUsersTable.tsx) - Basic example
+- [Notification System Templates Table](https://github.com/povio/monorepo-template/blob/develop/apps/admin/src/components/tables/NotificationsSystemTemplatesTable.tsx)
+- [Users Table](https://github.com/povio/monorepo-template/blob/develop/apps/admin/src/components/users/UsersTable.tsx) - Basic example with PageBuilder (only defines parameters which page builder passes to dynamicColumns internally)
+- [Email Custom Templates Table](https://github.com/povio/monorepo-template/blob/develop/apps/admin/src/components/email/tables/EmailManagementCustomTemplatesTable.tsx)
+
+## Quick Start
+
+Here's a comparison showing the value of `dynamicColumns`:
+
+```typescript
+const UserSchema = z.object({
+  firstName: z.string(),
+  age: z.number(),
+  role: z.enum(["admin", "user"]),
+  isActive: z.boolean()
+});
+
+// ❌ Manual approach - verbose and repetitive
+const manualColumns = [
+  {
+    id: "firstName",
+    accessorKey: "firstName",
+    header: "First Name",
+    cell: ({ getValue }) => getValue()
+  },
+  {
+    id: "age",
+    accessorKey: "age",
+    header: "Age",
+    cell: ({ getValue }) => getValue().toLocaleString()
+  },
+  // ... more boilerplate
+];
+
+// ✅ Using dynamicColumns - concise and type-safe
+const columns = dynamicColumns({
+  schema: UserSchema,
+  options: {
+    columns: {
+      firstName: true,  // Uses default formatting
+      age: true,        // Uses default number formatting
+      role: true,       // Capitalizes enum values
+      isActive: true,   // Shows "Yes"/"No"
+    }
+  }
+});
+```
+
+## Basic Column Configuration
+
+Control which columns appear and how they're configured:
+
+```typescript
+dynamicColumns({
+  schema: UserSchema,
+  options: {
+    columns: {
+      // Include with defaults
+      firstName: true,
+      
+      // Exclude from table (default behaviour, false is not required for omitting)
+      internal: false,
+      
+      // Add custom header
+      age: {
+        header: "User Age"
+      },
+      
+      // Full configuration
+      role: {
+        header: "Role",
+        enableSorting: true,
+        meta: {
+          width: "w-32",
+          headerClass: "font-bold",
+          cellClass: "text-center"
+        }
+      }
+    }
+  }
+});
+```
+
+## Automatic Type-Based Formatting
+
+Values are automatically formatted based on their Zod type:
+
+```
+| Zod Type                | Format Example                           | Result
+|-------------------------|------------------------------------------|-----------------------------
+| `z.string()`            | `"hello"`                                | `"hello"`
+| `z.uuid()`              | `"c75f7c66-e858-47d6-bb82-7ea5547c800c"` | `"c75f7c66-e858-47d6-bb82-7ea5547c800c"`
+| `z.number()`            | `1234.56`                                | `"1,234.56"` (locale-aware)
+| `z.enum()`              | `"admin"`                                | `"Admin"` (capitalized)
+| `z.boolean()`           | `true`                                   | `"Yes"` or `"No"`
+| `z.date()` / ISO string | `"2024-03-15"`                           | `"Mar 15, 2024"`
+| Date range              | `{ start: "...", end: "..." }`           | `"15/03/2024 - 20/03/2024"`
+| Arrays                  | `["a", "b", "c"]`                        | `"a, b, c"`
+```
+
+**Controlling empty values:**
+
+```typescript
+dynamicColumns({
+  schema: MySchema,
+  options: {
+    columns: {
+      date: true,
+      amount: true,
+    },
+    // Show "/" for null/undefined values
+    emptyValue: "/",
+    
+    // Skip formatting for specific columns (show raw values)
+    disableFormatting: ["amount"],
+  }
+});
+```
+
+## Common Patterns
+
+### Working with Nested Schema Fields
+
+Access nested properties using dot notation:
+
+```typescript
+const UserSchema = z.object({
+  id: z.string(),
+  profile: z.object({
+    firstName: z.string(),
+    lastName: z.string(),
+    contact: z.object({
+      email: z.string(),
+      phone: z.string(),
+    }),
+  }),
+});
+
+const columns = dynamicColumns({
+  schema: UserSchema,
+  options: {
+    columns: {
+      // Access nested fields with dot notation
+      "profile.firstName": true,
+      "profile.lastName": true,
+      "profile.contact.email": true,
+      "profile.contact.phone": {
+        header: "Phone Number",
+      },
+    },
+  },
+});
+```
+
+The helper automatically:
+- Sets `accessorKey` to the full path (e.g., `"profile.firstName"`)
+- Generates default headers (e.g., "ProfileFirstName")
+- Handles nested value access in the cell renderer
+
+### Custom Cell Rendering
+
+Three ways to customize cell rendering:
+
+```typescript
+dynamicColumns({
+  schema: UserSchema,
+  options: {
+    columns: {
+      // 1. String reference - point to another schema field
+      displayName: "profile.firstName",
+      
+      // 2. Function shorthand - direct cell renderer
+      age: ({ data }) => (
+        <span className="font-bold">{data.age}</span>
+      ),
+      
+      // 3. Full configuration with cell renderer
+      fullName: {
+        header: "Full Name",
+        enableSorting: true,
+        cell: ({ data }) => (
+          <div className="flex flex-col">
+            <span>{data.firstName}</span>
+            <span className="text-sm text-gray-500">
+              {data.lastName}
+            </span>
+          </div>
+        )
+      }
+    }
+  }
+});
+```
+
+### Adding Non-Schema Columns
+
+Add columns that don't map to schema fields (e.g., action buttons):
+
+```typescript
+dynamicColumns({
+  schema: UserSchema,
+  options: {
+    columns: {
+      firstName: true,
+      lastName: true
+    },
+    // Columns not tied to the schema
+    customColumns: {
+      actions: {
+        header: "Actions",
+        cell: ({ data }) => (
+          <div className="flex gap-2">
+            <button onClick={() => edit(data.id)}>Edit</button>
+            <button onClick={() => delete(data.id)}>Delete</button>
+          </div>
+        )
+      },
+      status: {
+        header: "Status",
+        cell: ({ data }) => (
+          <StatusBadge status={computeStatus(data)} />
+        )
+      }
+    }
+  }
+});
+```
+
+### Controlling Column Visibility & Order
+
+```typescript
+dynamicColumns({
+  schema: UserSchema,
+  options: {
+    columns: {
+      firstName: true,
+      lastName: true,
+      email: true,
+      age: true,
+    },
+    customColumns: {
+      actions: { header: "Actions" }
+    },
+    // Specify display order
+    order: ["firstName", "lastName", "actions", "email"],
+    // Columns not in 'order' appear at the end: age
+  }
+});
+```
+
+**Using wildcard for dynamic ordering:**
+
+```typescript
+dynamicColumns({
+  schema: UserSchema,
+  options: {
+    columns: {
+      firstName: true,
+      lastName: true,
+      email: true,
+      age: true,
+    },
+    customColumns: {
+      actions: { header: "Actions" }
+    },
+    // Actions first, then all others (*), then actions last
+    order: ["firstName", "*", "actions"],
+    // Result: firstName, lastName, email, age, actions
+  }
+});
+```
+
+## Sorting Configuration
+
+### Basic Sorting - Array of Column IDs
+
+```typescript
+dynamicColumns({
+  schema: MySchema,
+  options: {
+    columns: {
+      firstName: true,
+      lastName: true,
+      age: true,
+    },
+    customColumns: {
+      actions: { header: "Actions" },
+    },
+    // Enable sorting for specific columns
+    sortable: ["firstName", "lastName", "age"],
+  }
+});
+```
+
+### Advanced Sorting - Using Backend Enums
+
+When your backend provides sorting enums that don't match your column keys:
+
+```typescript
+// Backend provides this enum for sorting
+const BackendSortFieldsEnum = z.enum(["first_name", "last_name", "created_at"]);
+
+dynamicColumns({
+  schema: MySchema,
+  options: {
+    columns: {
+      firstName: {
+        id: "first_name",  // Override id to match backend enum
+        header: "First Name",
+      },
+      lastName: {
+        id: "last_name",   // Override id to match backend enum
+        header: "Last Name",
+      },
+      createdAt: {
+        id: "created_at",  // Override id to match backend enum
+        header: "Created",
+      },
+    },
+    // Pass enum directly - enables sorting for matching column ids
+    sortable: BackendSortFieldsEnum,
+    
+    // IMPORTANT: order uses column ids (after override), not schema keys
+    order: ["first_name", "last_name", "created_at"],
+  }
+});
+```
+
+**Key points:**
+- `sortable` matches against column `id` (not schema keys)
+- When you override `id`, use that value in `order` and `sortable`
+- This pattern works well for backend integration
+
+## Translations & Headers
+
+Headers are resolved in this priority order:
+
+1. **Direct `header` property** (highest priority)
+2. **Translation key**: `"{namespace}.{columnKey}"`
+3. **Fallback**: Capitalized column key
+
+```typescript
+dynamicColumns({
+  schema: UserSchema,
+  options: {
+    columns: {
+      // 1. Direct header - no translation lookup
+      firstName: {
+        header: "Custom First Name"
+      },
+      
+      // 2. Translation lookup at "users.table.lastName"
+      lastName: true,
+      
+      // 3. Fallback to "Email" if no translation found
+      email: true
+    },
+    // Translation namespace (default: "dynamicColumns")
+    namespace: "users.table"
+  }
+});
+```
+
+**Reusing shared translations:**
+
+```typescript
+// In your i18n translation file:
+{
+  "shared": {
+    "name": "Name",
+    "email": "Email Address"
+  },
+  "users": {
+    "table": {
+      "firstName": "$t(shared.name)",
+      "email": "$t(shared.email)"
+    }
+  }
+}
+
+// In your code:
+dynamicColumns({
+  schema: UserSchema,
+  options: {
+    columns: {
+      firstName: true,  // Uses "users.table.firstName" → "shared.name"
+      email: true       // Uses "users.table.email" → "shared.email"
+    },
+    namespace: "users.table"
+  }
+});
+```
+
+## Advanced Configuration
+
+### Global Styling
+
+Apply consistent styling to all columns:
+
+```typescript
+dynamicColumns({
+  schema: UserSchema,
+  options: {
+    columns: {
+      firstName: true,
+      lastName: true
+    },
+    // Meta applied to all columns (can be overridden per-column)
+    globalMeta: {
+      width: "w-1/2",
+      headerClass: "font-medium text-gray-700",
+      cellClass: "py-2 px-4"
+    },
+    // Wrapper applied to all cell contents
+    globalWrapper: (children) => (
+      <div className="truncate">{children}</div>
+    )
+  }
+});
+```
+
+### Working with Preset Columns
+
+Combine predefined column definitions with generated ones:
+
+```typescript
+// Preset columns defined elsewhere (e.g., shared table configs)
+const presetColumns = [
+  {
+    id: "select",
+    cell: ({ data }) => <Checkbox checked={data.selected} />
+  },
+  {
+    id: "actions",
+    cell: ({ data }) => <ActionButtons row={data} />
+  }
+];
+
+dynamicColumns({
+  schema: UserSchema,
+  preset: presetColumns,
+  options: {
+    columns: {
+      firstName: true,
+      lastName: true,
+    },
+    // Override preset column configuration
+    customColumns: {
+      actions: {
+        header: "Custom Actions",
+        meta: { width: "w-40" }
+      },
+    },
+    // Override preset column headers with translations
+    overridePresetLocales: true,
+    namespace: "users.table"
+  }
+});
+```
+
+**Removing preset columns:**
+
+```typescript
+dynamicColumns({
+  schema: UserSchema,
+  preset: presetColumns,
+  options: {
+    columns: {
+      firstName: true,
+    },
+    // Remove the "actions" preset column
+    customColumns: {
+      actions: false,
+    }
+  }
+});
+```
+
+### Include All Schema Fields
+
+Automatically include all schema fields without explicitly listing them:
+
+```typescript
+dynamicColumns({
+  schema: UserSchema,
+  options: {
+    // Include ALL schema fields by default
+    includeAll: true,
+    
+    columns: {
+      // Override specific columns
+      firstName: {
+        header: "First Name",
+        enableSorting: true
+      },
+      // Hide specific fields
+      internalId: false,
+    },
+    
+    order: ["firstName", "lastName", "*"]
+  }
+});
+```
+
+This is useful when:
+- You want most fields displayed with defaults
+- You only need to customize a few specific columns
+- Your schema changes frequently
+
+## Complete API Reference
+
+### `dynamicColumns(params)`
+
+```typescript
+interface DynamicColumnsParams<TSchema extends z.ZodObject<any>> {
+  schema: TSchema;                              // Required: Your Zod schema
+  preset?: ColumnDef<SchemaType<TSchema>>[];    // Optional: Predefined columns
+  options: DynamicColumnsOptions<TSchema>;      // Required: Configuration options
+}
+```
+
+### `DynamicColumnsOptions`
+
+```
+| Option                  | Type                      | Default            | Description
+|-------------------------|---------------------------|--------------------|---------------------------------------------------
+| `columns`               | `ColumnsConfig`           | `{}`               | Configuration for schema-based columns
+| `customColumns`         | `CustomColumnsConfig`     | `{}`               | Columns not tied to schema fields
+| `order`                 | `string[]`                | `undefined`        | Display order of columns (supports `"*"` wildcard)
+| `sortable`              | `string[]` or `z.ZodEnum` | `undefined`        | Column ids that should be sortable
+| `disableFormatting`     | `string[]`                | `undefined`        | Column keys to skip automatic formatting
+| `emptyValue`            | `ReactNode`               | `undefined`        | Display value for `null`/`undefined` cells
+| `namespace`             | `string`                  | `"dynamicColumns"` | Translation namespace for headers
+| `overridePresetLocales` | `boolean`                 | `false`            | Apply namespace translations to preset columns
+| `globalMeta`            | `ColumnMeta`              | `{}`               | Meta properties applied to all columns
+| `globalWrapper`         | `(children) => ReactNode` | `undefined`        | Wrapper for all cell contents
+| `includeAll`            | `boolean`                 | `false`            | Include all schema fields by default
+```
+
+### Column Configuration Values
+
+For each column in the `columns` object, you can use:
+
+```
+| Value      | Description                     | Example
+|------------|---------------------------------|---------------------------------------
+| `true`     | Include with default formatting | `firstName: true`
+| `false`    | Exclude column                  | `internal: false`
+| `string`   | Point to another schema key     | `displayName: "profile.name"`
+| `function` | Direct cell renderer            | `age: ({ data }) => <b>{data.age}</b>`
+| `object`   | Full column configuration       | `age: { header: "Age", cell: ... }`
+```
+
+### Column Definition Object
+
+```typescript
+{
+  header?: string;                    // Column header text
+  id?: string;                        // Override column id
+  enableSorting?: boolean;            // Enable sorting for this column
+  meta?: {
+    width?: string;                   // Tailwind width class
+    headerClass?: string;             // Header cell class
+    cellClass?: string;               // Body cell class
+  };
+  cell?: CellFunction;                // Custom cell renderer
+}
+```
+
+## Complete Examples
+
+### User Management Table
+
+```typescript
+const UserSchema = z.object({
+  id: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
+  email: z.string().email(),
+  role: z.enum(["admin", "user", "guest"]),
+  isActive: z.boolean(),
+  lastLogin: z.string(),
+  createdAt: z.string(),
+});
+
+const columns = dynamicColumns({
+  schema: UserSchema,
+  options: {
+    columns: {
+      // Basic columns with defaults
+      firstName: true,
+      lastName: true,
+      email: true,
+      
+      // Customized columns
+      role: {
+        header: "Role",
+        enableSorting: true,
+        meta: { width: "w-32" }
+      },
+      
+      isActive: {
+        header: "Status",
+        cell: ({ data }) => (
+          <Badge variant={data.isActive ? "success" : "error"}>
+            {data.isActive ? "Active" : "Inactive"}
+          </Badge>
+        )
+      },
+      
+      lastLogin: {
+        header: "Last Login",
+        enableSorting: true,
+      },
+      
+      // Hide internal fields
+      id: false,
+      createdAt: false,
+    },
+    
+    // Add action column
+    customColumns: {
+      actions: {
+        header: "Actions",
+        cell: ({ data }) => (
+          <DropdownMenu>
+            <MenuItem onClick={() => edit(data.id)}>Edit</MenuItem>
+            <MenuItem onClick={() => delete(data.id)}>Delete</MenuItem>
+          </DropdownMenu>
+        ),
+        meta: { width: "w-24" }
+      }
+    },
+    
+    // Configuration
+    sortable: ["firstName", "lastName", "email", "role", "lastLogin"],
+    order: ["firstName", "lastName", "email", "role", "isActive", "lastLogin", "actions"],
+    emptyValue: "—",
+    namespace: "users.table",
+  }
+});
+```
+
+### Nested Data with Backend Integration
+
+```typescript
+const OrderSchema = z.object({
+  id: z.string(),
+  orderNumber: z.string(),
+  customer: z.object({
+    name: z.string(),
+    email: z.string(),
+  }),
+  items: z.array(z.object({
+    name: z.string(),
+    quantity: z.number(),
+  })),
+  total: z.number(),
+  status: z.enum(["pending", "processing", "shipped", "delivered"]),
+  createdAt: z.string(),
+});
+
+// Backend sorting enum
+const OrderSortFields = z.enum(["order_number", "customer_name", "total", "created_at"]);
+
+const columns = dynamicColumns({
+  schema: OrderSchema,
+  options: {
+    columns: {
+      orderNumber: {
+        id: "order_number",  // Match backend enum
+        header: "Order #",
+      },
+      
+      "customer.name": {
+        id: "customer_name",  // Match backend enum
+        header: "Customer",
+      },
+      
+      "customer.email": true,
+      
+      items: {
+        header: "Items",
+        cell: ({ data }) => `${data.items.length} items`
+      },
+      
+      total: {
+        header: "Total",
+        cell: ({ data }) => (
+          <span className="font-semibold">
+            ${data.total.toFixed(2)}
+          </span>
+        )
+      },
+      
+      status: {
+        header: "Status",
+        cell: ({ data }) => <StatusBadge status={data.status} />
+      },
+      
+      createdAt: {
+        id: "created_at",  // Match backend enum
+        header: "Date",
+      },
+    },
+    
+    sortable: OrderSortFields,
+    order: ["order_number", "customer_name", "customer.email", "items", "total", "status", "created_at"],
+    emptyValue: "—",
+    namespace: "orders.table",
+  }
+});
+```

@@ -1,0 +1,156 @@
+---
+description: NestJS project structure and module organization - applies to all files
+globs:
+alwaysApply: true
+---
+
+# NestJS Project Structure Guide
+
+This file defines the module structure and organization. For implementation rules specific to file types, see the corresponding rule files listed below.
+
+## Module Structure
+
+Each domain feature must follow this structure:
+```
+feature/
+├── models/                # Domain models, types, requests, and responses
+│   ├── {feature}.types.ts                  # Domain interfaces and types
+│   ├── {feature}-create.request.ts         # Create request model
+│   ├── {feature}-update.request.ts         # Update request model
+│   ├── {feature}.response.ts              # Response model
+│   └── {feature}.pagination.request.ts    # Pagination query DTO
+├── persistors/           # Database implementation
+│   └── prisma/            # Prisma related files schema and client
+│       ├── index.ts                          # Exports repository
+│       ├── {feature}.prisma                  # Prisma schema
+│       └── {feature}.prisma-repository.ts    # Database implementation of repository interface
+├── tests/                 # Test files including fixtures and E2E tests
+│   ├── {feature}.fixture.ts
+│   └── {feature}.e2e.ts
+├── index.ts               # Exports module
+├── {feature}.controller.ts # HTTP endpoint definitions
+├── {feature}.module.ts    # Module definition
+├── {feature}.service.ts  # Business logic
+├── {feature}.{common-module}.service.ts  # Implementation of common modules
+└── {feature}.repository.ts # Repository interface (abstract class)
+```
+
+Domain features are located under `src/modules/`
+
+## Implementation Order
+
+Follow this domain-driven sequence when implementing a new API endpoint:
+
+1. **Domain Layer** - Define core business concepts
+   - Create domain models and types
+   - Define domain interfaces and responses
+   - See: `models-rule.mdc` for rules
+
+2. **Data Model** - Define database structure
+   - Add model to Prisma schema (`persistors/prisma/{feature}.prisma`) in the feature folder
+   - See: `prisma-rule.mdc` for rules
+   - Run migration commands:
+     ```bash
+     yarn prisma generate
+     yarn prisma migrate dev
+     ```
+
+3. **Business Logic** - Implement feature functionality
+   - Create service method signature
+   - Implement business logic in service
+   - See: `service-rule.mdc` for rules
+   - Break down complex logic into helper methods
+   - Identify required repository methods
+   - Use modules within `src/common` whenever possible but avoid changing common unless adding or changing reusable components
+
+4. **Data Access** - Implement persistence
+   - Complete repository interface (abstract class) with needed methods
+   - Implement Prisma repository class implementing the interface
+   - See: `repository-rule.mdc` for repository interfaces and for Prisma repository implementation
+   - Use static `toDomain()` method for Prisma to domain transformation
+
+5. **REST Layer** - Expose functionality via HTTP
+   - Create controller with endpoint (at feature root, not in rest/ folder)
+   - Define request/response models in models/ folder
+   - See: `controller-rule.mdc` for rules
+   - Add validation decorators and authentication (UserAclCheck)
+   - Update module definition (see `module-rule.mdc`)
+   - If configuration is needed, create config class and add values to `.config/local.api.template.yml` (see `config-rule.mdc`)
+
+6. **Exceptions** 
+   - Throw exceptions from ~common/exceptions
+   - make unique `code` for each exception thrown
+
+7. **Testing**
+   - Create test fixtures
+   - Implement E2E tests
+   - See: `test-rule.mdc` for rules
+
+## Rule Files by File Type
+
+Rules are organized by file type and automatically apply based on glob patterns:
+
+| File Pattern | Rule File | Description |
+|--------------|-----------|-------------|
+| `**/models/**/*.ts` | `models-rule.mdc` | Domain models, request/response DTOs, types |
+| `**/*.repository.ts` | `repository-rule.mdc` | Repository interfaces (abstract classes) |
+| `**/persistors/**/*.ts` | `repository-rule.mdc` | Prisma repository implementations |
+| `**/*.prisma` | `prisma-rule.mdc` | Prisma schema definitions |
+| `**/*.service.ts` | `service-rule.mdc` | Business logic services |
+| `**/*.controller.ts` | `controller-rule.mdc` | HTTP controllers and endpoints |
+| `**/admin/**/*.ts` | `admin-rule.mdc` | Admin modules and controllers |
+| `**/*.module.ts` | `module-rule.mdc` | NestJS module definitions |
+| `**/*.config.ts` | `config-rule.mdc` | Configuration classes |
+| `**/*.authz.ts` | `authz-rule.mdc` | ACL authorization providers |
+| `**/*.strategy.ts`<br/>`**/*.guard.ts` | `passport-rule.mdc` | Passport authentication providers |
+| `**/*.media.service.ts` | `media-rule.mdc` | Media handling (upload, validation, fetching) |
+| `**/*.queue-processor.ts` | `queue-rule.mdc` | Queue processors and background jobs |
+| `**/*email*.ts`<br/>`**/*email-templates.ts` | `email-rule.mdc` | Email templates and sending |
+| `**/*push-notification*.ts` | `push-notification-rule.mdc` | Push notification templates and sending |
+| `scripts/**/*.{mjs,js,sh}` | `scripts-rule.mdc` | Script organization and execution |
+| `**/.scaffold*.ts`<br/>`**/.scaffold/**/*.ts`<br/>`.scaffold/**/*.{yaml,yml}` | `scaffold-rule.mdc` | Scaffolding and code generation |
+| `**/tests/**/*.ts`<br/>`**/*.e2e.ts`<br/>`**/*.fixture.ts` | `test-rule.mdc` | Test fixtures and E2E tests |
+
+## Common Commands
+
+### Development
+```bash
+# Run commands needed to set up project locally
+yarn setup
+
+# Start development server with watch mode
+yarn dev
+
+# Start development server with debugging
+yarn deb:debug
+```
+
+### Testing
+```bash
+# Run all tests
+yarn test
+
+# Run tests in watch mode
+yarn test:watch
+
+# Run only unit tests
+yarn test:unit
+
+# Run only e2e tests
+yarn test:e2e
+
+# Run a specific test file
+yarn vitest src/modules/feature/tests/feature.e2e.ts --run
+```
+
+### Code Quality
+```bash
+# Run linter
+yarn lint
+
+# Run formatter
+yarn format
+
+# Run typecheck
+yarn typecheck
+```

@@ -1,0 +1,283 @@
+---
+description: Rules for domain models, request/response DTOs, and types
+globs:
+  - "**/models/**/*.ts"
+alwaysApply: false
+---
+
+# Domain Models and DTOs
+
+This file applies to all files in the `models/` folder: types, request models, response models, and pagination queries.
+
+## File Organization
+
+1. **Core Types** (`{feature}.types.ts`)
+   - Interfaces defining domain entities (IFeature, IFeatureCreate, IFeatureUpdate)
+   - Enums for domain constants
+   - Pagination query interfaces
+
+2. **Request Models** (`{feature}-{action}.request.ts`)
+   - Classes for create/update operations in separate files
+   - Add validation decorators from class-validator and expose from class-transformer
+   - Immutable data structures with readonly properties
+   - Naming example: `rocket-create.request.ts`, `rocket-update.request.ts`
+
+3. **Response Models** (`{feature}.response.ts`)
+   - Classes for API responses
+   - Add validation decorators from class-validator and expose from class-transformer
+   - Static `fromDomain()` method for domain to DTO transformation
+   - Naming example: `rocket.response.ts`
+
+4. **Pagination Models** (`{feature}.pagination.request.ts`)
+   - Pagination query DTO extending PaginationQueryDto
+   - Filter DTOs implementing filter interfaces
+   - Order field enums
+   - Naming example: `rocket.pagination.request.ts`
+
+## Domain Interfaces
+
+```typescript
+export interface IFeature {
+  id: string;
+  name: string;
+  status: string;
+  // Required fields use normal typing
+  owningOfficeId: string;
+  // Optional fields use ? notation
+  description?: string;
+  // Timestamps always required
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+## Enum Definitions
+
+```typescript
+export enum FeatureStatusEnum {
+  Active = 'Active',
+  Inactive = 'Inactive',
+}
+
+export enum FeatureTypeEnum {
+  Type1 = 'Type1',
+  Type2 = 'Type2',
+}
+```
+
+## Request Models
+
+```typescript
+import { TransformInputToBoolean, TransformInputToArray } from '~common/validate';
+
+export class CreateFeatureRequest {
+  @Expose()
+  @IsString()
+  @IsNotEmpty()
+  readonly name!: string;
+
+  @Expose()
+  @IsEnum(FeatureTypeEnum)
+  @IsNotEmpty()
+  @ApiProperty({ enum: FeatureTypeEnum, enumName: 'FeatureTypeEnum' })
+  readonly type!: FeatureTypeEnum;
+
+  @Expose()
+  @IsString()
+  @IsOptional()
+  readonly description?: string;
+
+  @Expose()
+  @IsBoolean()
+  @TransformInputToBoolean()
+  @IsOptional()
+  readonly enabled?: boolean;
+
+  @Expose()
+  @Type(() => Number)
+  @IsNumber()
+  @IsOptional()
+  readonly count?: number;
+
+  @Expose()
+  @IsArray()
+  @IsUUID('all', { each: true })
+  @TransformInputToArray()
+  @IsOptional()
+  readonly tagIds?: string[];
+
+  @Expose()
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @TransformInputToArray({ transformer: Number, separator: ';' })
+  @IsOptional()
+  readonly numbers?: number[];
+}
+
+export class UpdateFeatureRequest {
+  // All fields optional in update
+  @Expose()
+  @IsString()
+  @IsOptional()
+  readonly name?: string;
+
+  @Expose()
+  @IsEnum(FeatureTypeEnum)
+  @IsOptional()
+  @ApiPropertyOptional({ enum: FeatureTypeEnum, enumName: 'FeatureTypeEnum' })
+  readonly type?: FeatureTypeEnum;
+
+  @Expose()
+  @IsString()
+  @IsOptional()
+  readonly description?: string;
+}
+```
+
+## Response Models
+
+```typescript
+export class FeatureResponse {
+  @Expose()
+  @IsUUID('all')
+  readonly id!: string;
+
+  @Expose()
+  @IsString()
+  readonly name!: string;
+
+  @Expose()
+  @IsEnum(FeatureTypeEnum)
+  @ApiProperty({ enum: FeatureTypeEnum, enumName: 'FeatureTypeEnum' })
+  readonly type!: FeatureTypeEnum;
+
+  @Expose()
+  @IsString()
+  @IsOptional()
+  readonly description?: string;
+
+  constructor(data: FeatureResponse) {
+    Object.assign(this, data);
+  }
+
+  static fromDomain(domain: IFeature): FeatureResponse {
+    return new FeatureResponse(domain);
+  }
+}
+```
+
+## Required Imports
+
+```typescript
+// Swagger/OpenAPI documentation
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+// Class transformation
+import { Expose, Type } from 'class-transformer';
+import { IsString, IsOptional, IsNotEmpty, IsUUID, IsBoolean, IsNumber, IsArray, IsEnum, ValidateNested } from 'class-validator';
+
+// Transformations
+import { TransformInputToBoolean, TransformInputToArray } from '~common/validate';
+
+// Common pagination utilities (for pagination requests)
+import {
+  IPaginationOrder,
+  IPaginationQuery,
+  PaginationFilter,
+  PaginationOrder,
+  PaginationQueryDto
+} from '~common/http/pagination';
+```
+
+## Pagination DTOs
+
+Each pagination set should be in its own `pagination.request.ts`
+
+```typescript
+// Located in models/{feature}.pagination.request.ts
+export enum FeaturePaginationOrderField {
+  name = 'name',
+  createdAt = 'createdAt',
+}
+
+class FeaturePaginationFilterDto {
+  @Expose()
+  @IsString()
+  @IsOptional()
+  readonly name?: string;
+
+  @Expose()
+  @TransformInputToArray()
+  @IsUUID('all', { each: true })
+  @IsOptional()
+  readonly ids?: string[];
+
+  @Expose()
+  @IsBoolean()
+  @TransformInputToBoolean()
+  @IsOptional()
+  readonly enabled?: boolean;
+
+  @Expose()
+  @IsString()
+  @IsOptional()
+  readonly search?: string;
+}
+
+export class FeaturePaginationQueryDto extends PaginationQueryDto implements IPaginationQuery<FeaturePaginationFilterDto, FeaturePaginationOrderField> {
+  @Expose()
+  @IsOptional()
+  @PaginationOrder(FeaturePaginationOrderField)
+  readonly order?: IPaginationOrder<FeaturePaginationOrderField>[];
+
+  @Expose()
+  @IsOptional()
+  @PaginationFilter(FeaturePaginationFilterDto)
+  readonly filter?: FeaturePaginationFilterDto;
+}
+
+export interface IFeaturePaginationQuery extends FeaturePaginationQueryDto {}
+```
+
+## Implementation Rules
+
+1. **Type Safety**
+   - Use strong typing for all properties
+   - Define enums for all constant values
+   - Use type assertion when mapping enums
+
+2. **Constructor Pattern**
+   - All response models have a constructor that only assigns Object.assign(this, data);
+   - Accept only data with the type of the class itself, leave other types to `fromDomain` static methods
+
+3. **Required vs Optional**
+   - Use ! for required properties
+   - All required fields must use `@IsNotEmpty()` decorator by default
+   - Use ? and @IsOptional() for optional properties
+   - All fields optional in update requests
+   - Use `@Expose()` decorator for all properties in models
+   - Include validation decorators (IsString, IsNumber, etc.)
+
+4. **Transformations (Response Models)**
+   - Response models have static fromDomain
+   - Handle related entities in fromDomain
+   - Use type assertions for enum mappings
+
+5. **Transformations (Input)**
+   - **Boolean**: Use `@TransformInputToBoolean()` for boolean fields (transforms string/number to boolean)
+   - **Array**: Use `@TransformInputToArray()` for array fields (transforms comma-separated strings to arrays)
+     - Options: `{ transformer: Number }` for number arrays, `{ separator: ';' }` for custom separator, `{ unique: true }` for unique values
+   - **Number**: Use `@Type(() => Number)` with `@IsNumber()` for number fields
+   - **Date**: Use `@Type(() => Date)` with `@IsDate()` for date fields
+   - Place transformation decorators before validation decorators
+
+6. **Enum Properties**
+   - Always use `@ApiProperty({ enum: TheEnum, enumName: 'TheEnum' })` for required enum properties
+   - Always use `@ApiPropertyOptional({ enum: TheEnum, enumName: 'TheEnum' })` for optional enum properties
+   - Place `@ApiProperty` or `@ApiPropertyOptional` decorator immediately after `@IsEnum` decorator
+   - The `enumName` must match the enum type name exactly as a string
+
+7. **Additional Rules**
+   - Make properties readonly where appropriate
+   - Use definite assignment operator (!) for required fields
+   - Add JSDoc comments for property descriptions

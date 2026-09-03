@@ -1,0 +1,34 @@
+model Media {
+  // globally unique id
+  id String @id @default(uuid()) @db.Uuid
+
+  // provider unique key
+  key      String @unique
+  provider String
+
+  // module specific meta data or generic name
+  resourceName String
+
+  // provider specific meta data
+  meta Json? @db.JsonB
+
+  fileName String
+  fileSize Int
+  mimeType String
+
+  // status
+  uploaded  DateTime?
+  validated DateTime?
+  deleted   DateTime?
+
+  // Large Object OID reference (PostgreSQL Large Object)
+  loOid Int? @db.Oid
+
+  // accounting
+  module     String?
+  type       String?
+  resourceId String?  @db.Uuid
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  userId     String?  @db.Uuid
+}

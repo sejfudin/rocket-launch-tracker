@@ -1,0 +1,62 @@
+{
+  "folders": [
+    {
+      "name": "monorepo",
+      "path": "../"
+    },
+    {
+      "name": "apps/fe",
+      "path": "../apps/fe"
+    },
+    {
+      "name": "apps/be",
+      "path": "../apps/be"
+    },
+    {
+      "name": "apps/admin",
+      "path": "../apps/admin"
+    },
+    {
+      "name": "apps/storybook",
+      "path": "../apps/storybook"
+    },
+    {
+      "name": "packages/ui",
+      "path": "../packages/ui"
+    }
+  ],
+  "settings": {
+    "biome.enabled": true,
+    "eslint.enable": true,
+    "eslint.workingDirectories": [
+      {
+        "mode": "auto"
+      }
+    ],
+    "oxc.enable": true,
+    "oxc.typeAware": true,
+    "files.exclude": {
+      "**/.idea": true
+    },
+    "editor.defaultFormatter": "biomejs.biome",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.biome": "explicit",
+      "source.organizeImports.biome": "explicit"
+    },
+    "search.exclude": {
+      "**/.yarn": true,
+      "**/node_modules": true,
+      "**/dist": true,
+      "**/out": true,
+      "**/.turbo": true
+    },
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "typescript.enablePromptUseWorkspaceTsdk": true,
+    "typescript.preferences.importModuleSpecifier": "non-relative",
+    "typescript.preferences.includePackageJsonAutoImports": "on"
+  },
+  "extensions": {
+    "recommendations": ["biomejs.biome", "vitest.explorer", "oxc.oxc-vscode"]
+  }
+}

@@ -1,0 +1,24 @@
+out/
+dist
+analyse
+.next
+next-env.d.ts
+
+# production
+build
+
+# local env files
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+
+# config
+.config/*.spa.resolved.yml
+.config/*.spa.override.yml
+
+.tanstack
+src/openapi

@@ -1,0 +1,70 @@
+{
+  "$schema": "../../node_modules/oxlint/configuration_schema.json",
+  "extends": ["../../.oxlintrc.json"],
+  "plugins": ["eslint", "typescript", "unicorn", "import", "node", "promise", "vitest"],
+  "jsPlugins": ["./tools/oxlint/index.js"],
+  "categories": {
+    "perf": "off"
+  },
+  "ignorePatterns": [
+    "dist",
+    "scripts",
+    ".turbo",
+    "node_modules",
+    "**/.*.scaffold.ts",
+    "**/.scaffold.ts",
+    "**/.scaffold/*",
+    "src/common/logger/pino",
+    "src/common/logger/otel",
+    "src/common/logger/sentry",
+    "src/common/queues/providers/pg-boss",
+    "src/common/email/providers/sendgrid",
+    "src/database/prisma/generated/*"
+  ],
+  "rules": {
+    "api/enum-property": "error",
+    "eslint/no-lonely-if": "warn",
+    "eslint/no-restricted-globals": "warn",
+    "eslint/no-constructor-return": "warn",
+    "eslint/no-void": "warn",
+    "eslint/curly": "off",
+    "eslint/guard-for-in": "off",
+    "eslint/no-template-curly-in-string": "warn",
+    "eslint/prefer-destructuring": "off",
+    "eslint/no-console": "warn",
+    "eslint/no-nested-ternary": "off",
+    "eslint/no-unused-vars": ["warn", { "caughtErrorsIgnorePattern": "^_", "argsIgnorePattern": "^_" }],
+    "typescript/consistent-type-imports": "off",
+    "typescript/no-non-null-asserted-optional-chain": "warn",
+    "typescript/no-misused-spread": "off",
+    "typescript/no-for-in-array": "warn",
+    "typescript/no-require-imports": "warn",
+    "typescript/no-unsafe-argument": "off",
+    "typescript/no-unsafe-return": "off",
+    "typescript/no-base-to-string": "warn",
+    "typescript/no-redundant-type-constituents": "warn",
+    "typescript/only-throw-error": "warn",
+    "typescript/prefer-promise-reject-errors": "warn",
+    "typescript/no-unsafe-enum-comparison": "off",
+    "typescript/restrict-template-expressions": "warn",
+    "typescript/restrict-plus-operands": "warn",
+    "typescript/return-await": "off",
+    "typescript/unbound-method": "off",
+    "promise/valid-params": "warn",
+    "jest/expect-expect": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["*.test.ts", "*.e2e.ts", "*.unit.ts", "*.mock.ts", "test/**/*.ts"],
+      "rules": {
+        "typescript/no-unused-expressions": "off",
+        "typescript/no-unsafe-argument": "off",
+        "typescript/no-unsafe-assignment": "off",
+        "typescript/no-unsafe-call": "off",
+        "typescript/no-unsafe-member-access": "off",
+        "typescript/no-unsafe-return": "off",
+        "typescript/no-explicit-any": "off"
+      }
+    }
+  ]
+}

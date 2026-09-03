@@ -1,0 +1,159 @@
+# ACL
+
+This template supports ACL using `@casl/ability`.
+
+## How it works
+
+The ability context is provided in the app providers (`AbilityContext.Provider` from `data/acl/ability.context.tsx`).
+
+This context provider retrieves the packed rules from the authenticated user, unpacks them, and builds an ability. The ability context is then used for checks within the `AclGuard`, `Can` component, and `useAbility` hook.
+
+Additionally, the `AclGuard` is wrapped with `withPrivateAuthGuard` since authentication is verified before checking abilities.
+
+## Using ACL
+
+When using `@povio/openapi-codegen-cli` for data layer generation, ACL-related files (with a `.acl.ts` suffix) are generated per API. These files contain type definitions and functions to retrieve `AbilityTuple` for query or mutation ability checks.
+
+Example generated ACL file `data/employee/employee.acl.ts`:
+
+```ts
+import { AbilityTuple, ForcedSubject, subject } from "@casl/ability";
+
+export namespace EmployeeAcl {
+  type UsePaginateAbility = AbilityTuple<"Read", "Employee" | (ForcedSubject<"Employee"> & { officeId: string })>;
+
+  type UseCreateAbility = AbilityTuple<"Create", "Employee" | (ForcedSubject<"Employee"> & { officeId: string })>;
+
+  export type AllAbilities = UsePaginateAbility | UseCreateAbility;
+
+  export const canUsePaginate = (object?: { officeId: string }) =>
+    ["Read", object ? subject("Employee", object) : "Employee"] as UsePaginateAbility;
+
+  export const canUseCreate = (object?: { officeId: string }) =>
+    ["Create", object ? subject("Employee", object) : "Employee"] as UseCreateAbility;
+}
+```
+
+If `@povio/openapi-codegen-cli` is not used, either create the ACL files manually or refer to the "Simple usage" examples.
+
+### AclGuard
+
+#### With ACL files:
+
+```ts
+import { AclGuard } from "@/openapi/acl/AclGuard";
+import { EmployeeAcl } from "@/openapi/employee/employee.acl";
+
+// Global ability
+<AclGuard canUse={EmployeeAcl.canUsePaginate()}>{ /* protected children */}</AclGuard>
+
+// Specific ability (with subject context)
+<AclGuard canUse={EmployeeAcl.canUsePaginate({ officeId: "office-id" })}>{ /* protected children */}</AclGuard>
+```
+
+#### Simple usage:
+
+```ts
+import { subject } from "@casl/ability";
+import { AclGuard } from "@/openapi/acl/AclGuard";
+
+// Global ability
+<AclGuard canUse={["Read", "Employee"]}>{ /* protected children */}</AclGuard>
+
+// Specific ability (with subject context)
+<AclGuard canUse={["Read", subject("Employee", { officeId: "office-id" })]}>{ /* protected children */}</AclGuard>
+```
+
+### Can component
+
+#### With ACL files:
+
+```ts
+import { Can } from "@/openapi/acl/Can";
+import { EmployeeAcl } from "@/openapi/employee/employee.acl";
+
+// Global ability
+<Can use={EmployeeAcl.canUsePaginate()}>{ /* protected children */ }</Can>
+
+// Specific ability (with subject context)
+<Can use={EmployeeAcl.canUsePaginate({ officeId: "office-id" })}>{ /* protected children */ }</Can>
+```
+
+#### Simple usage:
+
+```ts
+import { subject } from "@casl/ability";
+import { Can } from "@/openapi/acl/Can";
+
+// Global ability
+<Can use={["Read", "Employee"]}>{ /* protected children */ }</Can>
+
+// Specific ability (with subject context)
+<Can use={["Read", subject("Employee", { officeId: "office-id" })]}>{ /* protected children */ }</Can>
+```
+
+### useAbility hook
+
+#### With ACL files:
+
+```ts
+import { AbilityContext } from "@/openapi/acl/ability.context";
+import { EmployeeAcl } from "@/openapi/employee/employee.acl";
+
+const ability = AbilityContext.useAbility();
+
+// Global ability
+ability.can(...EmployeeAcl.canUsePaginate());
+
+// Specific ability (with subject context)
+ability.can(...EmployeeAcl.canUsePaginate({ officeId: "office-id" }));
+```
+
+#### Simple usage:
+
+```ts
+import { subject } from "@casl/ability";
+
+import { AbilityContext } from "@/openapi/acl/ability.context";
+
+const ability = AbilityContext.useAbility();
+
+// Global ability
+ability.can("Read", "Employee");
+
+// Specific ability (with subject context)
+ability.can("Read", "Employee", { officeId: "office-id" });
+```
+
+### Type safety
+
+Types for abilities are defined inside `data/acl/app.ability.ts`.
+
+#### With ACL files:
+
+When using `@povio/openapi-codegen-cli` for data layer generation, a `data/acl/app.ability.ts` file is generated, containing all exported `AbilityTuple` types. If not using this tool, update the `AppAbilities` type manually:
+
+```ts
+import { EmployeeAcl } from "@/openapi/employee/employee.acl";
+import { BusinessPartnersAcl } from "@/openapi/platform/masterData/businessPartners/businessPartners.acl";
+
+export type AppAbilities = BusinessPartnersAcl.AllAbilities | EmployeeAcl.AllAbilities;
+```
+
+#### Simple usage:
+
+Manually update `AppAbilities` type to be a union of `AbilityTuple` types.
+
+```ts
+export type AppAbilities =
+  | AbilityTuple<"Read", "BusinessPartner">
+  | AbilityTuple<"Read", "Employee" | (ForcedSubject<"Employee"> & { officeId?: string })>;
+```
+
+## Not using ACL
+
+If ACL is not needed:
+
+- uninstall `@casl/ability` and `@casl/react`
+- remove `AbilityContext.Provider` from app providers
+- delete `data/acl` folder

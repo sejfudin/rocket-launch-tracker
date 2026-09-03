@@ -1,0 +1,196 @@
+---
+description: Rules for Passport authentication providers and strategies
+globs:
+  - "**/*.strategy.ts"
+  - "**/*.guard.ts"
+alwaysApply: false
+---
+
+# Passport Authentication Providers
+
+## Strategy Structure
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { Strategy } from 'passport-provider-name';
+
+import { IAuthnRequestUser } from '~common/authn';
+
+import { FEATURE_AUTHN_KEY } from '../feature-auth.constants';
+import { FeatureProviderConfig } from './feature-provider.config';
+import { FEATURE_AUTHN_PROVIDER_STRATEGY } from './feature-provider.constants';
+
+@Injectable()
+export class FeatureProviderStrategy extends PassportStrategy(Strategy, FEATURE_AUTHN_PROVIDER_STRATEGY) {
+  constructor(private readonly config: FeatureProviderConfig) {
+    super({
+      // Strategy-specific options
+      clientID: config.clientID,
+      clientSecret: config.clientSecret,
+      callbackURL: config.callbackURL,
+    });
+  }
+
+  async validate(...args: any[]): Promise<IAuthnRequestUser> {
+    // Extract user data from provider response
+    return {
+      provider: 'provider-name',
+      providerId: profile.id,
+      namespace: FEATURE_AUTHN_KEY,
+      providerData: {
+        email: profile.email,
+        // Other provider-specific data
+      },
+      ident: `provider-name:${profile.id}`,
+    };
+  }
+}
+```
+
+## Guard Structure
+
+```typescript
+import { ExecutionContext, Injectable } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
+import { AuthnException } from '~common/authn';
+
+import { FeatureProviderConfig } from './feature-provider.config';
+import { FEATURE_AUTHN_PROVIDER_STRATEGY } from './feature-provider.constants';
+
+@Injectable()
+export class FeatureProviderGuard extends AuthGuard(FEATURE_AUTHN_PROVIDER_STRATEGY) {
+  constructor(private readonly config: FeatureProviderConfig) {
+    super();
+  }
+
+  canActivate(context: ExecutionContext) {
+    if (!this.config.enabled) {
+      throw new AuthnException('Provider is not enabled', { code: 'provider-disabled' });
+    }
+    return super.canActivate(context);
+  }
+}
+```
+
+## Implementation Rules
+
+### Strategy Class
+- **Extends**: `PassportStrategy(Strategy, STRATEGY_NAME)`
+- **Constructor**: Call `super()` with strategy options
+- **validate()**: Return `IAuthnRequestUser` or `IAuthnRequestIdentity`
+- **Naming**: `{Feature}{Provider}Strategy` (e.g., `UserAuthGoogleStrategy`)
+
+### Guard Class
+- **Extends**: `AuthGuard(STRATEGY_NAME)`
+- **canActivate()**: Check if provider is enabled before calling `super.canActivate()`
+- **Naming**: `{Feature}{Provider}Guard` (e.g., `UserAuthGoogleGuard`)
+
+### Constants
+- **File**: `{feature}-{provider}.constants.ts`
+- **Pattern**: `{NAMESPACE_KEY}-{provider}` (e.g., `USER_AUTHN_GOOGLE_STRATEGY = '${USER_AUTHN_KEY}-google'`)
+
+### Module Registration
+```typescript
+@Module({
+  imports: [FeatureAuthModule],
+  controllers: [FeatureProviderController],
+  providers: [
+    FeatureProviderService,
+    FeatureProviderStrategy,
+    getConfigFactory(FeatureProviderConfig),
+  ],
+})
+export class FeatureProviderModule {}
+```
+
+### Controller Usage
+```typescript
+@UseGuards(FeatureProviderGuard)
+@Get('callback')
+async callback(@Req() req: { user: IAuthnRequestUser }) {
+  // Access authenticated user via req.user
+}
+```
+
+## Where to Implement New Passport Plugins
+
+### File Structure
+```
+feature/auth/providers/
+├── {provider}/
+│   ├── {feature}-{provider}.config.ts      # Configuration
+│   ├── {feature}-{provider}.constants.ts   # Strategy name constant
+│   ├── {feature}-{provider}.strategy.ts     # Passport strategy
+│   ├── {feature}-{provider}.guard.ts        # Auth guard
+│   ├── {feature}-{provider}.service.ts     # Business logic
+│   ├── {feature}-{provider}.controller.ts  # HTTP endpoints
+│   └── {feature}-{provider}.module.ts       # Module definition
+```
+
+### Implementation Steps
+1. **Install passport package**: `yarn add passport-{provider-name} @types/passport-{provider-name}`
+2. **Create config class** following `config-rule.mdc`
+3. **Create constants file** with strategy name
+4. **Create strategy class** extending `PassportStrategy`
+5. **Create guard class** extending `AuthGuard`
+6. **Create service** for business logic (login, registration)
+7. **Create controller** with OAuth callback endpoints
+8. **Create module** registering all components
+9. **Add config values** to `.config/local.api.template.yml`
+
+## Examples
+
+### OAuth Provider (Google/Apple)
+```typescript
+@Injectable()
+export class UserAuthGoogleStrategy extends PassportStrategy(Strategy, USER_AUTHN_GOOGLE_STRATEGY) {
+  constructor(private readonly config: UserAuthGoogleConfig) {
+    super({
+      clientID: config.clientID,
+      clientSecret: config.clientSecret,
+      callbackURL: config.callbackURL,
+      scope: ['email', 'profile'],
+    });
+  }
+
+  async validate(_accessToken: string, _refreshToken: string, profile: any): Promise<IAuthnRequestUser> {
+    return {
+      provider: 'google',
+      providerId: profile.id,
+      namespace: USER_AUTHN_KEY,
+      providerData: {
+        email: profile.emails[0].value,
+        emailVerified: profile.emails[0].verified,
+        name: profile.displayName,
+      },
+      ident: `google:${profile.id}`,
+    };
+  }
+}
+```
+
+### Local Strategy (Password)
+```typescript
+@Injectable()
+export class UserAuthPasswordStrategy extends PassportStrategy(Strategy, USER_AUTHN_PASSWORD_STRATEGY) {
+  constructor(private authnIdentityService: AuthnIdentityService) {
+    super({ usernameField: 'email' });
+  }
+
+  async validate(email: string, password: string): Promise<IAuthnRequestIdentity> {
+    const authnIdentity = await this.authnIdentityService.find({
+      provider: LOCAL_PROVIDER,
+      namespace: USER_AUTHN_KEY,
+      providerId: email.toLowerCase().trim(),
+    });
+
+    if (!authnIdentity || !validateHash(password, authnIdentity.providerData?.password)) {
+      throw new UnauthorizedException('Invalid credentials', { code: 'invalid-credentials' });
+    }
+
+    return { ...authnIdentity, ident: `user:${authnIdentity.userId}` };
+  }
+}
+```
