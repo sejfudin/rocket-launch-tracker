@@ -340,7 +340,14 @@
     "errors": {
       "loadFail": "Failed to load rockets. Please try again later.",
       "noResults": "No rockets found",
-      "noResultsInfo": "Try adjusting your search or filters to find what you're looking for."
+      "noResultsInfo": "Try adjusting your search or filters to find what you're looking for.",
+      "invalidHeight": "Height must be greater than 0",
+      "invalidWeight": "Weight must be greater than 0",
+      "invalidLaunchDatetime": "Launch date must be in the future",
+      "invalidCrew": "Commercial rockets cannot have crew members",
+      "invalidPassengers": "Space exploration rockets cannot have passengers",
+      "invalidCrewCount": "Space exploration rockets must have exactly 3 crew members",
+      "notFound": "Rocket not found"
     },
     "card": {
       "launchDate": "Launch Date",
