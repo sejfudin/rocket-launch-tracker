@@ -342,6 +342,13 @@
       "noResults": "No rockets found",
       "noResultsInfo": "Try adjusting your search or filters to find what you're looking for."
     },
+    "card": {
+      "launchDate": "Launch Date",
+      "weight": "Weight",
+      "height": "Height",
+      "weightUnit": "{{value}} kgs",
+      "heightUnit": "{{value}}m"
+    },
     "form": {
       "createSuccess": "Rocket successfully created",
       "editSuccess": "Rocket saved successfully",
