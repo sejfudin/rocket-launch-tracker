@@ -360,6 +360,7 @@
       "notFound": "Rocket not found"
     },
     "card": {
+      "name": "Rocket name",
       "launchDate": "Launch Date",
       "weight": "Weight",
       "height": "Height",
