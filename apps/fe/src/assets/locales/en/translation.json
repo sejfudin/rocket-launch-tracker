@@ -367,6 +367,20 @@
       "weightUnit": "{{value}} kgs",
       "heightUnit": "{{value}}m"
     },
+    "details": {
+      "breadcrumb": "Rocket details",
+      "title": "{{name}} Details",
+      "launchTitle": "{{name}} Launch",
+      "launchSubtitle": "Rocket launch information",
+      "crewInfo": "Crew Info",
+      "passengersInfo": "Passengers",
+      "sortCrew": "Sort crew members",
+      "sortPassengers": "Sort passengers",
+      "sortAscending": "Ascending",
+      "sortDescending": "Descending",
+      "back": "Back",
+      "error": "Failed to load rocket. Please try again later."
+    },
     "form": {
       "createSuccess": "Rocket successfully created",
       "editSuccess": "Rocket saved successfully",

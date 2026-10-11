@@ -1,4 +1,5 @@
 import { Button, TextInput, Typography } from "@povio/ui";
+import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -101,15 +102,21 @@ export const MainHomeContent = () => {
       {rockets.length > 0 ? (
         <div className="grid w-full max-w-6xl grid-cols-1 gap-6 lg:grid-cols-3">
           {rockets.map((rocket, index) => (
-            <RocketCard
+            <Link
               key={rocket.id}
-              index={index + 1}
-              name={rocket.name}
-              height={rocket.height}
-              weight={rocket.weight}
-              launchDatetime={rocket.launchDatetime}
-              imageUrl={rocket.picture?.url}
-            />
+              to="/rockets/$rocketId"
+              params={{ rocketId: rocket.id }}
+              className="block rounded-m focus-visible:outline-2 focus-visible:outline-interactive-contained-primary-idle focus-visible:outline-offset-2"
+            >
+              <RocketCard
+                index={index + 1}
+                name={rocket.name}
+                height={rocket.height}
+                weight={rocket.weight}
+                launchDatetime={rocket.launchDatetime}
+                imageUrl={rocket.picture?.url}
+              />
+            </Link>
           ))}
         </div>
       ) : null}

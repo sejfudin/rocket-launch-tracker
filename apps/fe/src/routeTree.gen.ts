@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './pages/__root'
 import { Route as nonAuthenticatedOnlyRouteRouteImport } from './pages/(non-authenticated-only)/route'
 import { Route as authenticatedRouteRouteImport } from './pages/(authenticated)/route'
 import { Route as IndexRouteImport } from './pages/index'
+import { Route as RocketsRocketIdRouteImport } from './pages/rockets/$rocketId'
 import { Route as nonAuthenticatedOnlyResetPasswordRouteImport } from './pages/(non-authenticated-only)/reset-password'
 import { Route as nonAuthenticatedOnlyRegisterRouteImport } from './pages/(non-authenticated-only)/register'
 import { Route as nonAuthenticatedOnlyLoginRouteImport } from './pages/(non-authenticated-only)/login'
@@ -34,6 +35,11 @@ const authenticatedRouteRoute = authenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RocketsRocketIdRoute = RocketsRocketIdRouteImport.update({
+  id: '/rockets/$rocketId',
+  path: '/rockets/$rocketId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const nonAuthenticatedOnlyResetPasswordRoute =
@@ -98,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof nonAuthenticatedOnlyLoginRoute
   '/register': typeof nonAuthenticatedOnlyRegisterRoute
   '/reset-password': typeof nonAuthenticatedOnlyResetPasswordRoute
+  '/rockets/$rocketId': typeof RocketsRocketIdRoute
   '/auth/callback': typeof nonAuthenticatedOnlyAuthCallbackRoute
   '/auth/forgot-password/callback': typeof nonAuthenticatedOnlyAuthForgotPasswordCallbackRoute
   '/auth/magic-link': typeof nonAuthenticatedOnlyAuthMagicLinkIndexRoute
@@ -110,6 +117,7 @@ export interface FileRoutesByTo {
   '/login': typeof nonAuthenticatedOnlyLoginRoute
   '/register': typeof nonAuthenticatedOnlyRegisterRoute
   '/reset-password': typeof nonAuthenticatedOnlyResetPasswordRoute
+  '/rockets/$rocketId': typeof RocketsRocketIdRoute
   '/auth/callback': typeof nonAuthenticatedOnlyAuthCallbackRoute
   '/auth/forgot-password/callback': typeof nonAuthenticatedOnlyAuthForgotPasswordCallbackRoute
   '/auth/magic-link': typeof nonAuthenticatedOnlyAuthMagicLinkIndexRoute
@@ -125,6 +133,7 @@ export interface FileRoutesById {
   '/(non-authenticated-only)/login': typeof nonAuthenticatedOnlyLoginRoute
   '/(non-authenticated-only)/register': typeof nonAuthenticatedOnlyRegisterRoute
   '/(non-authenticated-only)/reset-password': typeof nonAuthenticatedOnlyResetPasswordRoute
+  '/rockets/$rocketId': typeof RocketsRocketIdRoute
   '/(non-authenticated-only)/auth/callback': typeof nonAuthenticatedOnlyAuthCallbackRoute
   '/(non-authenticated-only)/auth/forgot-password/callback': typeof nonAuthenticatedOnlyAuthForgotPasswordCallbackRoute
   '/(non-authenticated-only)/auth/magic-link/': typeof nonAuthenticatedOnlyAuthMagicLinkIndexRoute
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/reset-password'
+    | '/rockets/$rocketId'
     | '/auth/callback'
     | '/auth/forgot-password/callback'
     | '/auth/magic-link'
@@ -151,6 +161,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/reset-password'
+    | '/rockets/$rocketId'
     | '/auth/callback'
     | '/auth/forgot-password/callback'
     | '/auth/magic-link'
@@ -165,6 +176,7 @@ export interface FileRouteTypes {
     | '/(non-authenticated-only)/login'
     | '/(non-authenticated-only)/register'
     | '/(non-authenticated-only)/reset-password'
+    | '/rockets/$rocketId'
     | '/(non-authenticated-only)/auth/callback'
     | '/(non-authenticated-only)/auth/forgot-password/callback'
     | '/(non-authenticated-only)/auth/magic-link/'
@@ -174,6 +186,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   authenticatedRouteRoute: typeof authenticatedRouteRouteWithChildren
   nonAuthenticatedOnlyRouteRoute: typeof nonAuthenticatedOnlyRouteRouteWithChildren
+  RocketsRocketIdRoute: typeof RocketsRocketIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -197,6 +210,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rockets/$rocketId': {
+      id: '/rockets/$rocketId'
+      path: '/rockets/$rocketId'
+      fullPath: '/rockets/$rocketId'
+      preLoaderRoute: typeof RocketsRocketIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(non-authenticated-only)/reset-password': {
@@ -314,6 +334,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   authenticatedRouteRoute: authenticatedRouteRouteWithChildren,
   nonAuthenticatedOnlyRouteRoute: nonAuthenticatedOnlyRouteRouteWithChildren,
+  RocketsRocketIdRoute: RocketsRocketIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

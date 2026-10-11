@@ -1,0 +1,350 @@
+import type { ApplicationException } from "@povio/ui";
+import { Button, TextButton, Typography } from "@povio/ui";
+import { Link } from "@tanstack/react-router";
+import { clsx } from "clsx";
+import { DateTime } from "luxon";
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+
+import { ArrowLeftIcon } from "@/assets/icons/general/ArrowLeft";
+import { ChevRightIcon } from "@/assets/icons/general/ChevRight";
+import { SortIcon } from "@/assets/icons/general/Sort";
+import fallbackImage from "@/assets/images/fallback-image.png";
+import { LaunchCountdown } from "@/components/rocket/LaunchCountdown";
+import { AppHead } from "@/components/shared/head/AppHead";
+import { ErrorState } from "@/components/shared/layout/ErrorState";
+import { LoadingState } from "@/components/shared/layout/LoadingState";
+import { useRocket } from "@/hooks/useRockets";
+import { RocketModels } from "@/openapi/rocket/rocket.models";
+import { LaunchUtils } from "@/utils/launch.utils";
+import { RocketErrorUtils } from "@/utils/rocket-error.utils";
+
+const SORT_STORAGE_KEY = "rocket-member-sort";
+
+type SortOrder = "asc" | "desc";
+
+interface RocketDetailsProps {
+  rocketId: string;
+}
+
+const formatWeight = (weight: number | null | undefined) => {
+  if (weight == null) {
+    return null;
+  }
+
+  return weight.toLocaleString("de-DE");
+};
+
+const formatHeight = (height: number | null | undefined) => {
+  if (height == null) {
+    return null;
+  }
+
+  return height.toLocaleString("en-US", { maximumFractionDigits: 1, useGrouping: false });
+};
+
+const formatLaunchDate = (launch?: string | null) => {
+  const relative = LaunchUtils.getRelativeTime(launch);
+  if (!relative || !launch) {
+    return null;
+  }
+
+  const time = DateTime.fromISO(launch);
+  if (!time.isValid) {
+    return null;
+  }
+
+  return `${relative.charAt(0).toUpperCase()}${relative.slice(1)}, ${time.toFormat("HH:mm")}`;
+};
+
+const readSortOrder = (): SortOrder | null => {
+  const value = localStorage.getItem(SORT_STORAGE_KEY);
+  return value === "asc" || value === "desc" ? value : null;
+};
+
+const sortMembers = (members: string[], order: SortOrder | null) => {
+  if (!order) {
+    return members;
+  }
+
+  const sorted = [...members].sort((left, right) => left.localeCompare(right));
+  return order === "desc" ? sorted.reverse() : sorted;
+};
+
+interface DetailFieldProps {
+  label: string;
+  value?: string | null;
+}
+
+const DetailField = ({ label, value }: DetailFieldProps) => (
+  <div className="flex min-w-0 flex-col gap-1">
+    <Typography
+      size="body-4"
+      as="span"
+      className="text-text-default-2"
+    >
+      {label}
+    </Typography>
+    <Typography
+      size="label-1"
+      as="span"
+      className="text-text-default-1"
+    >
+      {value}
+    </Typography>
+  </div>
+);
+
+export const RocketDetails = ({ rocketId }: RocketDetailsProps) => {
+  const { t } = useTranslation();
+  const { data: rocket, isLoading, isError, error, refetch } = useRocket(rocketId);
+  const [sortOrder, setSortOrder] = useState<SortOrder | null>(readSortOrder);
+  const [isSortOpen, setIsSortOpen] = useState(false);
+  const sortRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isSortOpen) {
+      return;
+    }
+
+    const onPointerDown = (event: MouseEvent) => {
+      if (!sortRef.current?.contains(event.target as Node)) {
+        setIsSortOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", onPointerDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+    };
+  }, [isSortOpen]);
+
+  const selectSortOrder = (order: SortOrder) => {
+    setSortOrder(order);
+    localStorage.setItem(SORT_STORAGE_KEY, order);
+    setIsSortOpen(false);
+  };
+
+  const isCommercial = rocket?.rocketType === RocketModels.RocketType.commercial;
+  const members = sortMembers(
+    ((isCommercial ? rocket?.passengers : rocket?.crew) ?? []).filter((member) => member.trim()),
+    sortOrder,
+  );
+  const weight = formatWeight(rocket?.weight);
+  const height = formatHeight(rocket?.height);
+
+  return (
+    <>
+      <AppHead
+        title={
+          rocket ? t(($) => $.rockets.details.title, { name: rocket.name }) : t(($) => $.rockets.details.breadcrumb)
+        }
+      />
+      <div className="flex flex-col gap-8 bg-elevation-fill-default-2 px-4 py-8 md:px-10">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-1">
+            <Link to="/">
+              <Typography
+                size="label-3"
+                as="span"
+                className="text-text-default-3"
+              >
+                {t(($) => $.navbar.links.rockets)}
+              </Typography>
+            </Link>
+            <ChevRightIcon className="size-4 text-text-default-3" />
+            <Typography
+              size="label-3"
+              variant="prominent-1"
+              as="span"
+              className="text-interactive-text-primary-idle"
+            >
+              {t(($) => $.rockets.details.breadcrumb)}
+            </Typography>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link
+              to="/"
+              aria-label={t(($) => $.rockets.details.back)}
+              className="text-text-default-1"
+            >
+              <ArrowLeftIcon className="size-5" />
+            </Link>
+            <Typography
+              size="title-3"
+              variant="prominent-1"
+              as="h1"
+              className="text-text-default-1"
+            >
+              {rocket
+                ? t(($) => $.rockets.details.title, { name: rocket.name })
+                : t(($) => $.rockets.details.breadcrumb)}
+            </Typography>
+          </div>
+        </div>
+
+        {isLoading ? <LoadingState /> : null}
+
+        {isError ? (
+          <ErrorState
+            error={error}
+            message={RocketErrorUtils.getErrorMessage(error as ApplicationException<string>, t)}
+            onRetry={() => {
+              refetch();
+            }}
+          />
+        ) : null}
+
+        {rocket ? (
+          <>
+            <section className="flex flex-col gap-4">
+              <Typography
+                size="title-5"
+                variant="prominent-1"
+                as="h2"
+                className="text-text-default-1"
+              >
+                {t(($) => $.rockets.form.basicInfo)}
+              </Typography>
+              <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+                <DetailField
+                  label={t(($) => $.rockets.card.name)}
+                  value={rocket.name}
+                />
+                <DetailField
+                  label={t(($) => $.rockets.card.launchDate)}
+                  value={formatLaunchDate(rocket.launchDatetime)}
+                />
+                <DetailField
+                  label={t(($) => $.rockets.card.weight)}
+                  value={weight ? t(($) => $.rockets.card.weightUnit, { value: weight }) : null}
+                />
+                <DetailField
+                  label={t(($) => $.rockets.card.height)}
+                  value={height ? t(($) => $.rockets.card.heightUnit, { value: height }) : null}
+                />
+              </div>
+            </section>
+
+            <div className="h-px bg-elevation-outline-default-1" />
+
+            <section className="relative flex min-h-80 flex-col items-center justify-center gap-4 overflow-hidden rounded-xl px-4 py-10 text-center">
+              <img
+                src={rocket.picture?.url || fallbackImage}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-support-default/45" />
+              <div className="relative z-10 flex w-full flex-col items-center gap-4">
+                <div className="flex flex-col gap-1">
+                  <Typography
+                    size="title-3"
+                    variant="prominent-1"
+                    as="h2"
+                    className="text-text-inverted-1"
+                  >
+                    {t(($) => $.rockets.details.launchTitle, { name: rocket.name })}
+                  </Typography>
+                  <Typography
+                    size="body-3"
+                    as="p"
+                    className="text-text-inverted-2"
+                  >
+                    {t(($) => $.rockets.details.launchSubtitle)}
+                  </Typography>
+                </div>
+                {rocket.launchDatetime ? (
+                  <LaunchCountdown
+                    name={rocket.name}
+                    launchDatetime={rocket.launchDatetime}
+                  />
+                ) : null}
+              </div>
+            </section>
+
+            {members.length > 0 ? (
+              <section className="flex flex-col gap-4">
+                <div className="flex items-center justify-between gap-4">
+                  <Typography
+                    size="title-5"
+                    variant="prominent-1"
+                    as="h2"
+                    className="text-text-default-1"
+                  >
+                    {isCommercial ? t(($) => $.rockets.details.passengersInfo) : t(($) => $.rockets.details.crewInfo)}
+                  </Typography>
+                  <div
+                    ref={sortRef}
+                    className="relative"
+                  >
+                    <TextButton
+                      type="button"
+                      icon={SortIcon}
+                      aria-expanded={isSortOpen}
+                      onPress={() => setIsSortOpen((open) => !open)}
+                    >
+                      {isCommercial ? t(($) => $.rockets.details.sortPassengers) : t(($) => $.rockets.details.sortCrew)}
+                    </TextButton>
+                    {isSortOpen ? (
+                      <div className="absolute top-full right-0 z-10 mt-2 flex min-w-36 flex-col rounded-m border border-elevation-outline-default-1 bg-elevation-fill-default-1 p-1 shadow-sm">
+                        {(
+                          [
+                            ["asc", t(($) => $.rockets.details.sortAscending)],
+                            ["desc", t(($) => $.rockets.details.sortDescending)],
+                          ] as const
+                        ).map(([order, label]) => (
+                          <button
+                            key={order}
+                            type="button"
+                            className={clsx(
+                              "rounded-s px-3 py-2 text-left",
+                              sortOrder === order ? "text-interactive-text-primary-idle" : "text-text-default-1",
+                            )}
+                            onClick={() => selectSortOrder(order)}
+                          >
+                            <Typography
+                              size="label-2"
+                              variant={sortOrder === order ? "prominent-1" : "default"}
+                              as="span"
+                            >
+                              {label}
+                            </Typography>
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+                  {members.map((member, index) => (
+                    <DetailField
+                      key={`${member}-${index}`}
+                      label={
+                        isCommercial
+                          ? t(($) => $.rockets.form.passengerName, { index: index + 1 })
+                          : t(($) => $.rockets.form.crewMember, { index: index + 1 })
+                      }
+                      value={member}
+                    />
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            <div className="flex justify-end">
+              <Button
+                variant="outlined"
+                color="secondary"
+                width="hug"
+                link={{ to: "/" }}
+              >
+                {t(($) => $.rockets.details.back)}
+              </Button>
+            </div>
+          </>
+        ) : null}
+      </div>
+    </>
+  );
+};
