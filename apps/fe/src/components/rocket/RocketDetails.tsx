@@ -14,6 +14,7 @@ import { LaunchCountdown } from "@/components/rocket/LaunchCountdown";
 import { AppHead } from "@/components/shared/head/AppHead";
 import { ErrorState } from "@/components/shared/layout/ErrorState";
 import { LoadingState } from "@/components/shared/layout/LoadingState";
+import { Separator } from "@/components/shared/layout/Separator";
 import { useRocket } from "@/hooks/useRockets";
 import { RocketModels } from "@/openapi/rocket/rocket.models";
 import { LaunchUtils } from "@/utils/launch.utils";
@@ -227,7 +228,7 @@ export const RocketDetails = ({ rocketId }: RocketDetailsProps) => {
               </div>
             </section>
 
-            <div className="h-px bg-elevation-outline-default-1" />
+            <Separator showLabel={false} />
 
             <section className="relative flex h-[423px] flex-col items-center justify-center gap-6 overflow-hidden rounded-xl px-6 py-6 text-center">
               <img

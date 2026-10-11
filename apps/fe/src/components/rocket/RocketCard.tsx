@@ -1,5 +1,6 @@
 import { Typography } from "@povio/ui";
 import { clsx } from "clsx";
+import { DateTime } from "luxon";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -43,12 +44,19 @@ const formatHeight = (height: number | null | undefined) => {
   return height.toLocaleString("en-US", { maximumFractionDigits: 1, useGrouping: false });
 };
 
-const formatRelativeTime = (value: string | null) => {
-  if (!value) {
+const formatLaunchLabel = (launch?: string | null) => {
+  const relative = LaunchUtils.getRelativeTime(launch);
+  if (!relative) {
     return null;
   }
 
-  return value.charAt(0).toUpperCase() + value.slice(1);
+  const label = relative.charAt(0).toUpperCase() + relative.slice(1);
+  const time = launch ? DateTime.fromISO(launch) : null;
+  if (!time?.isValid) {
+    return label;
+  }
+
+  return `${label}, ${time.toFormat("HH:mm")}\u00a0${time.toFormat("a")}`;
 };
 
 const CardField = ({ label, align, children }: CardFieldProps) => (
@@ -76,7 +84,7 @@ export const RocketCard = ({
 }: RocketCardProps) => {
   const { t } = useTranslation();
   const status = LaunchUtils.getStatus(launchDatetime);
-  const relativeTime = formatRelativeTime(LaunchUtils.getRelativeTime(launchDatetime));
+  const relativeTime = formatLaunchLabel(launchDatetime);
   const weightValue = formatWeight(weight);
   const heightValue = formatHeight(height);
   const statusVariant =
@@ -128,7 +136,7 @@ export const RocketCard = ({
               size="title-5"
               variant="prominent-1"
               as="span"
-              className="text-text-inverted-1 leading-6"
+              className="whitespace-nowrap text-text-inverted-1 leading-6"
             >
               {relativeTime}
             </Typography>

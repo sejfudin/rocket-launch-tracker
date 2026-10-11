@@ -1,7 +1,7 @@
 import type { RocketModels } from "@/openapi/rocket/rocket.models";
 import { RocketQueries } from "@/openapi/rocket/rocket.queries";
 
-const ROCKET_PAGE_SIZE = 20;
+const ROCKET_PAGE_SIZE = 9;
 
 export const useRocketList = (search?: string) => {
   const filter: RocketModels.RocketPaginationFilterDto | undefined = search ? { search } : undefined;

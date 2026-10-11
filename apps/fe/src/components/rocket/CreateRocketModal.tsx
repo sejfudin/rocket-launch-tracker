@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next";
 
 import { PlusIcon } from "@/assets/icons/general/Plus";
 import { TrashIcon } from "@/assets/icons/general/Trash";
+import { Separator } from "@/components/shared/layout/Separator";
 import { useCreateRocket } from "@/hooks/useRockets";
 import { RocketSchema } from "@/libs/validation/rocket-schema";
 import { RocketModels } from "@/openapi/rocket/rocket.models";
@@ -182,7 +183,7 @@ export const CreateRocketModal = ({ isOpen, onClose }: CreateRocketModalProps) =
           </div>
         </div>
 
-        <div className="h-px bg-elevation-outline-default-1" />
+        <Separator showLabel={false} />
 
         <div className="flex flex-col gap-4">
           <Select
@@ -261,7 +262,7 @@ export const CreateRocketModal = ({ isOpen, onClose }: CreateRocketModalProps) =
         </div>
 
         <div className="flex flex-col gap-6">
-          <div className="h-px bg-elevation-outline-default-1" />
+          <Separator showLabel={false} />
           <div className="flex justify-end gap-3">
             <Button
               type="button"

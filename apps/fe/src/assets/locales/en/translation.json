@@ -200,7 +200,7 @@
       "login": "Login",
       "logout": "Log out",
       "register": "New Account",
-      "loginToManageRocket": "Log in to manage rocket"
+      "loginToManageRocket": "Log in to manage rockets"
     },
     "toggleTheme": {
       "btn": "Toggle theme",
@@ -240,7 +240,7 @@
   "home": {
     "hero": {
       "title": "Explore Our Rockets",
-      "description": "View Recently added Rockets, Login to manage Rockets in comprehensive rocket database"
+      "description": "Search and view Recently added Rockets, Login to manage Rockets in comprehensive rocket database"
     },
     "footer": {
       "loginBtn": "Log in to manage rockets",
@@ -256,13 +256,15 @@
       "title": "Recently added Rockets",
       "description": "Complete overview of all rocket missions and launches",
       "search": "Search rockets",
-      "loadMore": "Load More",
+      "loadMore": "Load more",
       "loading": "Loading rockets...",
       "noRockets": "No rockets found.",
       "showing": "Showing 1-{{showingCount}} of {{totalRockets}} rockets",
       "seeAll": "See all Rockets"
     },
     "countdown": {
+      "sectionTitle": "Next Rocket Launch",
+      "sectionSubtitle": "Most recent rocket launches",
       "nextLaunch": "Next Launch: {{name}}",
       "at": "{{date}} at {{time}}",
       "days": "DAYS",

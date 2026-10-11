@@ -24,122 +24,198 @@ export const MainHomeContent = () => {
     debouncedSearch.trim() || undefined,
   );
   const rockets = data?.pages.flatMap((page) => page.items ?? []) ?? [];
+  const totalRockets = data?.pages[0]?.totalItems ?? rockets.length;
   const nearestLaunch = LaunchUtils.findNearestUpcoming(rockets);
 
   return (
-    <div className="flex flex-col items-center gap-8 self-stretch bg-elevation-fill-default-2 px-4 py-24 md:px-8">
-      <div className="flex w-full justify-center gap-2 py-4">
-        <div className="flex max-w-96 flex-col items-center gap-1-5">
+    <div className="flex flex-col">
+      <section className="flex flex-col items-center gap-6 bg-elevation-fill-default-1 px-4 py-16 md:px-8">
+        <Typography
+          size="title-4"
+          variant="prominent-1"
+          className="text-text-default-1"
+          as="h1"
+        >
+          {t(($) => $.home.hero.title)}
+        </Typography>
+
+        <TextInput
+          variant="outlined"
+          as="inline"
+          label={t(($) => $.home.content.search)}
+          placeholder={t(($) => $.home.content.search)}
+          hideLabel
+          value={search}
+          onChange={setSearch}
+          trailingIcon={SearchIcon}
+          className="border! w-full max-w-md rounded-s border-input-outlined-outline-idle! bg-elevation-fill-default-1"
+        />
+
+        <Typography
+          size="label-2"
+          className="max-w-md text-center text-text-default-2"
+          as="p"
+        >
+          {t(($) => $.home.hero.description)}
+        </Typography>
+      </section>
+
+      <section className="flex flex-col items-center gap-8 bg-elevation-fill-default-2 px-4 py-16 md:px-8">
+        <div className="flex w-full max-w-6xl flex-col items-center gap-2">
+          {isAuthenticated ? (
+            <div className="flex w-full justify-end">
+              <Button
+                width="hug"
+                onPress={() => setIsCreateOpen(true)}
+              >
+                {t(($) => $.rockets.addNewRocket)}
+              </Button>
+            </div>
+          ) : null}
+
           <Typography
             size="title-4"
             variant="prominent-1"
-            className="text-text-default-1 leading-8 tracking-[-0.449px]"
-            as="span"
+            className="text-text-default-1"
+            as="h2"
           >
             {t(($) => $.home.content.title)}
           </Typography>
-
           <Typography
-            size="label-1"
-            className="text-center text-text-default-2 leading-6 tracking-[-0.312px]"
-            as="span"
+            size="label-2"
+            className="text-center text-text-default-2"
+            as="p"
           >
             {t(($) => $.home.content.description)}
           </Typography>
         </div>
-      </div>
 
-      {isAuthenticated ? (
-        <div className="flex w-full max-w-6xl justify-end">
-          <Button
-            width="hug"
-            onPress={() => setIsCreateOpen(true)}
-          >
-            {t(($) => $.rockets.addNewRocket)}
-          </Button>
-        </div>
-      ) : null}
-
-      <CreateRocketModal
-        isOpen={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-      />
-
-      <TextInput
-        variant="outlined"
-        as="inline"
-        label={t(($) => $.home.content.search)}
-        placeholder={t(($) => $.home.content.search)}
-        hideLabel
-        value={search}
-        onChange={setSearch}
-        leadingIcon={SearchIcon}
-        className="border! w-full max-w-xl rounded-s border-input-outlined-outline-idle! bg-elevation-fill-default-1"
-      />
-
-      {isLoading ? <LoadingState /> : null}
-
-      {isError ? (
-        <ErrorState
-          error={error}
-          message={t(($) => $.home.content.error.message)}
-          onRetry={() => {
-            refetch();
-          }}
+        <CreateRocketModal
+          isOpen={isCreateOpen}
+          onClose={() => setIsCreateOpen(false)}
         />
-      ) : null}
 
-      {!isLoading && !isError && rockets.length === 0 ? (
-        <Typography
-          size="label-1"
-          className="text-text-default-2"
-          as="p"
-        >
-          {t(($) => $.home.content.noRockets)}
-        </Typography>
-      ) : null}
+        {isLoading ? <LoadingState /> : null}
 
-      {rockets.length > 0 ? (
-        <div className="grid w-full max-w-6xl grid-cols-1 gap-6 lg:grid-cols-3">
-          {rockets.map((rocket, index) => (
-            <Link
-              key={rocket.id}
-              to="/rockets/$rocketId"
-              params={{ rocketId: rocket.id }}
-              className="block rounded-m focus-visible:outline-2 focus-visible:outline-interactive-contained-primary-idle focus-visible:outline-offset-2"
-            >
-              <RocketCard
-                index={index + 1}
-                name={rocket.name}
-                height={rocket.height}
-                weight={rocket.weight}
-                launchDatetime={rocket.launchDatetime}
-              />
-            </Link>
-          ))}
-        </div>
-      ) : null}
+        {isError ? (
+          <ErrorState
+            error={error}
+            message={t(($) => $.home.content.error.message)}
+            onRetry={() => {
+              refetch();
+            }}
+          />
+        ) : null}
 
-      {hasNextPage ? (
-        <Button
-          color="secondary"
-          variant="outlined"
-          width="hug"
-          isDisabled={isFetchingNextPage}
-          onPress={() => {
-            fetchNextPage();
-          }}
-        >
-          {t(($) => $.home.content.loadMore)}
-        </Button>
-      ) : null}
+        {!isLoading && !isError && rockets.length === 0 ? (
+          <Typography
+            size="label-1"
+            className="text-text-default-2"
+            as="p"
+          >
+            {t(($) => $.home.content.noRockets)}
+          </Typography>
+        ) : null}
+
+        {rockets.length > 0 ? (
+          <div className="grid w-full max-w-6xl grid-cols-1 gap-6 lg:grid-cols-3">
+            {rockets.map((rocket, index) => (
+              <Link
+                key={rocket.id}
+                to="/rockets/$rocketId"
+                params={{ rocketId: rocket.id }}
+                className="block rounded-m focus-visible:outline-2 focus-visible:outline-interactive-contained-primary-idle focus-visible:outline-offset-2"
+              >
+                <RocketCard
+                  index={index + 1}
+                  name={rocket.name}
+                  height={rocket.height}
+                  weight={rocket.weight}
+                  launchDatetime={rocket.launchDatetime}
+                />
+              </Link>
+            ))}
+          </div>
+        ) : null}
+
+        {rockets.length > 0 ? (
+          <Typography
+            size="label-2"
+            className="text-text-default-2"
+            as="p"
+          >
+            {t(($) => $.home.content.showing, { showingCount: rockets.length, totalRockets })}
+          </Typography>
+        ) : null}
+
+        {hasNextPage ? (
+          <Button
+            color="secondary"
+            variant="outlined"
+            width="hug"
+            isDisabled={isFetchingNextPage}
+            onPress={() => {
+              fetchNextPage();
+            }}
+          >
+            {t(($) => $.home.content.loadMore)}
+          </Button>
+        ) : null}
+      </section>
 
       {nearestLaunch?.launchDatetime ? (
-        <LaunchCountdown
-          name={nearestLaunch.name}
-          launchDatetime={nearestLaunch.launchDatetime}
-        />
+        <section className="flex flex-col items-center gap-6 bg-elevation-fill-default-1 px-4 py-16 text-center md:px-8">
+          <div className="flex flex-col items-center gap-2">
+            <Typography
+              size="title-4"
+              variant="prominent-1"
+              className="text-text-default-1"
+              as="h2"
+            >
+              {t(($) => $.home.countdown.sectionTitle)}
+            </Typography>
+            <Typography
+              size="label-2"
+              className="text-text-default-2"
+              as="p"
+            >
+              {t(($) => $.home.countdown.sectionSubtitle)}
+            </Typography>
+          </div>
+          <LaunchCountdown
+            name={nearestLaunch.name}
+            launchDatetime={nearestLaunch.launchDatetime}
+          />
+        </section>
       ) : null}
+
+      {isAuthenticated ? null : (
+        <section className="flex flex-col items-center gap-6 bg-elevation-fill-default-2 px-4 py-16 text-center md:px-8">
+          <div className="flex max-w-xl flex-col items-center gap-2">
+            <Typography
+              size="title-4"
+              variant="prominent-1"
+              className="text-text-default-1"
+              as="h2"
+            >
+              {t(($) => $.home.footer.title)}
+            </Typography>
+            <Typography
+              size="label-2"
+              className="text-text-default-2"
+              as="p"
+            >
+              {t(($) => $.home.footer.description)}
+            </Typography>
+          </div>
+          <Button
+            width="hug"
+            link={{ to: "/login" }}
+          >
+            {t(($) => $.home.footer.loginBtn)}
+          </Button>
+        </section>
+      )}
     </div>
   );
 };

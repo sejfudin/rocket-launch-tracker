@@ -1,8 +1,16 @@
 import { Typography } from "@povio/ui";
 import { useTranslation } from "react-i18next";
 
-export const Separator = () => {
+interface SeparatorProps {
+  showLabel?: boolean;
+}
+
+export const Separator = ({ showLabel = true }: SeparatorProps) => {
   const { t } = useTranslation();
+
+  if (!showLabel) {
+    return <div className="h-px w-full bg-elevation-outline-default-1" />;
+  }
 
   return (
     <div className="flex flex-row items-center justify-between gap-8 self-stretch">

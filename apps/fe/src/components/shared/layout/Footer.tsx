@@ -2,6 +2,7 @@ import { Link, Typography } from "@povio/ui";
 import { useTranslation } from "react-i18next";
 
 import { LogoSecondaryIcon } from "@/assets/icons/logo/LogoSecondary";
+import { Separator } from "@/components/shared/layout/Separator";
 
 export const Footer = () => {
   const { t } = useTranslation();
@@ -16,7 +17,7 @@ export const Footer = () => {
         />
       </div>
       <div className="px-10">
-        <div className="h-px bg-elevation-outline-default-1" />
+        <Separator showLabel={false} />
       </div>
       <div className="flex items-start justify-between gap-8 self-stretch px-10 py-8 max-md:flex-col">
         <div className="flex items-start gap-4 self-center">
