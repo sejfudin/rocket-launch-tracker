@@ -20,6 +20,22 @@ describe("getStatus", () => {
   });
 });
 
+describe("formatLaunchLabel", () => {
+  it("capitalizes the relative time and appends the clock", () => {
+    const time = DateTime.fromISO("2026-10-04T20:50:00.000Z");
+    expect(LaunchUtils.formatLaunchLabel("2026-10-04T20:50:00.000Z", NOW)).toBe(
+      `In 2 days, ${time.toFormat("HH:mm")}\u00a0${time.toFormat("a")}`,
+    );
+  });
+});
+
+describe("formatWeight", () => {
+  it("groups thousands with a dot", () => {
+    expect(LaunchUtils.formatWeight(15000)).toBe("15.000");
+    expect(LaunchUtils.formatWeight(null)).toBeNull();
+  });
+});
+
 describe("getRelativeTime", () => {
   it("formats upcoming and past launches", () => {
     expect(LaunchUtils.getRelativeTime("2026-10-04T20:50:00.000Z", NOW)).toBe("in 2 days");

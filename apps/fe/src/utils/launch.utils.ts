@@ -47,6 +47,25 @@ export namespace LaunchUtils {
     return toDateTime(launch)?.toRelative({ base: now, locale: "en" }) ?? null;
   };
 
+  export const formatLaunchLabel = (launch?: string | null, now: DateTime = DateTime.now()) => {
+    const relative = getRelativeTime(launch, now);
+    const time = toDateTime(launch);
+    if (!relative || !time) {
+      return null;
+    }
+
+    const label = relative.charAt(0).toUpperCase() + relative.slice(1);
+    return `${label}, ${time.toFormat("HH:mm")}\u00a0${time.toFormat("a")}`;
+  };
+
+  export const formatWeight = (weight: number | null | undefined) => {
+    if (weight == null) {
+      return null;
+    }
+
+    return weight.toLocaleString("de-DE");
+  };
+
   export const getCountdown = (launch?: string | null, now: DateTime = DateTime.now()): Countdown | null => {
     const target = toDateTime(launch);
     if (!target) {

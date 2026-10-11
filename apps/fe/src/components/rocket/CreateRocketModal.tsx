@@ -11,7 +11,6 @@ import {
   useForm,
   useToast,
 } from "@povio/ui";
-import { DateTime } from "luxon";
 import { I18nProvider } from "react-aria";
 import type { SubmitHandler } from "react-hook-form";
 import { useFieldArray } from "react-hook-form";
@@ -30,16 +29,6 @@ interface CreateRocketModalProps {
   onClose: () => void;
 }
 
-interface RocketCreateFormValues {
-  name: string;
-  launchDatetime: string;
-  weight: number;
-  height: number;
-  rocketType: RocketModels.RocketType;
-  passengers: { name: string }[];
-  crew: string[];
-}
-
 export const CreateRocketModal = ({ isOpen, onClose }: CreateRocketModalProps) => {
   const { t } = useTranslation();
   const { successToast, errorToast } = useToast();
@@ -50,7 +39,8 @@ export const CreateRocketModal = ({ isOpen, onClose }: CreateRocketModalProps) =
     reset,
     watch,
     formState: { errors, isValid },
-  } = useForm<RocketCreateFormValues>({
+  } = useForm<RocketSchema.CreateFormValues>({
+    mode: "onChange",
     zodSchema: RocketSchema.CreateFormSchema(t),
     defaultValues: {
       name: "",
@@ -59,7 +49,7 @@ export const CreateRocketModal = ({ isOpen, onClose }: CreateRocketModalProps) =
       height: null,
       rocketType: RocketModels.RocketType.commercial,
       passengers: [{ name: "" }],
-      crew: ["", "", ""],
+      crew: Array.from({ length: RocketSchema.CREW_SIZE }, () => ""),
     },
   });
   const {
@@ -77,28 +67,9 @@ export const CreateRocketModal = ({ isOpen, onClose }: CreateRocketModalProps) =
     onClose();
   };
 
-  const onSubmit: SubmitHandler<RocketCreateFormValues> = (values) => {
-    const launchDatetime = DateTime.fromISO(values.launchDatetime).toISO();
-    if (!launchDatetime) {
-      return;
-    }
-
-    const data: RocketModels.RocketCreateRequest = {
-      name: values.name.trim(),
-      launchDatetime,
-      weight: values.weight,
-      height: values.height,
-      rocketType: values.rocketType,
-    };
-
-    if (values.rocketType === RocketModels.RocketType.commercial) {
-      data.passengers = values.passengers.map((passenger) => passenger.name.trim()).filter(Boolean);
-    } else {
-      data.crew = values.crew.map((member) => member.trim());
-    }
-
+  const onSubmit: SubmitHandler<RocketSchema.CreateFormValues> = (values) => {
     createRocket.mutate(
-      { data },
+      { data: RocketSchema.toCreateRequest(values) },
       {
         onSuccess: () => {
           successToast({ text: t(($) => $.rockets.form.createSuccess) });
@@ -161,25 +132,27 @@ export const CreateRocketModal = ({ isOpen, onClose }: CreateRocketModalProps) =
               />
             </I18nProvider>
 
-            <NumberInput
-              label={t(($) => $.rockets.form.weight)}
-              placeholder={t(($) => $.rockets.form.weightPlaceholder)}
-              unit={t(($) => $.rockets.form.weightUnit)}
-              error={errors.weight?.message}
-              isRequired
-              minValue={0}
-              formControl={{ control, name: "weight" }}
-            />
+            <I18nProvider locale="de-DE">
+              <NumberInput
+                label={t(($) => $.rockets.form.weight)}
+                placeholder={t(($) => $.rockets.form.weightPlaceholder)}
+                unit={t(($) => $.rockets.form.weightUnit)}
+                error={errors.weight?.message}
+                isRequired
+                minValue={0}
+                formControl={{ control, name: "weight" }}
+              />
 
-            <NumberInput
-              label={t(($) => $.rockets.form.height)}
-              placeholder={t(($) => $.rockets.form.heightPlaceholder)}
-              unit={t(($) => $.rockets.form.heightUnit)}
-              error={errors.height?.message}
-              isRequired
-              minValue={0}
-              formControl={{ control, name: "height" }}
-            />
+              <NumberInput
+                label={t(($) => $.rockets.form.height)}
+                placeholder={t(($) => $.rockets.form.heightPlaceholder)}
+                unit={t(($) => $.rockets.form.heightUnit)}
+                error={errors.height?.message}
+                isRequired
+                minValue={0}
+                formControl={{ control, name: "height" }}
+              />
+            </I18nProvider>
           </div>
         </div>
 
@@ -246,9 +219,9 @@ export const CreateRocketModal = ({ isOpen, onClose }: CreateRocketModalProps) =
                 >
                   {t(($) => $.rockets.form.crew)}
                 </Typography>
-                {["crew-1", "crew-2", "crew-3"].map((crewKey, index) => (
+                {Array.from({ length: RocketSchema.CREW_SIZE }, (_, index) => (
                   <TextInput
-                    key={crewKey}
+                    key={`crew-${index}`}
                     label={t(($) => $.rockets.form.crewMember, { index: index + 1 })}
                     placeholder={t(($) => $.rockets.form.crewPlaceholder)}
                     error={errors.crew?.[index]?.message}

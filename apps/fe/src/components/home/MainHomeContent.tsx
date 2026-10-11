@@ -1,16 +1,15 @@
-import { Button, TextInput, Typography } from "@povio/ui";
+import { Button, Typography } from "@povio/ui";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { SearchIcon } from "@/assets/icons/general/Search";
+import { RocketSearch } from "@/components/home/RocketSearch";
 import { CreateRocketModal } from "@/components/rocket/CreateRocketModal";
 import { LaunchCountdown } from "@/components/rocket/LaunchCountdown";
 import { RocketCard } from "@/components/rocket/RocketCard";
 import { ErrorState } from "@/components/shared/layout/ErrorState";
 import { LoadingState } from "@/components/shared/layout/LoadingState";
 import { useAuth } from "@/hooks/useAuth";
-import { useDebounce } from "@/hooks/useDebounce";
 import { useRocketList } from "@/hooks/useRockets";
 import { LaunchUtils } from "@/utils/launch.utils";
 
@@ -19,9 +18,8 @@ export const MainHomeContent = () => {
   const { isAuthenticated } = useAuth();
   const [search, setSearch] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const debouncedSearch = useDebounce(search, 500);
   const { data, isLoading, isError, error, refetch, hasNextPage, isFetchingNextPage, fetchNextPage } = useRocketList(
-    debouncedSearch.trim() || undefined,
+    search || undefined,
   );
   const rockets = data?.pages.flatMap((page) => page.items ?? []) ?? [];
   const totalRockets = data?.pages[0]?.totalItems ?? rockets.length;
@@ -39,17 +37,7 @@ export const MainHomeContent = () => {
           {t(($) => $.home.hero.title)}
         </Typography>
 
-        <TextInput
-          variant="outlined"
-          as="inline"
-          label={t(($) => $.home.content.search)}
-          placeholder={t(($) => $.home.content.search)}
-          hideLabel
-          value={search}
-          onChange={setSearch}
-          trailingIcon={SearchIcon}
-          className="border! w-full max-w-md rounded-s border-input-outlined-outline-idle! bg-elevation-fill-default-1"
-        />
+        <RocketSearch onSearch={setSearch} />
 
         <Typography
           size="label-2"

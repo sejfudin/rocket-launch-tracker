@@ -378,8 +378,9 @@
       "passengersInfo": "Passengers",
       "sortCrew": "Sort crew members",
       "sortPassengers": "Sort passengers",
-      "sortAscending": "Ascending",
-      "sortDescending": "Descending",
+      "sortDefault": "Default sorting",
+      "sortAscending": "Sort Ascending",
+      "sortDescending": "Sort Descending",
       "back": "Back",
       "error": "Failed to load rocket. Please try again later."
     },

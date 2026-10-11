@@ -1,6 +1,5 @@
 import { Typography } from "@povio/ui";
 import { clsx } from "clsx";
-import { DateTime } from "luxon";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -8,6 +7,7 @@ import fallbackImage from "@/assets/images/fallback-image.png";
 import {
   type RocketCardVariantProps,
   rocketCard,
+  rocketCardFields,
   rocketCardImage,
   rocketCardStatus,
 } from "@/components/rocket/rocket-card.cva";
@@ -28,35 +28,12 @@ interface CardFieldProps {
   children: ReactNode;
 }
 
-const formatWeight = (weight: number | null | undefined) => {
-  if (weight == null) {
-    return null;
-  }
-
-  return weight.toLocaleString("de-DE");
-};
-
 const formatHeight = (height: number | null | undefined) => {
   if (height == null) {
     return null;
   }
 
   return height.toLocaleString("en-US", { maximumFractionDigits: 1, useGrouping: false });
-};
-
-const formatLaunchLabel = (launch?: string | null) => {
-  const relative = LaunchUtils.getRelativeTime(launch);
-  if (!relative) {
-    return null;
-  }
-
-  const label = relative.charAt(0).toUpperCase() + relative.slice(1);
-  const time = launch ? DateTime.fromISO(launch) : null;
-  if (!time?.isValid) {
-    return label;
-  }
-
-  return `${label}, ${time.toFormat("HH:mm")}\u00a0${time.toFormat("a")}`;
 };
 
 const CardField = ({ label, align, children }: CardFieldProps) => (
@@ -84,8 +61,8 @@ export const RocketCard = ({
 }: RocketCardProps) => {
   const { t } = useTranslation();
   const status = LaunchUtils.getStatus(launchDatetime);
-  const relativeTime = formatLaunchLabel(launchDatetime);
-  const weightValue = formatWeight(weight);
+  const relativeTime = LaunchUtils.formatLaunchLabel(launchDatetime);
+  const weightValue = LaunchUtils.formatWeight(weight);
   const heightValue = formatHeight(height);
   const statusVariant =
     status === LaunchUtils.LaunchStatus.Today ||
@@ -96,7 +73,7 @@ export const RocketCard = ({
 
   return (
     <article className={clsx(rocketCard({ variant, size }), className)}>
-      <div className={rocketCardImage()}>
+      <div className={rocketCardImage}>
         <img
           src={fallbackImage}
           alt=""
@@ -105,7 +82,7 @@ export const RocketCard = ({
         <div className="absolute inset-0 bg-linear-to-t from-support-default/80 via-support-default/40 to-support-default/20" />
       </div>
 
-      <span className="relative flex size-10 items-center justify-center rounded-full border border-text-inverted-1/40 bg-text-inverted-1/20 text-text-inverted-1">
+      <span className="relative flex size-10 shrink-0 items-center justify-center rounded-full border border-text-inverted-1/40 bg-text-inverted-1/20 text-text-inverted-1">
         <Typography
           size="title-5"
           as="span"
@@ -114,7 +91,7 @@ export const RocketCard = ({
         </Typography>
       </span>
 
-      <div className="relative grid grid-cols-2 gap-x-2 gap-y-3">
+      <div className={rocketCardFields({ variant })}>
         <CardField label={t(($) => $.rockets.card.name)}>
           <Typography
             size="title-5"
@@ -128,7 +105,7 @@ export const RocketCard = ({
 
         <CardField
           label={t(($) => $.rockets.card.launchDate)}
-          align="end"
+          align={variant === "vertical" ? "end" : undefined}
         >
           <div className="flex items-center gap-2">
             {statusVariant ? <span className={rocketCardStatus({ status: statusVariant })} /> : null}
@@ -156,7 +133,7 @@ export const RocketCard = ({
 
         <CardField
           label={t(($) => $.rockets.card.height)}
-          align="end"
+          align={variant === "vertical" ? "end" : undefined}
         >
           <Typography
             size="title-5"

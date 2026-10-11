@@ -2,7 +2,6 @@ import type { ApplicationException } from "@povio/ui";
 import { Button, IconButton, TextButton, Typography } from "@povio/ui";
 import { Link } from "@tanstack/react-router";
 import { clsx } from "clsx";
-import { DateTime } from "luxon";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -28,34 +27,12 @@ interface RocketDetailsProps {
   rocketId: string;
 }
 
-const formatWeight = (weight: number | null | undefined) => {
-  if (weight == null) {
-    return null;
-  }
-
-  return weight.toLocaleString("de-DE");
-};
-
 const formatHeight = (height: number | null | undefined) => {
   if (height == null) {
     return null;
   }
 
   return height.toLocaleString("de-DE", { maximumFractionDigits: 1 });
-};
-
-const formatLaunchDate = (launch?: string | null) => {
-  const relative = LaunchUtils.getRelativeTime(launch);
-  if (!relative || !launch) {
-    return null;
-  }
-
-  const time = DateTime.fromISO(launch);
-  if (!time.isValid) {
-    return null;
-  }
-
-  return `${relative.charAt(0).toUpperCase()}${relative.slice(1)}, ${time.toFormat("HH:mm a")}`;
 };
 
 const readSortOrder = (): SortOrder | null => {
@@ -120,18 +97,36 @@ export const RocketDetails = ({ rocketId }: RocketDetailsProps) => {
     };
   }, [isSortOpen]);
 
-  const selectSortOrder = (order: SortOrder) => {
+  const selectSortOrder = (order: SortOrder | null) => {
     setSortOrder(order);
-    localStorage.setItem(SORT_STORAGE_KEY, order);
+    if (order) {
+      localStorage.setItem(SORT_STORAGE_KEY, order);
+    } else {
+      localStorage.removeItem(SORT_STORAGE_KEY);
+    }
     setIsSortOpen(false);
   };
+
+  const sortOptions = [
+    { order: null, label: t(($) => $.rockets.details.sortDefault), icon: <SortIcon className="size-4" /> },
+    {
+      order: "asc",
+      label: t(($) => $.rockets.details.sortAscending),
+      icon: <ArrowLeftIcon className="size-4 rotate-90" />,
+    },
+    {
+      order: "desc",
+      label: t(($) => $.rockets.details.sortDescending),
+      icon: <ArrowLeftIcon className="size-4 -rotate-90" />,
+    },
+  ] as const;
 
   const isCommercial = rocket?.rocketType === RocketModels.RocketType.commercial;
   const members = sortMembers(
     ((isCommercial ? rocket?.passengers : rocket?.crew) ?? []).filter((member) => member.trim()),
     sortOrder,
   );
-  const weight = formatWeight(rocket?.weight);
+  const weight = LaunchUtils.formatWeight(rocket?.weight);
   const height = formatHeight(rocket?.height);
 
   return (
@@ -215,7 +210,7 @@ export const RocketDetails = ({ rocketId }: RocketDetailsProps) => {
                 />
                 <DetailField
                   label={t(($) => $.rockets.card.launchDate)}
-                  value={formatLaunchDate(rocket.launchDatetime)}
+                  value={LaunchUtils.formatLaunchLabel(rocket.launchDatetime)}
                 />
                 <DetailField
                   label={t(($) => $.rockets.card.weight)}
@@ -287,22 +282,18 @@ export const RocketDetails = ({ rocketId }: RocketDetailsProps) => {
                       {isCommercial ? t(($) => $.rockets.details.sortPassengers) : t(($) => $.rockets.details.sortCrew)}
                     </TextButton>
                     {isSortOpen ? (
-                      <div className="absolute top-full right-0 z-10 mt-2 flex min-w-36 flex-col rounded-m border border-elevation-outline-default-1 bg-elevation-fill-default-1 p-1 shadow-sm">
-                        {(
-                          [
-                            ["asc", t(($) => $.rockets.details.sortAscending)],
-                            ["desc", t(($) => $.rockets.details.sortDescending)],
-                          ] as const
-                        ).map(([order, label]) => (
+                      <div className="absolute top-full right-0 z-10 mt-2 flex min-w-52 flex-col divide-y divide-elevation-outline-default-1 overflow-hidden rounded-m border border-elevation-outline-default-1 bg-elevation-fill-default-1 shadow-sm">
+                        {sortOptions.map(({ order, label, icon }) => (
                           <button
-                            key={order}
+                            key={order ?? "default"}
                             type="button"
                             className={clsx(
-                              "rounded-s px-3 py-2 text-left",
+                              "flex items-center gap-2 px-3 py-2 text-left hover:bg-elevation-fill-default-2",
                               sortOrder === order ? "text-interactive-text-primary-idle" : "text-text-default-1",
                             )}
                             onClick={() => selectSortOrder(order)}
                           >
+                            {icon}
                             <Typography
                               size="label-2"
                               variant={sortOrder === order ? "prominent-1" : "default"}
