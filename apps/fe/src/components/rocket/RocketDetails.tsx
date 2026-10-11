@@ -1,5 +1,5 @@
 import type { ApplicationException } from "@povio/ui";
-import { Button, TextButton, Typography } from "@povio/ui";
+import { Button, IconButton, TextButton, Typography } from "@povio/ui";
 import { Link } from "@tanstack/react-router";
 import { clsx } from "clsx";
 import { DateTime } from "luxon";
@@ -40,7 +40,7 @@ const formatHeight = (height: number | null | undefined) => {
     return null;
   }
 
-  return height.toLocaleString("en-US", { maximumFractionDigits: 1, useGrouping: false });
+  return height.toLocaleString("de-DE", { maximumFractionDigits: 1 });
 };
 
 const formatLaunchDate = (launch?: string | null) => {
@@ -54,7 +54,7 @@ const formatLaunchDate = (launch?: string | null) => {
     return null;
   }
 
-  return `${relative.charAt(0).toUpperCase()}${relative.slice(1)}, ${time.toFormat("HH:mm")}`;
+  return `${relative.charAt(0).toUpperCase()}${relative.slice(1)}, ${time.toFormat("HH:mm a")}`;
 };
 
 const readSortOrder = (): SortOrder | null => {
@@ -77,18 +77,18 @@ interface DetailFieldProps {
 }
 
 const DetailField = ({ label, value }: DetailFieldProps) => (
-  <div className="flex min-w-0 flex-col gap-1">
+  <div className="flex min-w-0 flex-col">
     <Typography
-      size="body-4"
+      size="label-2"
       as="span"
-      className="text-text-default-2"
+      className="font-labels-default text-text-default-2"
     >
       {label}
     </Typography>
     <Typography
       size="label-1"
       as="span"
-      className="text-text-default-1"
+      className="font-labels-default text-text-default-1"
     >
       {value}
     </Typography>
@@ -140,7 +140,7 @@ export const RocketDetails = ({ rocketId }: RocketDetailsProps) => {
           rocket ? t(($) => $.rockets.details.title, { name: rocket.name }) : t(($) => $.rockets.details.breadcrumb)
         }
       />
-      <div className="flex flex-col gap-8 bg-elevation-fill-default-2 px-4 py-8 md:px-10">
+      <div className="flex flex-col gap-8 bg-elevation-fill-default-1 px-4 py-8 md:px-8">
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-1">
             <Link to="/">
@@ -155,7 +155,6 @@ export const RocketDetails = ({ rocketId }: RocketDetailsProps) => {
             <ChevRightIcon className="size-4 text-text-default-3" />
             <Typography
               size="label-3"
-              variant="prominent-1"
               as="span"
               className="text-interactive-text-primary-idle"
             >
@@ -163,14 +162,15 @@ export const RocketDetails = ({ rocketId }: RocketDetailsProps) => {
             </Typography>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Link
-              to="/"
-              aria-label={t(($) => $.rockets.details.back)}
-              className="text-text-default-1"
-            >
-              <ArrowLeftIcon className="size-5" />
-            </Link>
+          <div className="flex items-center gap-2">
+            <IconButton
+              label={t(($) => $.rockets.details.back)}
+              icon={ArrowLeftIcon}
+              variant="ghost"
+              color="primary"
+              size="xs"
+              link={{ to: "/" }}
+            />
             <Typography
               size="title-3"
               variant="prominent-1"
@@ -200,14 +200,14 @@ export const RocketDetails = ({ rocketId }: RocketDetailsProps) => {
           <>
             <section className="flex flex-col gap-4">
               <Typography
-                size="title-5"
+                size="title-6"
                 variant="prominent-1"
                 as="h2"
                 className="text-text-default-1"
               >
                 {t(($) => $.rockets.form.basicInfo)}
               </Typography>
-              <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 <DetailField
                   label={t(($) => $.rockets.card.name)}
                   value={rocket.name}
@@ -229,15 +229,14 @@ export const RocketDetails = ({ rocketId }: RocketDetailsProps) => {
 
             <div className="h-px bg-elevation-outline-default-1" />
 
-            <section className="relative flex min-h-80 flex-col items-center justify-center gap-4 overflow-hidden rounded-xl px-4 py-10 text-center">
+            <section className="relative flex h-[423px] flex-col items-center justify-center gap-6 overflow-hidden rounded-xl px-6 py-6 text-center">
               <img
-                src={rocket.picture?.url || fallbackImage}
+                src={fallbackImage}
                 alt=""
                 className="absolute inset-0 h-full w-full object-cover"
               />
-              <div className="absolute inset-0 bg-support-default/45" />
-              <div className="relative z-10 flex w-full flex-col items-center gap-4">
-                <div className="flex flex-col gap-1">
+              <div className="relative z-10 flex w-full flex-col items-center gap-6">
+                <div className="flex flex-col items-center gap-1">
                   <Typography
                     size="title-3"
                     variant="prominent-1"
@@ -247,9 +246,9 @@ export const RocketDetails = ({ rocketId }: RocketDetailsProps) => {
                     {t(($) => $.rockets.details.launchTitle, { name: rocket.name })}
                   </Typography>
                   <Typography
-                    size="body-3"
+                    size="title-5"
                     as="p"
-                    className="text-text-inverted-2"
+                    className="text-text-inverted-1"
                   >
                     {t(($) => $.rockets.details.launchSubtitle)}
                   </Typography>
@@ -267,7 +266,7 @@ export const RocketDetails = ({ rocketId }: RocketDetailsProps) => {
               <section className="flex flex-col gap-4">
                 <div className="flex items-center justify-between gap-4">
                   <Typography
-                    size="title-5"
+                    size="title-6"
                     variant="prominent-1"
                     as="h2"
                     className="text-text-default-1"
@@ -316,7 +315,7 @@ export const RocketDetails = ({ rocketId }: RocketDetailsProps) => {
                     ) : null}
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                   {members.map((member, index) => (
                     <DetailField
                       key={`${member}-${index}`}

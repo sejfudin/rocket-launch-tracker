@@ -114,7 +114,6 @@ export const MainHomeContent = () => {
                 height={rocket.height}
                 weight={rocket.weight}
                 launchDatetime={rocket.launchDatetime}
-                imageUrl={rocket.picture?.url}
               />
             </Link>
           ))}

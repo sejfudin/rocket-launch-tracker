@@ -37,7 +37,7 @@ export namespace LaunchUtils {
     if (target < today.plus({ days: 1 })) {
       return LaunchStatus.Today;
     }
-    if (target < now.startOf("week").plus({ weeks: 1 })) {
+    if (target < today.plus({ days: 7 })) {
       return LaunchStatus.ThisWeek;
     }
     return LaunchStatus.Future;

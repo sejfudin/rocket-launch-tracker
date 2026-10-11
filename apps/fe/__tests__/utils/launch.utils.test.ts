@@ -9,7 +9,8 @@ describe("getStatus", () => {
   it("returns status based on launch proximity", () => {
     expect(LaunchUtils.getStatus("2026-10-02T20:50:00.000Z", NOW)).toBe(LaunchUtils.LaunchStatus.Today);
     expect(LaunchUtils.getStatus("2026-10-04T20:50:00.000Z", NOW)).toBe(LaunchUtils.LaunchStatus.ThisWeek);
-    expect(LaunchUtils.getStatus("2026-10-05T09:00:00.000Z", NOW)).toBe(LaunchUtils.LaunchStatus.Future);
+    expect(LaunchUtils.getStatus("2026-10-05T09:00:00.000Z", NOW)).toBe(LaunchUtils.LaunchStatus.ThisWeek);
+    expect(LaunchUtils.getStatus("2026-10-09T20:50:00.000Z", NOW)).toBe(LaunchUtils.LaunchStatus.Future);
     expect(LaunchUtils.getStatus("2026-10-01T20:50:00.000Z", NOW)).toBe(LaunchUtils.LaunchStatus.Past);
   });
 

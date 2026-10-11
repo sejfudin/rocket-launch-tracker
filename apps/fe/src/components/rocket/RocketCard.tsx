@@ -18,7 +18,6 @@ export interface RocketCardProps extends RocketCardVariantProps {
   height?: number | null;
   weight?: number | null;
   launchDatetime?: string | null;
-  imageUrl?: string | null;
   className?: string;
 }
 
@@ -71,7 +70,6 @@ export const RocketCard = ({
   height,
   weight,
   launchDatetime,
-  imageUrl,
   variant = "vertical",
   size = "default",
   className,
@@ -92,7 +90,7 @@ export const RocketCard = ({
     <article className={clsx(rocketCard({ variant, size }), className)}>
       <div className={rocketCardImage()}>
         <img
-          src={imageUrl || fallbackImage}
+          src={fallbackImage}
           alt=""
           className="h-full w-full object-cover"
         />

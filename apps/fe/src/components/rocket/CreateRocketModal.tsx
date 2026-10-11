@@ -1,3 +1,4 @@
+import { getLocalTimeZone, now } from "@internationalized/date";
 import {
   Button,
   DateTimePicker,
@@ -154,6 +155,7 @@ export const CreateRocketModal = ({ isOpen, onClose }: CreateRocketModalProps) =
                 error={errors.launchDatetime?.message}
                 isRequired
                 fullIso
+                minValue={now(getLocalTimeZone())}
                 formControl={{ control, name: "launchDatetime" }}
               />
             </I18nProvider>

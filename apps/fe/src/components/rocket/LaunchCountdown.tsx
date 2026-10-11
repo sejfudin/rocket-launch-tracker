@@ -28,10 +28,10 @@ export const LaunchCountdown = ({ name, launchDatetime }: LaunchCountdownProps) 
   ];
 
   return (
-    <section className="flex w-full max-w-md flex-col items-center gap-4 rounded-m bg-elevation-fill-default-1 px-8 py-6 text-center shadow-sm">
-      <div className="flex flex-col gap-1">
+    <section className="flex w-full max-w-md flex-col items-center gap-4 rounded-m bg-elevation-fill-default-1 px-8 py-6 text-center">
+      <div className="flex flex-col items-center gap-1">
         <Typography
-          size="label-1"
+          size="title-6"
           variant="prominent-1"
           as="h2"
           className="text-text-default-1"
@@ -39,7 +39,8 @@ export const LaunchCountdown = ({ name, launchDatetime }: LaunchCountdownProps) 
           {t(($) => $.home.countdown.nextLaunch, { name })}
         </Typography>
         <Typography
-          size="body-4"
+          size="title-5"
+          variant="prominent-1"
           as="p"
           className="text-text-default-2"
         >
@@ -56,20 +57,20 @@ export const LaunchCountdown = ({ name, launchDatetime }: LaunchCountdownProps) 
             key={unit.label}
             className="flex flex-col items-center gap-2"
           >
-            <div className="flex size-14 items-center justify-center rounded-m bg-interactive-outlined-primary-outline-disabled">
+            <div className="flex items-center justify-center rounded-sm bg-elevation-fill-default-5 p-5">
               <Typography
                 size="title-5"
                 variant="prominent-1"
                 as="span"
-                className="text-text-default-1"
+                className="text-support-default"
               >
                 {pad(unit.value)}
               </Typography>
             </div>
             <Typography
-              size="body-4"
+              size="label-2"
               as="span"
-              className="text-text-default-3 tracking-wide"
+              className="text-text-default-3"
             >
               {unit.label}
             </Typography>

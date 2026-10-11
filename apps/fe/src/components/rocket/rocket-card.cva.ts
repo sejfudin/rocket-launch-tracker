@@ -33,9 +33,9 @@ export const rocketCardImage = cva("absolute inset-0");
 export const rocketCardStatus = cva("size-2 shrink-0 rounded-full", {
   variants: {
     status: {
-      [LaunchUtils.LaunchStatus.Today]: "bg-interactive-contained-error-idle",
-      [LaunchUtils.LaunchStatus.ThisWeek]: "bg-interactive-contained-warning-idle",
-      [LaunchUtils.LaunchStatus.Future]: "bg-interactive-contained-success-idle",
+      [LaunchUtils.LaunchStatus.Today]: "bg-elevation-fill-error-1",
+      [LaunchUtils.LaunchStatus.ThisWeek]: "bg-elevation-fill-warning-1",
+      [LaunchUtils.LaunchStatus.Future]: "bg-elevation-fill-success-1",
     },
   },
 });
