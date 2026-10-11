@@ -3,17 +3,21 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { SearchIcon } from "@/assets/icons/general/Search";
+import { CreateRocketModal } from "@/components/rocket/CreateRocketModal";
 import { LaunchCountdown } from "@/components/rocket/LaunchCountdown";
 import { RocketCard } from "@/components/rocket/RocketCard";
 import { ErrorState } from "@/components/shared/layout/ErrorState";
 import { LoadingState } from "@/components/shared/layout/LoadingState";
+import { useAuth } from "@/hooks/useAuth";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useRocketList } from "@/hooks/useRockets";
 import { LaunchUtils } from "@/utils/launch.utils";
 
 export const MainHomeContent = () => {
   const { t } = useTranslation();
+  const { isAuthenticated } = useAuth();
   const [search, setSearch] = useState("");
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const debouncedSearch = useDebounce(search, 500);
   const { data, isLoading, isError, error, refetch, hasNextPage, isFetchingNextPage, fetchNextPage } = useRocketList(
     debouncedSearch.trim() || undefined,
@@ -43,6 +47,22 @@ export const MainHomeContent = () => {
           </Typography>
         </div>
       </div>
+
+      {isAuthenticated ? (
+        <div className="flex w-full max-w-6xl justify-end">
+          <Button
+            width="hug"
+            onPress={() => setIsCreateOpen(true)}
+          >
+            {t(($) => $.rockets.addNewRocket)}
+          </Button>
+        </div>
+      ) : null}
+
+      <CreateRocketModal
+        isOpen={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+      />
 
       <TextInput
         variant="outlined"
