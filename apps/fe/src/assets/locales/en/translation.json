@@ -255,6 +255,8 @@
       },
       "title": "Recently added Rockets",
       "description": "Complete overview of all rocket missions and launches",
+      "search": "Search rockets",
+      "loadMore": "Load More",
       "loading": "Loading rockets...",
       "noRockets": "No rockets found.",
       "showing": "Showing 1-{{showingCount}} of {{totalRockets}} rockets",

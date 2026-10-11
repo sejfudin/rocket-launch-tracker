@@ -1,14 +1,21 @@
-import { Typography } from "@povio/ui";
+import { Button, TextInput, Typography } from "@povio/ui";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { SearchIcon } from "@/assets/icons/general/Search";
 import { RocketCard } from "@/components/rocket/RocketCard";
 import { ErrorState } from "@/components/shared/layout/ErrorState";
 import { LoadingState } from "@/components/shared/layout/LoadingState";
+import { useDebounce } from "@/hooks/useDebounce";
 import { useRocketList } from "@/hooks/useRockets";
 
 export const MainHomeContent = () => {
   const { t } = useTranslation();
-  const { data, isLoading, isError, error, refetch } = useRocketList();
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
+  const { data, isLoading, isError, error, refetch, hasNextPage, isFetchingNextPage, fetchNextPage } = useRocketList(
+    debouncedSearch.trim() || undefined,
+  );
   const rockets = data?.pages.flatMap((page) => page.items ?? []) ?? [];
 
   return (
@@ -33,6 +40,18 @@ export const MainHomeContent = () => {
           </Typography>
         </div>
       </div>
+
+      <TextInput
+        variant="outlined"
+        as="inline"
+        label={t(($) => $.home.content.search)}
+        placeholder={t(($) => $.home.content.search)}
+        hideLabel
+        value={search}
+        onChange={setSearch}
+        leadingIcon={SearchIcon}
+        className="border! w-full max-w-xl rounded-s border-input-outlined-outline-idle! bg-elevation-fill-default-1"
+      />
 
       {isLoading ? <LoadingState /> : null}
 
@@ -70,6 +89,20 @@ export const MainHomeContent = () => {
             />
           ))}
         </div>
+      ) : null}
+
+      {hasNextPage ? (
+        <Button
+          color="secondary"
+          variant="outlined"
+          width="hug"
+          isDisabled={isFetchingNextPage}
+          onPress={() => {
+            fetchNextPage();
+          }}
+        >
+          {t(($) => $.home.content.loadMore)}
+        </Button>
       ) : null}
     </div>
   );
