@@ -3,11 +3,13 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { SearchIcon } from "@/assets/icons/general/Search";
+import { LaunchCountdown } from "@/components/rocket/LaunchCountdown";
 import { RocketCard } from "@/components/rocket/RocketCard";
 import { ErrorState } from "@/components/shared/layout/ErrorState";
 import { LoadingState } from "@/components/shared/layout/LoadingState";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useRocketList } from "@/hooks/useRockets";
+import { LaunchUtils } from "@/utils/launch.utils";
 
 export const MainHomeContent = () => {
   const { t } = useTranslation();
@@ -17,6 +19,7 @@ export const MainHomeContent = () => {
     debouncedSearch.trim() || undefined,
   );
   const rockets = data?.pages.flatMap((page) => page.items ?? []) ?? [];
+  const nearestLaunch = LaunchUtils.findNearestUpcoming(rockets);
 
   return (
     <div className="flex flex-col items-center gap-8 self-stretch bg-elevation-fill-default-2 px-4 py-24 md:px-8">
@@ -103,6 +106,13 @@ export const MainHomeContent = () => {
         >
           {t(($) => $.home.content.loadMore)}
         </Button>
+      ) : null}
+
+      {nearestLaunch?.launchDatetime ? (
+        <LaunchCountdown
+          name={nearestLaunch.name}
+          launchDatetime={nearestLaunch.launchDatetime}
+        />
       ) : null}
     </div>
   );

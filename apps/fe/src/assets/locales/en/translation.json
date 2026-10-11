@@ -262,6 +262,14 @@
       "showing": "Showing 1-{{showingCount}} of {{totalRockets}} rockets",
       "seeAll": "See all Rockets"
     },
+    "countdown": {
+      "nextLaunch": "Next Launch: {{name}}",
+      "at": "{{date}} at {{time}}",
+      "days": "DAYS",
+      "hour": "HOUR",
+      "min": "MIN",
+      "sec": "SEC"
+    },
     "rocketCard": {
       "contactEmail": "Contact Email",
       "defaultEmail": "test.user@email.com"
